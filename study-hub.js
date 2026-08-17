@@ -1,0 +1,90 @@
+(()=>{
+  const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  let books=[],bookMap=new Map(),items=[],chat=[];
+  const user=()=>{try{return JSON.parse(localStorage.getItem('meb:user')||'{"saved":[],"notes":{},"savedStudy":[]}')}catch{return {saved:[],notes:{},savedStudy:[]}}};
+  const saveUser=d=>localStorage.setItem('meb:user',JSON.stringify(d));
+  const toast=t=>{let x=$('#toast');if(!x)return;x.textContent=t;x.classList.add('show');clearTimeout(x._t);x._t=setTimeout(()=>x.classList.remove('show'),1800)};
+  const route=(slug,c=1,v='')=>`#read/${slug}/${c}${v?'/'+v:''}`;
+  const hashContext=()=>{const m=location.hash.match(/^#read\/([^/]+)\/(\d+)(?:\/(\d+))?/);return m?{slug:m[1],chapter:+m[2],verse:m[3]?+m[3]:null}:null};
+
+  function makeShell(){
+    if($('#studyHubDialog')) return;
+    document.body.insertAdjacentHTML('beforeend',`
+      <dialog id="studyHubDialog" class="dialog studyHubDialog"><div class="studyHubCard">
+        <button class="dialogClose" id="studyHubClose" aria-label="Close">×</button>
+        <small class="eyebrow">STUDY LIBRARY</small><h2>Scholar's Desk</h2>
+        <p class="studyHubIntro">Browse the edition's book backgrounds, section context, and curated verse notes in one place. Verse notes are intentionally selective: if a passage does not benefit from substantial commentary, it is left alone.</p>
+        <div class="studyHubFilters"><input id="studyHubSearch" placeholder="Search notes, books, topics…"><select id="studyHubType"><option value="all">All study material</option><option value="verse">Curated verse notes</option><option value="section">Section context</option><option value="book">Book backgrounds</option></select><select id="studyHubBook"><option value="all">All books</option></select></div>
+        <div id="studyHubCount" class="studyHubCount"></div><div id="studyHubResults" class="studyHubResults"></div>
+      </div></dialog>
+      <dialog id="studyAiDialog" class="dialog studyAiDialog"><div class="studyAiCard">
+        <div class="studyAiHead"><div><small class="eyebrow">STUDY AI</small><h2>Ask the text</h2><p id="studyAiContext">Bible study assistant</p></div><button class="dialogClose" id="studyAiClose">×</button></div>
+        <div id="studyAiMessages" class="studyAiMessages"><div class="studyAiWelcome"><b>Ask a serious question.</b><p>I can work from the Scripture currently on screen, this edition's study notes and book context, and broader established scholarship. I will distinguish the edition's notes from additional analysis.</p></div></div>
+        <form id="studyAiForm" class="studyAiForm"><textarea id="studyAiInput" rows="2" placeholder="Ask about this passage, a study note, historical context, Hebrew/Greek, interpretation…"></textarea><button type="submit">Ask</button></form>
+        <small class="studyAiDisclaimer">AI-generated study assistance can make mistakes. Editorial study notes remain visually distinct from Scripture.</small>
+      </div></dialog>
+      <form id="studyAiDock" class="studyAiDock"><span>✦</span><input id="studyAiDockInput" autocomplete="off" placeholder="Ask Study AI about this passage…"><button>Ask</button></form>`);
+
+    const top=$('.topbar');if(top&&!$('#studyHubBtn')){
+      const b=document.createElement('button');b.id='studyHubBtn';b.className='round';b.setAttribute('aria-label','Open Study Library');b.title='Study Library';b.textContent='✦';
+      const saved=$('#savedBtn');top.insertBefore(b,saved||$('#themeBtn'));b.onclick=openLibrary;
+    }
+    $('#studyHubClose').onclick=()=>$('#studyHubDialog').close();
+    $('#studyAiClose').onclick=()=>$('#studyAiDialog').close();
+    $('#studyHubSearch').oninput=renderLibrary;$('#studyHubType').onchange=renderLibrary;$('#studyHubBook').onchange=renderLibrary;
+    $('#studyAiForm').onsubmit=e=>{e.preventDefault();const q=$('#studyAiInput').value.trim();if(q)askAI(q)};
+    $('#studyAiDock').onsubmit=e=>{e.preventDefault();const q=$('#studyAiDockInput').value.trim();if(!q)return;$('#studyAiDockInput').value='';openAI(q)};
+    const audio=$('#audioBar');if(audio){const sync=()=>$('#studyAiDock')?.classList.toggle('audioOpen',!audio.classList.contains('hidden'));new MutationObserver(sync).observe(audio,{attributes:true,attributeFilter:['class']});sync()}
+  }
+
+  function buildIndex(){
+    items=[];const data=window.MEB_STUDY_DATA||{},curated=window.MEB_CURATED_NOTES||{};
+    for(const b of books){const a=data[b.slug];if(!a)continue;
+      const bg=[a.overview,a.period&&`Historical period: ${a.period}.`,a.genre&&`Genre: ${a.genre}.`,a.setting&&`Setting: ${a.setting}.`,a.scholarship].filter(Boolean).join(' ');
+      if(bg)items.push({type:'book',slug:b.slug,chapter:1,verse:null,title:`${b.title} — Book Background`,label:b.title,text:bg});
+      for(const s of a.sections||[]) items.push({type:'section',slug:b.slug,chapter:s.start||1,verse:null,title:`${b.title} ${s.start}${s.end&&s.end!==s.start?'–'+s.end:''} — ${s.title}`,label:b.title,text:s.note||''});
+    }
+    for(const [key,text] of Object.entries(curated)){const [slug,c,v]=key.split(':'),b=bookMap.get(slug);if(!b)continue;items.push({type:'verse',slug,chapter:+c,verse:+v,title:`${b.title} ${c}:${v}`,label:b.title,text})}
+  }
+
+  function openLibrary(){buildIndex();const sel=$('#studyHubBook');if(sel&&sel.options.length===1)for(const b of books){const o=document.createElement('option');o.value=b.slug;o.textContent=b.title;sel.appendChild(o)}renderLibrary();$('#studyHubDialog').showModal()}
+  function renderLibrary(){
+    const q=($('#studyHubSearch')?.value||'').toLowerCase().trim(),type=$('#studyHubType')?.value||'all',slug=$('#studyHubBook')?.value||'all';
+    const shown=items.filter(x=>(type==='all'||x.type===type)&&(slug==='all'||x.slug===slug)&&(!q||(x.title+' '+x.text).toLowerCase().includes(q)));
+    const kinds={verse:'Curated verse note',section:'Section context',book:'Book background'};
+    $('#studyHubCount').textContent=`${shown.length} ${shown.length===1?'entry':'entries'} • ${items.filter(x=>x.type==='verse').length} curated verse notes`;
+    $('#studyHubResults').innerHTML=shown.length?shown.map(x=>{const ref=`${x.type}:${x.slug}:${x.chapter}:${x.verse||''}`,is=(user().savedStudy||[]).some(s=>s.ref===ref);return `<article class="studyHubItem"><div class="studyHubMeta"><span>${kinds[x.type]}</span><b>${esc(x.title)}</b></div><p>${esc(x.text)}</p><div class="studyHubActions"><a href="${route(x.slug,x.chapter,x.verse||'')}">Open passage</a><button data-save-study="${esc(ref)}">${is?'♥ Saved':'♡ Save'}</button><button data-ask-note="${esc(ref)}">Ask AI</button></div></article>`}).join(''):'<p class="studyHubEmpty">No study notes match that search.</p>';
+    $$('[data-save-study]').forEach(b=>b.onclick=()=>toggleSave(b.dataset.saveStudy));$$('[data-ask-note]').forEach(b=>b.onclick=()=>{const x=findItem(b.dataset.askNote);if(x)openAI(`Explain this study note more deeply and tell me what is historically important about it.\n\n${x.title}: ${x.text}`,x)})
+  }
+  function findItem(ref){const [type,slug,c,v]=ref.split(':');return items.find(x=>x.type===type&&x.slug===slug&&x.chapter===+c&&(x.verse||0)===+(v||0))}
+  function toggleSave(ref){const x=findItem(ref);if(!x)return;const d=user();d.savedStudy=d.savedStudy||[];const i=d.savedStudy.findIndex(s=>s.ref===ref);if(i>=0){d.savedStudy.splice(i,1);toast('Study note removed')}else{d.savedStudy.unshift({type:x.type,ref,slug:x.slug,chapter:x.chapter,verse:x.verse,title:x.title,text:x.text});toast('Study note saved')}saveUser(d);renderLibrary()}
+
+  function injectPageButtons(){
+    const hero=$('.heroActions');if(hero&&!$('#homeStudyLibrary')){const b=document.createElement('button');b.id='homeStudyLibrary';b.className='pill';b.innerHTML='✦ Study Library';b.onclick=openLibrary;hero.appendChild(b)}
+    const tools=$('.readerTools');if(tools&&!$('#readerStudyLibrary')){const b=document.createElement('button');b.id='readerStudyLibrary';b.textContent='✦ Study';b.title='Open Study Library';b.onclick=openLibrary;tools.appendChild(b)}
+  }
+
+  function relevantNotes(question,ctx){const toks=question.toLowerCase().match(/[a-z0-9]{4,}/g)||[];const same=items.filter(x=>ctx&&x.slug===ctx.slug&&x.chapter===ctx.chapter);const scored=items.map(x=>({x,n:toks.reduce((n,t)=>n+((x.title+' '+x.text).toLowerCase().includes(t)?1:0),0)+(ctx&&x.slug===ctx.slug?2:0)})).filter(z=>z.n>0).sort((a,b)=>b.n-a.n).slice(0,6).map(z=>z.x);return [...new Map([...same,...scored].map(x=>[x.title,x])).values()].slice(0,8)}
+  function gatherContext(question,extra){
+    buildIndex();const ctx=hashContext(),b=ctx&&bookMap.get(ctx.slug),a=ctx&&(window.MEB_STUDY_DATA||{})[ctx.slug];let sec=null;if(a&&ctx)sec=(a.sections||[]).find(s=>ctx.chapter>=s.start&&ctx.chapter<=s.end)||null;
+    const verses=ctx?[...document.querySelectorAll('#chapterText .verse')].map(v=>v.textContent.replace(/\s+/g,' ').trim()).join(' ').slice(0,12000):'';
+    const notes=relevantNotes(question,ctx).map(x=>({reference:x.title,type:x.type,text:x.text}));if(extra&&!notes.some(n=>n.reference===extra.title))notes.unshift({reference:extra.title,type:extra.type,text:extra.text});
+    return {currentReference:b&&ctx?`${b.title} ${ctx.chapter}${ctx.verse?':'+ctx.verse:''}`:'Study Library',scripture:verses,bookBackground:a?[a.period,a.genre,a.overview,a.scholarship].filter(Boolean).join(' '):'',sectionContext:sec?`${sec.title}: ${sec.note}`:'',studyNotes:notes};
+  }
+
+  function openAI(seed='',extra=null){
+    const ctx=hashContext(),b=ctx&&bookMap.get(ctx.slug);$('#studyAiContext').textContent=b&&ctx?`Current context: ${b.title} ${ctx.chapter}${ctx.verse?':'+ctx.verse:''}`:'Ask across the Study Library';$('#studyAiDialog').showModal();setTimeout(()=>$('#studyAiInput')?.focus(),60);if(seed){$('#studyAiInput').value=seed;if(extra)$('#studyAiInput').dataset.extra=JSON.stringify({type:extra.type,slug:extra.slug,chapter:extra.chapter,verse:extra.verse,title:extra.title,text:extra.text});else delete $('#studyAiInput').dataset.extra}}
+  function addMsg(role,text){const box=$('#studyAiMessages');const w=box.querySelector('.studyAiWelcome');if(w)w.remove();const d=document.createElement('div');d.className='studyAiMsg '+role;d.innerHTML=`<small>${role==='user'?'YOU':'STUDY AI'}</small><p>${esc(text).replace(/\n/g,'<br>')}</p>`;box.appendChild(d);box.scrollTop=box.scrollHeight}
+  async function askAI(q){
+    const input=$('#studyAiInput');const raw=input.dataset.extra;let extra=null;try{extra=raw?JSON.parse(raw):null}catch{}delete input.dataset.extra;input.value='';addMsg('user',q);chat.push({role:'user',text:q});const btn=$('#studyAiForm button');btn.disabled=true;btn.textContent='Thinking…';
+    try{const r=await fetch('/api/study-chat',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({question:q,context:gatherContext(q,extra),history:chat.slice(-8,-1)})});const data=await r.json().catch(()=>({}));if(!r.ok)throw new Error(data.error||'Study AI is unavailable');const answer=data.answer||'No answer returned.';chat.push({role:'assistant',text:answer});chat=chat.slice(-12);addMsg('assistant',answer)}catch(e){addMsg('assistant',`I couldn't answer that right now. ${e.message||''}`)}finally{btn.disabled=false;btn.textContent='Ask'}
+  }
+
+  async function init(){
+    books=await fetch('/books.json').then(r=>r.json());bookMap=new Map(books.map(b=>[b.slug,b]));makeShell();buildIndex();injectPageButtons();
+    new MutationObserver(()=>injectPageButtons()).observe($('#app')||document.body,{subtree:true,childList:true});
+    window.addEventListener('hashchange',()=>setTimeout(injectPageButtons,40));
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
