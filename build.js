@@ -4,7 +4,7 @@ fs.rmSync('dist',{recursive:true,force:true});
 fs.mkdirSync('dist',{recursive:true});
 execFileSync('tar',['-xzf','native-bible-app.tar.gz','-C','dist'],{stdio:'inherit'});
 
-const release='13';
+const release='14';
 for(const f of ['study-v2.js','study.css','curated-notes.js','natural-audio.js','study-hub.js','study-hub.css']) fs.copyFileSync(f,'dist/'+(f==='study-v2.js'?'study.js':f));
 const dataFiles=fs.readdirSync('.').filter(x=>/^study-data-\d+\.js$/.test(x)).sort();
 for(const f of dataFiles) fs.copyFileSync(f,`dist/${f}`);
@@ -47,7 +47,7 @@ fs.writeFileSync('dist/index.html',html);
 const swPath='dist/sw.js';
 if(fs.existsSync(swPath)){
   let sw=fs.readFileSync(swPath,'utf8');
-  sw=sw.replace(/const V=['\"][^'\"]+['\"]/,"const V='meb-native-v13-study-ai-config'");
+  sw=sw.replace(/const V=['\"][^'\"]+['\"]/,"const V='meb-native-v14-openai-key'");
   const add=['/study.js','/study.css','/curated-notes.js','/natural-audio.js','/study-hub.js','/study-hub.css',...dataFiles.map(f=>'/'+f)];
   sw=sw.replace("'/manifest.webmanifest'",`'/manifest.webmanifest',${add.map(x=>`'${x}'`).join(',')}`);
   fs.writeFileSync(swPath,sw);
