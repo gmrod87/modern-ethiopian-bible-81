@@ -4,10 +4,11 @@ fs.rmSync('dist',{recursive:true,force:true});
 fs.mkdirSync('dist',{recursive:true});
 execFileSync('tar',['-xzf','native-bible-app.tar.gz','-C','dist'],{stdio:'inherit'});
 
-const release='8';
+const release='9';
 fs.copyFileSync('study-v2.js','dist/study.js');
 fs.copyFileSync('study.css','dist/study.css');
 fs.copyFileSync('curated-notes.js','dist/curated-notes.js');
+fs.copyFileSync('natural-audio.js','dist/natural-audio.js');
 const dataFiles=fs.readdirSync('.').filter(x=>/^study-data-\d+\.js$/.test(x)).sort();
 for(const f of dataFiles) fs.copyFileSync(f,`dist/${f}`);
 
@@ -57,7 +58,7 @@ fs.appendFileSync('dist/study.css',`\n.studyAvailable{display:flex;gap:12px;alig
 let html=fs.readFileSync('dist/index.html','utf8');
 if(!html.includes('/study.css')) html=html.replace('</head>',`  <link rel="stylesheet" href="/study.css?v=${release}" />\n</head>`);
 if(!html.includes('/study.js')){
-  const scripts=dataFiles.map(f=>`  <script src="/${f}?v=${release}"></script>`).join('\n')+`\n  <script src="/curated-notes.js?v=${release}"></script>\n  <script src="/study.js?v=${release}"></script>\n`;
+  const scripts=dataFiles.map(f=>`  <script src="/${f}?v=${release}"></script>`).join('\n')+`\n  <script src="/curated-notes.js?v=${release}"></script>\n  <script src="/study.js?v=${release}"></script>\n  <script src="/natural-audio.js?v=${release}"></script>\n`;
   html=html.replace('</body>',scripts+'</body>');
 }
 fs.writeFileSync('dist/index.html',html);
@@ -65,9 +66,9 @@ fs.writeFileSync('dist/index.html',html);
 const swPath='dist/sw.js';
 if(fs.existsSync(swPath)){
   let sw=fs.readFileSync(swPath,'utf8');
-  sw=sw.replace(/const V=['\"][^'\"]+['\"]/,"const V='meb-native-v8-selective-study'");
-  const add=['/study.js','/study.css','/curated-notes.js',...dataFiles.map(f=>'/'+f)];
+  sw=sw.replace(/const V=['\"][^'\"]+['\"]/,"const V='meb-native-v9-selective-natural-audio'");
+  const add=['/study.js','/study.css','/curated-notes.js','/natural-audio.js',...dataFiles.map(f=>'/'+f)];
   sw=sw.replace("'/manifest.webmanifest'",`'/manifest.webmanifest',${add.map(x=>`'${x}'`).join(',')}`);
   fs.writeFileSync(swPath,sw);
 }
-console.log(`Native 81-book Bible app + selective study release ${release} built`);
+console.log(`Native 81-book Bible app + selective study + natural narration release ${release} built`);
