@@ -4,7 +4,7 @@ fs.rmSync('dist',{recursive:true,force:true});
 fs.mkdirSync('dist',{recursive:true});
 execFileSync('tar',['-xzf','native-bible-app.tar.gz','-C','dist'],{stdio:'inherit'});
 
-const release='10';
+const release='11';
 fs.copyFileSync('study-v2.js','dist/study.js');
 fs.copyFileSync('study.css','dist/study.css');
 fs.copyFileSync('curated-notes.js','dist/curated-notes.js');
@@ -66,7 +66,7 @@ fs.writeFileSync('dist/index.html',html);
 const swPath='dist/sw.js';
 if(fs.existsSync(swPath)){
   let sw=fs.readFileSync(swPath,'utf8');
-  sw=sw.replace(/const V=['\"][^'\"]+['\"]/,"const V='meb-native-v10-selective-natural-audio'");
+  sw=sw.replace(/const V=['\"][^'\"]+['\"]/,"const V='meb-native-v11-selective-natural-audio'");
   const add=['/study.js','/study.css','/curated-notes.js','/natural-audio.js',...dataFiles.map(f=>'/'+f)];
   sw=sw.replace("'/manifest.webmanifest'",`'/manifest.webmanifest',${add.map(x=>`'${x}'`).join(',')}`);
   fs.writeFileSync(swPath,sw);
