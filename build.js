@@ -4,7 +4,7 @@ fs.rmSync('dist',{recursive:true,force:true});
 fs.mkdirSync('dist',{recursive:true});
 execFileSync('tar',['-xzf','native-bible-app.tar.gz','-C','dist'],{stdio:'inherit'});
 
-const release='14';
+const release='15';
 for(const f of ['study-v2.js','study.css','curated-notes.js','natural-audio.js','study-hub.js','study-hub.css']) fs.copyFileSync(f,'dist/'+(f==='study-v2.js'?'study.js':f));
 const dataFiles=fs.readdirSync('.').filter(x=>/^study-data-\d+\.js$/.test(x)).sort();
 for(const f of dataFiles) fs.copyFileSync(f,`dist/${f}`);
@@ -35,7 +35,23 @@ fs.writeFileSync('dist/study.js',study);
 
 fs.appendFileSync('dist/study.css','\n.studyAvailable{display:flex;gap:12px;align-items:center;margin:14px 0 18px;padding:13px 14px;border:1px solid rgba(137,94,29,.42);border-radius:14px;background:rgba(175,124,46,.10)}.studyAvailable>span{font-size:24px;color:#9a681f}.studyAvailable div{display:flex;flex-direction:column;gap:3px}.studyAvailable b{font-size:15px}.studyAvailable small{font-size:12px;line-height:1.45;opacity:.78}.studyToggle{display:flex!important;width:max-content!important;border:1px solid rgba(154,104,31,.36)!important;background:rgba(175,124,46,.10)!important;border-radius:999px!important;padding:6px 11px!important;margin:3px 0 10px!important;font-size:11px!important;font-weight:800!important}.studyVerseInner .studyBlock p{font-size:14px;line-height:1.72;margin:0}.studyVerseInner{padding:18px!important}\n');
 
+// Mobile/PWA safe-area fix: keep the sticky header below iPhone notches/status bars
+// and make every header control a reliable 44px touch target.
+fs.appendFileSync('dist/styles.css',`\n:root{--meb-safe-top:env(safe-area-inset-top,0px);--meb-safe-left:env(safe-area-inset-left,0px);--meb-safe-right:env(safe-area-inset-right,0px)}
+@media(max-width:900px){
+  .topbar{height:calc(64px + var(--meb-safe-top))!important;padding-top:calc(var(--meb-safe-top) + 6px)!important;padding-bottom:6px!important;padding-left:max(14px,var(--meb-safe-left))!important;padding-right:max(14px,var(--meb-safe-right))!important;align-items:center!important}
+  .topbar .iconbtn{width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;display:grid!important;place-items:center!important;padding:0!important;line-height:1!important;touch-action:manipulation}
+  .topbar .brand{min-height:44px!important;justify-content:center!important;padding:0 4px!important;touch-action:manipulation}
+  .searchbar{top:calc(64px + var(--meb-safe-top))!important;padding-left:max(14px,var(--meb-safe-left))!important;padding-right:max(14px,var(--meb-safe-right))!important}
+  aside{padding-top:calc(var(--meb-safe-top) + 22px)!important}
+}
+@media(max-width:480px){
+  .topbar{gap:6px!important}
+  .topbar .brand strong{font-size:15px!important;line-height:1.05!important}
+}\n`);
+
 let html=fs.readFileSync('dist/index.html','utf8');
+html=html.replace(/href=["']\/styles\.css(?:\?v=[^"']*)?["']/,`href="/styles.css?v=${release}"`);
 if(!html.includes('/study.css')) html=html.replace('</head>','  <link rel="stylesheet" href="/study.css?v='+release+'" />\n  <link rel="stylesheet" href="/study-hub.css?v='+release+'" />\n</head>');
 else if(!html.includes('/study-hub.css')) html=html.replace('</head>','  <link rel="stylesheet" href="/study-hub.css?v='+release+'" />\n</head>');
 if(!html.includes('/study.js')){
@@ -47,7 +63,7 @@ fs.writeFileSync('dist/index.html',html);
 const swPath='dist/sw.js';
 if(fs.existsSync(swPath)){
   let sw=fs.readFileSync(swPath,'utf8');
-  sw=sw.replace(/const V=['\"][^'\"]+['\"]/,"const V='meb-native-v14-openai-key'");
+  sw=sw.replace(/const V=['\"][^'\"]+['\"]/,"const V='meb-native-v15-mobile-safe-header'");
   const add=['/study.js','/study.css','/curated-notes.js','/natural-audio.js','/study-hub.js','/study-hub.css',...dataFiles.map(f=>'/'+f)];
   sw=sw.replace("'/manifest.webmanifest'",`'/manifest.webmanifest',${add.map(x=>`'${x}'`).join(',')}`);
   fs.writeFileSync(swPath,sw);
