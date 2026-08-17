@@ -1,13 +1,24 @@
 const {execFileSync}=require('child_process');
 const fs=require('fs');
+const zlib=require('zlib');
 fs.rmSync('dist',{recursive:true,force:true});
 fs.mkdirSync('dist',{recursive:true});
 execFileSync('tar',['--no-same-owner','-xzf','native-bible-app.tar.gz','-C','dist'],{stdio:'inherit'});
 
-const release='17';
+const release='18';
 for(const f of ['study-v2.js','study.css','curated-notes.js','natural-audio.js','study-hub.js','study-hub.css']) fs.copyFileSync(f,'dist/'+(f==='study-v2.js'?'study.js':f));
 const dataFiles=fs.readdirSync('.').filter(x=>/^study-data-\d+\.js$/.test(x)).sort();
 for(const f of dataFiles) fs.copyFileSync(f,`dist/${f}`);
+
+// Research Desk assets are stored in the repository in compact text-safe bundles.
+fs.copyFileSync('research-data.js','dist/research-data.js');
+function inflate(parts,out){
+  const b64=parts.map(f=>fs.readFileSync(f,'utf8').trim()).join('');
+  fs.writeFileSync('dist/'+out,zlib.gunzipSync(Buffer.from(b64,'base64')));
+}
+inflate(['research-suite.js.gz.b64'],'research-suite.js');
+inflate(['research-suite.css.gz.b64'],'research-suite.css');
+inflate(['research-texts0.b64','research-texts1.b64','research-texts2.b64','research-texts3.b64','research-texts4.b64','research-texts5.b64'],'research-texts.js');
 
 let study=fs.readFileSync('dist/study.js','utf8');
 const missingFetch="      const b=await fetch(`/data/${slug}.json`).then(r=>r.json()),chapter=b.chapters.find(x=>x.n===c)||b.chapters[0],sec=sectionFor(a,c);";
@@ -94,18 +105,20 @@ let html=fs.readFileSync('dist/index.html','utf8');
 html=html.replace(/href=["']\/styles\.css(?:\?v=[^"']*)?["']/,`href="/styles.css?v=${release}"`);
 if(!html.includes('/study.css')) html=html.replace('</head>','  <link rel="stylesheet" href="/study.css?v='+release+'" />\n  <link rel="stylesheet" href="/study-hub.css?v='+release+'" />\n</head>');
 else if(!html.includes('/study-hub.css')) html=html.replace('</head>','  <link rel="stylesheet" href="/study-hub.css?v='+release+'" />\n</head>');
+if(!html.includes('/research-suite.css')) html=html.replace('</head>',`  <link rel="stylesheet" href="/research-suite.css?v=${release}" />\n</head>`);
 if(!html.includes('/study.js')){
   const scripts=dataFiles.map(f=>'  <script src="/'+f+'?v='+release+'"></script>').join('\n')+'\n  <script src="/curated-notes.js?v='+release+'"></script>\n  <script src="/study.js?v='+release+'"></script>\n  <script src="/natural-audio.js?v='+release+'"></script>\n  <script src="/study-hub.js?v='+release+'"></script>\n';
   html=html.replace('</body>',scripts+'</body>');
 }else if(!html.includes('/study-hub.js')) html=html.replace('</body>','  <script src="/study-hub.js?v='+release+'"></script>\n</body>');
+if(!html.includes('/research-suite.js')) html=html.replace('</body>',`  <script src="/research-data.js?v=${release}"></script>\n  <script src="/research-texts.js?v=${release}"></script>\n  <script src="/research-suite.js?v=${release}"></script>\n</body>`);
 fs.writeFileSync('dist/index.html',html);
 
 const swPath='dist/sw.js';
 if(fs.existsSync(swPath)){
   let sw=fs.readFileSync(swPath,'utf8');
-  sw=sw.replace(/const V=['\"][^'\"]+['\"]/,"const V='meb-native-v17-mobile-header-lower'");
-  const add=['/study.js','/study.css','/curated-notes.js','/natural-audio.js','/study-hub.js','/study-hub.css',...dataFiles.map(f=>'/'+f)];
+  sw=sw.replace(/const V=['\"][^'\"]+['\"]/ ,"const V='meb-native-v18-research-suite'");
+  const add=['/study.js','/study.css','/curated-notes.js','/natural-audio.js','/study-hub.js','/study-hub.css','/research-data.js','/research-texts.js','/research-suite.js','/research-suite.css',...dataFiles.map(f=>'/'+f)];
   sw=sw.replace("'/manifest.webmanifest'",`'/manifest.webmanifest',${add.map(x=>`'${x}'`).join(',')}`);
   fs.writeFileSync(swPath,sw);
 }
-console.log('Native Bible Study Library + Study AI release '+release+' built');
+console.log('Modern Ethiopian Bible research suite release '+release+' built');
