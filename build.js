@@ -5,7 +5,7 @@ fs.rmSync('dist',{recursive:true,force:true});
 fs.mkdirSync('dist',{recursive:true});
 execFileSync('tar',['--no-same-owner','-xzf','native-bible-app.tar.gz','-C','dist'],{stdio:'inherit'});
 
-const release='18';
+const release='19';
 for(const f of ['study-v2.js','study.css','curated-notes.js','natural-audio.js','study-hub.js','study-hub.css']) fs.copyFileSync(f,'dist/'+(f==='study-v2.js'?'study.js':f));
 const dataFiles=fs.readdirSync('.').filter(x=>/^study-data-\d+\.js$/.test(x)).sort();
 for(const f of dataFiles) fs.copyFileSync(f,`dist/${f}`);
@@ -19,6 +19,22 @@ function inflate(parts,out){
 inflate(['research-suite.js.gz.b64'],'research-suite.js');
 inflate(['research-suite.css.gz.b64'],'research-suite.css');
 inflate(['research-texts0.b64','research-texts1.b64','research-texts2.b64','research-texts3.b64','research-texts4.b64','research-texts5.b64'],'research-texts.js');
+
+// Keep the imported 2 Enoch research text cleanly bounded. The source page that
+// contains the final verse also begins Jubilees; trim that next-book material.
+{
+  const rtPath='dist/research-texts.js';
+  let rt=fs.readFileSync(rtPath,'utf8').trim();
+  const prefix='window.MEB_RESEARCH_TEXTS=';
+  if(rt.startsWith(prefix)){
+    const obj=JSON.parse(rt.slice(prefix.length).replace(/;\s*$/,''));
+    const ch68=obj['2-enoch']?.chapters?.find(c=>c.n===68);
+    if(ch68?.text?.includes(' Jubilees Moses receives')){
+      ch68.text=ch68.text.split(' Jubilees Moses receives')[0].trim();
+    }
+    fs.writeFileSync(rtPath,prefix+JSON.stringify(obj)+';\n');
+  }
+}
 
 let study=fs.readFileSync('dist/study.js','utf8');
 const missingFetch="      const b=await fetch(`/data/${slug}.json`).then(r=>r.json()),chapter=b.chapters.find(x=>x.n===c)||b.chapters[0],sec=sectionFor(a,c);";
@@ -116,7 +132,7 @@ fs.writeFileSync('dist/index.html',html);
 const swPath='dist/sw.js';
 if(fs.existsSync(swPath)){
   let sw=fs.readFileSync(swPath,'utf8');
-  sw=sw.replace(/const V=['\"][^'\"]+['\"]/ ,"const V='meb-native-v18-research-suite'");
+  sw=sw.replace(/const V=['\"][^'\"]+['\"]/ ,"const V='meb-native-v19-research-suite'");
   const add=['/study.js','/study.css','/curated-notes.js','/natural-audio.js','/study-hub.js','/study-hub.css','/research-data.js','/research-texts.js','/research-suite.js','/research-suite.css',...dataFiles.map(f=>'/'+f)];
   sw=sw.replace("'/manifest.webmanifest'",`'/manifest.webmanifest',${add.map(x=>`'${x}'`).join(',')}`);
   fs.writeFileSync(swPath,sw);
