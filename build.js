@@ -36,9 +36,9 @@ fs.writeFileSync('dist/index.html',html);
 const swPath='dist/sw.js';
 if(fs.existsSync(swPath)){
   let sw=fs.readFileSync(swPath,'utf8');
-  sw=sw.replace(/const V=['"][^'"]+['"]/,"const V='meb-native-v5-studyfix'");
+  sw=sw.replace(/const V=['\"][^'\"]+['\"]/,"const V='meb-native-v6-study-visible'");
   const add=['/study.js','/study.css',...dataFiles.map(f=>'/'+f)];
   sw=sw.replace("'/manifest.webmanifest'",`'/manifest.webmanifest',${add.map(x=>`'${x}'`).join(',')}`);
   fs.writeFileSync(swPath,sw);
 }
-console.log(`Native 81-book Bible app + fixed historical study layer built (${dataFiles.length} study data parts)`);
+console.log(`Native 81-book Bible app + visible historical study layer built (${dataFiles.length} study data parts)`);
