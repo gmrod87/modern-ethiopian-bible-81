@@ -3,7 +3,7 @@ module.exports=async function handler(req,res){
   const apiKey=process.env.OPENAI_API_KEY||process.env.OPENAI_KEY||process.env.OPENAI_SECRET_KEY||'';
   if(req.method==='GET'&&req.query&&req.query.health){
     res.statusCode=apiKey?200:503;
-    return res.end(JSON.stringify({ready:!!apiKey,environment:process.env.VERCEL_ENV||'unknown',production:process.env.VERCEL_ENV==='production',keyName:process.env.OPENAI_API_KEY?'OPENAI_API_KEY':process.env.OPENAI_KEY?'OPENAI_KEY':process.env.OPENAI_SECRET_KEY?process.env.OPENAI_SECRET_KEY:null,hint:apiKey?null:'Add OPENAI_API_KEY to this Vercel project and enable it for Production, then redeploy.'}));
+    return res.end(JSON.stringify({ready:!!apiKey,environment:process.env.VERCEL_ENV||'unknown',production:process.env.VERCEL_ENV==='production',keyName:process.env.OPENAI_API_KEY?'OPENAI_API_KEY':process.env.OPENAI_KEY?'OPENAI_KEY':process.env.OPENAI_SECRET_KEY?'OPENAI_SECRET_KEY':null,hint:apiKey?null:'Add OPENAI_API_KEY to this Vercel project and enable it for Production, then redeploy.'}));
   }
   if(req.method!=='POST'){res.statusCode=405;return res.end(JSON.stringify({error:'Method not allowed'}))}
   if(!apiKey){res.statusCode=503;return res.end(JSON.stringify({error:'Study AI is not configured for this production deployment. In Vercel, add OPENAI_API_KEY under Settings → Environment Variables, enable Production, then redeploy.'}))}
