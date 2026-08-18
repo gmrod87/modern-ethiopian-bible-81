@@ -5,7 +5,7 @@ fs.rmSync('dist',{recursive:true,force:true});
 fs.mkdirSync('dist',{recursive:true});
 execFileSync('tar',['--no-same-owner','-xzf','native-bible-app.tar.gz','-C','dist'],{stdio:'inherit'});
 
-const release='19';
+const release='20';
 for(const f of ['study-v2.js','study.css','curated-notes.js','natural-audio.js','study-hub.js','study-hub.css']) fs.copyFileSync(f,'dist/'+(f==='study-v2.js'?'study.js':f));
 const dataFiles=fs.readdirSync('.').filter(x=>/^study-data-\d+\.js$/.test(x)).sort();
 for(const f of dataFiles) fs.copyFileSync(f,`dist/${f}`);
@@ -29,11 +29,20 @@ inflate(['research-texts0.b64','research-texts1.b64','research-texts2.b64','rese
   if(rt.startsWith(prefix)){
     const obj=JSON.parse(rt.slice(prefix.length).replace(/;\s*$/,''));
     const ch68=obj['2-enoch']?.chapters?.find(c=>c.n===68);
-    if(ch68?.text?.includes(' Jubilees Moses receives')){
-      ch68.text=ch68.text.split(' Jubilees Moses receives')[0].trim();
-    }
+    if(ch68?.text?.includes(' Jubilees Moses receives')) ch68.text=ch68.text.split(' Jubilees Moses receives')[0].trim();
     fs.writeFileSync(rtPath,prefix+JSON.stringify(obj)+';\n');
   }
+}
+
+// Make the native shell cooperate with the persistent natural-audio player and
+// give the home screen welcoming product copy instead of migration/debug copy.
+{
+  const appPath='dist/app.js';
+  let native=fs.readFileSync(appPath,'utf8');
+  native=native.replace('  closeDrawer(); stopAudio(false);','  closeDrawer(); if(!window.MEB_NATURAL_AUDIO_ACTIVE) stopAudio(false);');
+  native=native.replace('    <p>Your complete Bible now lives inside the app as native searchable text. No PDF chooser, no page-by-page parsing, no waiting for a 1,928-page document to open.</p>','    <p>Welcome to your Bible. Read, listen, search, study and explore all 81 books in one beautiful place — from Genesis through the Ethiopian books and the New Testament.</p>');
+  native=native.replace('<div class="nativeBadge"><i></i><span>Native text edition • instant book & chapter opening</span></div>','<div class="nativeBadge"><i></i><span>81 books • natural audio • study notes • research tools</span></div>');
+  fs.writeFileSync(appPath,native);
 }
 
 let study=fs.readFileSync('dist/study.js','utf8');
@@ -62,60 +71,16 @@ fs.writeFileSync('dist/study.js',study);
 
 fs.appendFileSync('dist/study.css','\n.studyAvailable{display:flex;gap:12px;align-items:center;margin:14px 0 18px;padding:13px 14px;border:1px solid rgba(137,94,29,.42);border-radius:14px;background:rgba(175,124,46,.10)}.studyAvailable>span{font-size:24px;color:#9a681f}.studyAvailable div{display:flex;flex-direction:column;gap:3px}.studyAvailable b{font-size:15px}.studyAvailable small{font-size:12px;line-height:1.45;opacity:.78}.studyToggle{display:flex!important;width:max-content!important;border:1px solid rgba(154,104,31,.36)!important;background:rgba(175,124,46,.10)!important;border-radius:999px!important;padding:6px 11px!important;margin:3px 0 10px!important;font-size:11px!important;font-weight:800!important}.studyVerseInner .studyBlock p{font-size:14px;line-height:1.72;margin:0}.studyVerseInner{padding:18px!important}\n');
 
-// Mobile/PWA header fix. Some iPhone browser/PWA combinations report a zero
-// safe-area inset even though the status area still overlaps the page. Keep a
-// real minimum top buffer so the controls can never sit against the screen edge.
+// Mobile/PWA header fix.
 fs.appendFileSync('dist/styles.css',`\n@media(max-width:900px){
-  :root{
-    --meb-top-gap:max(24px, env(safe-area-inset-top, 0px));
-    --meb-safe-left:env(safe-area-inset-left, 0px);
-    --meb-safe-right:env(safe-area-inset-right, 0px);
-    --meb-header-height:calc(58px + var(--meb-top-gap));
-  }
-  .topbar{
-    position:sticky!important;
-    top:0!important;
-    height:var(--meb-header-height)!important;
-    min-height:var(--meb-header-height)!important;
-    padding-top:var(--meb-top-gap)!important;
-    padding-bottom:8px!important;
-    padding-left:max(14px,var(--meb-safe-left))!important;
-    padding-right:max(14px,var(--meb-safe-right))!important;
-    align-items:center!important;
-  }
-  .topbar .round{
-    width:44px!important;height:44px!important;
-    min-width:44px!important;min-height:44px!important;
-    flex:0 0 44px!important;
-    display:grid!important;place-items:center!important;
-    padding:0!important;line-height:1!important;
-    touch-action:manipulation!important;
-    -webkit-tap-highlight-color:transparent;
-  }
-  .topbar .brand{
-    min-width:0!important;
-    min-height:44px!important;
-    height:44px!important;
-    overflow:hidden!important;
-    padding:0 4px!important;
-    touch-action:manipulation!important;
-  }
-  .topbar .brand>span:last-child{display:block!important;min-width:0!important;max-width:100%!important;overflow:hidden!important}
-  .topbar .brand b{display:block!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
-  .searchbar{
-    top:var(--meb-header-height)!important;
-    padding-left:max(14px,var(--meb-safe-left))!important;
-    padding-right:max(14px,var(--meb-safe-right))!important;
-  }
-  .readerTools{top:calc(var(--meb-header-height) + 51px)!important}
-  .drawer{padding-top:calc(var(--meb-top-gap) + 14px)!important}
-  .drawerHead{top:calc(-1 * (var(--meb-top-gap) + 14px))!important;padding-top:calc(var(--meb-top-gap) + 14px)!important}
+  :root{--meb-top-gap:max(24px, env(safe-area-inset-top, 0px));--meb-safe-left:env(safe-area-inset-left, 0px);--meb-safe-right:env(safe-area-inset-right, 0px);--meb-header-height:calc(58px + var(--meb-top-gap));}
+  .topbar{position:sticky!important;top:0!important;height:var(--meb-header-height)!important;min-height:var(--meb-header-height)!important;padding-top:var(--meb-top-gap)!important;padding-bottom:8px!important;padding-left:max(14px,var(--meb-safe-left))!important;padding-right:max(14px,var(--meb-safe-right))!important;align-items:center!important}
+  .topbar .round{width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;flex:0 0 44px!important;display:grid!important;place-items:center!important;padding:0!important;line-height:1!important;touch-action:manipulation!important;-webkit-tap-highlight-color:transparent}
+  .topbar .brand{min-width:0!important;min-height:44px!important;height:44px!important;overflow:hidden!important;padding:0 4px!important;touch-action:manipulation!important}
+  .topbar .brand>span:last-child{display:block!important;min-width:0!important;max-width:100%!important;overflow:hidden!important}.topbar .brand b{display:block!important;max-width:100%!important;overflow:hidden!important;text-overflow:ellipsis!important;white-space:nowrap!important}
+  .searchbar{top:var(--meb-header-height)!important;padding-left:max(14px,var(--meb-safe-left))!important;padding-right:max(14px,var(--meb-safe-right))!important}.readerTools{top:calc(var(--meb-header-height) + 51px)!important}.drawer{padding-top:calc(var(--meb-top-gap) + 14px)!important}.drawerHead{top:calc(-1 * (var(--meb-top-gap) + 14px))!important;padding-top:calc(var(--meb-top-gap) + 14px)!important}
 }
-@media(max-width:480px){
-  .topbar{gap:6px!important}
-  .topbar .brand b{font-size:clamp(11px,3.25vw,14px)!important;line-height:1.05!important;letter-spacing:-.02em!important}
-  .topbar .brandCross{font-size:23px!important}
-}\n`);
+@media(max-width:480px){.topbar{gap:6px!important}.topbar .brand b{font-size:clamp(11px,3.25vw,14px)!important;line-height:1.05!important;letter-spacing:-.02em!important}.topbar .brandCross{font-size:23px!important}}\n`);
 
 let html=fs.readFileSync('dist/index.html','utf8');
 html=html.replace(/href=["']\/styles\.css(?:\?v=[^"']*)?["']/,`href="/styles.css?v=${release}"`);
@@ -132,9 +97,9 @@ fs.writeFileSync('dist/index.html',html);
 const swPath='dist/sw.js';
 if(fs.existsSync(swPath)){
   let sw=fs.readFileSync(swPath,'utf8');
-  sw=sw.replace(/const V=['\"][^'\"]+['\"]/ ,"const V='meb-native-v19-research-suite'");
+  sw=sw.replace(/const V=['\"][^'\"]+['\"]/ ,"const V='meb-native-v20-continuous-audio-ai-float'");
   const add=['/study.js','/study.css','/curated-notes.js','/natural-audio.js','/study-hub.js','/study-hub.css','/research-data.js','/research-texts.js','/research-suite.js','/research-suite.css',...dataFiles.map(f=>'/'+f)];
   sw=sw.replace("'/manifest.webmanifest'",`'/manifest.webmanifest',${add.map(x=>`'${x}'`).join(',')}`);
   fs.writeFileSync(swPath,sw);
 }
-console.log('Modern Ethiopian Bible research suite release '+release+' built');
+console.log('Modern Ethiopian Bible continuous narration release '+release+' built');
