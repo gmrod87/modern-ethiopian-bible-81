@@ -5,8 +5,8 @@ fs.rmSync('dist',{recursive:true,force:true});
 fs.mkdirSync('dist',{recursive:true});
 execFileSync('tar',['--no-same-owner','-xzf','native-bible-app.tar.gz','-C','dist'],{stdio:'inherit'});
 
-const release='20';
-for(const f of ['study-v2.js','study.css','curated-notes.js','natural-audio.js','study-hub.js','study-hub.css']) fs.copyFileSync(f,'dist/'+(f==='study-v2.js'?'study.js':f));
+const release='21';
+for(const f of ['study-v2.js','study.css','curated-notes.js','natural-audio.js','study-hub.js','study-hub.css','chronology.js','chronology.css']) fs.copyFileSync(f,'dist/'+(f==='study-v2.js'?'study.js':f));
 const dataFiles=fs.readdirSync('.').filter(x=>/^study-data-\d+\.js$/.test(x)).sort();
 for(const f of dataFiles) fs.copyFileSync(f,`dist/${f}`);
 
@@ -47,11 +47,13 @@ let html=fs.readFileSync('dist/index.html','utf8');
 html=html.replace(/href=["']\/styles\.css(?:\?v=[^"']*)?["']/,`href="/styles.css?v=${release}"`);
 if(!html.includes('/study.css'))html=html.replace('</head>','  <link rel="stylesheet" href="/study.css?v='+release+'" />\n  <link rel="stylesheet" href="/study-hub.css?v='+release+'" />\n</head>');else if(!html.includes('/study-hub.css'))html=html.replace('</head>','  <link rel="stylesheet" href="/study-hub.css?v='+release+'" />\n</head>');
 if(!html.includes('/research-suite.css'))html=html.replace('</head>',`  <link rel="stylesheet" href="/research-suite.css?v=${release}" />\n</head>`);
+if(!html.includes('/chronology.css'))html=html.replace('</head>',`  <link rel="stylesheet" href="/chronology.css?v=${release}" />\n</head>`);
 if(!html.includes('/study.js')){const scripts=dataFiles.map(f=>'  <script src="/'+f+'?v='+release+'"></script>').join('\n')+'\n  <script src="/curated-notes.js?v='+release+'"></script>\n  <script src="/study.js?v='+release+'"></script>\n  <script src="/natural-audio.js?v='+release+'"></script>\n  <script src="/study-hub.js?v='+release+'"></script>\n';html=html.replace('</body>',scripts+'</body>')}else if(!html.includes('/study-hub.js'))html=html.replace('</body>','  <script src="/study-hub.js?v='+release+'"></script>\n</body>');
 if(!html.includes('/research-suite.js'))html=html.replace('</body>',`  <script src="/research-data.js?v=${release}"></script>\n  <script src="/research-texts.js?v=${release}"></script>\n  <script src="/research-suite.js?v=${release}"></script>\n</body>`);
+if(!html.includes('/chronology.js'))html=html.replace('</body>',`  <script src="/chronology.js?v=${release}"></script>\n</body>`);
 fs.writeFileSync('dist/index.html',html);
 
-for(const f of ['dist/app.js','dist/study.js','dist/natural-audio.js','dist/study-hub.js','dist/research-suite.js'])execFileSync(process.execPath,['--check',f],{stdio:'inherit'});
+for(const f of ['dist/app.js','dist/study.js','dist/natural-audio.js','dist/study-hub.js','dist/research-suite.js','dist/chronology.js'])execFileSync(process.execPath,['--check',f],{stdio:'inherit'});
 
-const swPath='dist/sw.js';if(fs.existsSync(swPath)){let sw=fs.readFileSync(swPath,'utf8');sw=sw.replace(/const V=['\"][^'\"]+['\"]/ ,"const V='meb-native-v20-continuous-audio-ai-float'");const add=['/study.js','/study.css','/curated-notes.js','/natural-audio.js','/study-hub.js','/study-hub.css','/research-data.js','/research-texts.js','/research-suite.js','/research-suite.css',...dataFiles.map(f=>'/'+f)];sw=sw.replace("'/manifest.webmanifest'",`'/manifest.webmanifest',${add.map(x=>`'${x}'`).join(',')}`);fs.writeFileSync(swPath,sw)}
-console.log('Modern Ethiopian Bible continuous narration release '+release+' built and syntax checked');
+const swPath='dist/sw.js';if(fs.existsSync(swPath)){let sw=fs.readFileSync(swPath,'utf8');sw=sw.replace(/const V=['\"][^'\"]+['\"]/ ,"const V='meb-native-v21-chronology-dates'");const add=['/study.js','/study.css','/curated-notes.js','/natural-audio.js','/study-hub.js','/study-hub.css','/research-data.js','/research-texts.js','/research-suite.js','/research-suite.css','/chronology.js','/chronology.css',...dataFiles.map(f=>'/'+f)];sw=sw.replace("'/manifest.webmanifest'",`'/manifest.webmanifest',${add.map(x=>`'${x}'`).join(',')}`);fs.writeFileSync(swPath,sw)}
+console.log('Modern Ethiopian Bible chronology release '+release+' built and syntax checked');
