@@ -47,3 +47,89 @@
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
+
+// Hands-free Read Aloud controls. This is an in-app voice listener; it does not connect to Apple's Siri service.
+(()=>{
+  const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+  let recognition=null,listening=false,restarting=false,lastTranscript='',lastCommandAt=0;
+  const enabled=()=>localStorage.getItem('meb:voiceCommands')==='1';
+  const clean=s=>String(s||'').toLowerCase().replace(/[.,!?;:]/g,' ').replace(/\s+/g,' ').trim();
+  const naturalAudio=()=>[...document.querySelectorAll('audio')].find(a=>a.src)||document.querySelector('audio');
+  const setStatus=t=>{const e=$('#audioVoiceStatus');if(e)e.textContent=t};
+
+  function addStyles(){
+    if($('#voiceCommandStyles'))return;
+    const st=document.createElement('style');st.id='voiceCommandStyles';st.textContent=`
+      .audioVoiceSetting{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:11px;padding-top:11px;border-top:1px solid var(--line)}
+      .audioVoiceCopy{min-width:0;display:flex;flex-direction:column;gap:3px}.audioVoiceCopy>span{font-size:10px;font-weight:900;letter-spacing:.14em;opacity:.72}.audioVoiceCopy>small{font-size:10px;line-height:1.35;opacity:.58}.audioVoiceCopy em{font-size:9px;line-height:1.35;opacity:.72;font-style:normal;margin-top:2px}
+      .voiceToggle{position:relative;flex:0 0 48px;width:48px;height:28px;border:0!important;border-radius:999px!important;padding:0!important;background:rgba(120,110,100,.28)!important;box-shadow:none!important}.voiceToggle:after{content:'';position:absolute;width:22px;height:22px;left:3px;top:3px;border-radius:50%;background:var(--paper);box-shadow:0 1px 5px rgba(0,0,0,.2);transition:transform .18s ease}.voiceToggle.active{background:#751d1d!important}.voiceToggle.active:after{transform:translateX(20px)}
+      @media(max-width:520px){.audioVoiceSetting{align-items:flex-start}.audioVoiceCopy small{max-width:210px}}
+    `;document.head.appendChild(st);
+  }
+
+  function ensureControl(){
+    addStyles();const modes=$('#audioModes');if(!modes||$('#audioVoiceSetting'))return;
+    const row=document.createElement('div');row.id='audioVoiceSetting';row.className='audioVoiceSetting';
+    row.innerHTML='<div class="audioVoiceCopy"><span>VOICE COMMANDS</span><small>Say “Hey Siri, stop”, “pause”, “play”, or “explain that”. Direct commands work too.</small><em id="audioVoiceStatus">Off</em></div><button id="audioVoiceToggle" class="voiceToggle" type="button" role="switch" aria-label="Voice command listening" aria-checked="false"></button>';
+    modes.appendChild(row);$('#audioVoiceToggle').onclick=toggleListening;syncControl();
+  }
+
+  function syncControl(){const b=$('#audioVoiceToggle');if(!b)return;const on=enabled();b.classList.toggle('active',on);b.setAttribute('aria-checked',on?'true':'false');if(!on)setStatus(SR?'Off':'Voice recognition is not supported in this browser')}
+
+  function createRecognition(){
+    if(!SR)return null;if(recognition)return recognition;
+    const r=new SR();r.lang='en-AU';r.continuous=true;r.interimResults=false;r.maxAlternatives=2;
+    r.onstart=()=>{listening=true;restarting=false;setStatus('Listening…')};
+    r.onresult=e=>{for(let i=e.resultIndex;i<e.results.length;i++){if(!e.results[i].isFinal)continue;const text=e.results[i][0]?.transcript||'';handleTranscript(text)}};
+    r.onerror=e=>{if(e.error==='not-allowed'||e.error==='service-not-allowed'||e.error==='audio-capture'){localStorage.setItem('meb:voiceCommands','0');listening=false;setStatus(e.error==='audio-capture'?'Microphone unavailable':'Microphone permission needed');syncControl()}else if(e.error!=='no-speech'&&e.error!=='aborted')setStatus('Listening interrupted')};
+    r.onend=()=>{listening=false;if(enabled()&&!restarting){restarting=true;setTimeout(()=>{restarting=false;startListening(false)},350)}};
+    recognition=r;return r;
+  }
+
+  function startListening(showMessage=true){
+    if(!enabled()||!SR)return;const r=createRecognition();if(!r||listening)return;
+    try{r.start();if(showMessage)setStatus('Starting microphone…')}catch(e){if(showMessage)setStatus('Microphone already starting')}
+  }
+  function stopListening(){restarting=true;try{recognition?.stop()}catch{}listening=false;setStatus('Off');setTimeout(()=>{restarting=false},500)}
+  function toggleListening(){
+    if(!SR){setStatus('Voice recognition is not supported here');return}
+    const on=!enabled();localStorage.setItem('meb:voiceCommands',on?'1':'0');syncControl();if(on)startListening();else stopListening();
+  }
+
+  function pauseReading(){const a=naturalAudio();if(a&&!a.paused){a.pause();setStatus('Paused');return true}setStatus('Already paused');return false}
+  function playReading(){const a=naturalAudio();if(a?.src&&a.paused){a.play().catch(()=>$('#audioPlay')?.click());setStatus('Playing');return}$('#audioPlay')?.click();setStatus('Playing')}
+  function stopReading(){window.speechSynthesis?.cancel();$('#audioClose')?.click();setStatus('Stopped')}
+
+  function splitLikeNarrator(text){const parts=[],sent=String(text||'').replace(/\s+/g,' ').trim().split(/(?<=[.!?])\s+/);let cur='',limit=420;for(const s of sent){if((cur+' '+s).length>limit&&cur){parts.push(cur.trim());cur=s;limit=900}else cur+=(cur?' ':'')+s}if(cur)parts.push(cur.trim());return parts}
+  function recentNarration(){
+    const ref=$('#audioRef')?.textContent?.trim()||'this passage';
+    const chapter=$$('#chapterText .verse').map(v=>{const q=v.cloneNode(true);q.querySelectorAll('button').forEach(b=>b.remove());return q.textContent.replace(/\s+/g,' ').trim()}).join(' ');
+    if(!chapter)return {ref,text:''};
+    const state=$('#audioState')?.textContent||'',m=state.match(/(\d+)\s*\/\s*(\d+)/),parts=splitLikeNarrator(`${ref}. ${chapter}`),i=m?Math.max(0,Math.min(parts.length-1,+m[1]-1)):0;
+    return {ref,text:(parts[i]||chapter.slice(0,1100)).slice(0,1600)};
+  }
+  function explainThat(){
+    pauseReading();const recent=recentNarration();
+    const q=`Explain the part I was just listening to in more detail. The Read Aloud reference is ${recent.ref}.${recent.text?` The recent narration was: “${recent.text}”`:''} Explain what it means in its immediate context, any important wording, historical background, and the main theological or interpretive points. Keep the explanation clear first, then add deeper detail.`;
+    const open=()=>{const input=$('#studyAiInput'),form=$('#studyAiForm');if(!input||!form){setStatus('Study AI is not ready');return}input.value=q;setStatus('Explaining that…');form.requestSubmit()};
+    if($('#studyAiDialog')){if(!$('#studyAiDialog').open)$('#studyAiFloat')?.click();setTimeout(open,120)}else{setStatus('Opening Study AI…');setTimeout(()=>{$('#studyAiFloat')?.click();setTimeout(open,160)},300)}
+  }
+
+  function commandFrom(text){
+    const t=clean(text),saidWake=/\bhey\s+(siri|series|serious)\b/.test(t),body=t.replace(/.*\bhey\s+(siri|series|serious)\b/,'').trim();
+    const c=saidWake?body:t;
+    if(/\b(explain (that|this)|explain that in more detail|what does that mean|explain it)\b/.test(c))return'explain';
+    if(/^(please )?(stop|stop reading|stop read aloud)$/.test(c)||saidWake&&/\bstop\b/.test(c))return'stop';
+    if(/^(please )?(pause|pause reading)$/.test(c)||saidWake&&/\bpause\b/.test(c))return'pause';
+    if(/^(please )?(play|resume|continue|continue reading)$/.test(c)||saidWake&&/\b(play|resume|continue)\b/.test(c))return'play';
+    return'';
+  }
+  function handleTranscript(text){
+    const now=Date.now(),cmd=commandFrom(text);lastTranscript=text;if(!cmd){setStatus(`Heard: “${text.trim()}”`);return}if(now-lastCommandAt<700)return;lastCommandAt=now;
+    if(cmd==='stop')stopReading();else if(cmd==='pause')pauseReading();else if(cmd==='play')playReading();else if(cmd==='explain')explainThat();
+  }
+
+  function initVoice(){ensureControl();const obs=new MutationObserver(()=>ensureControl());obs.observe($('#audioBar')||document.body,{childList:true,subtree:true});if(enabled()){syncControl();startListening(false)}}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initVoice);else initVoice();
+})();
