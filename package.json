@@ -1,1 +1,1 @@
-{"scripts":{"build":"node build.js && node postbuild-experience.js"}}
+{"scripts":{"build":"node build.js && node postbuild-experience.js && node postbuild-read-aloud.js"}}
