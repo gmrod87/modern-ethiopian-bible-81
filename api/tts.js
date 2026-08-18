@@ -13,14 +13,12 @@ module.exports=async function handler(req,res){
     const body=typeof req.body==='string'?JSON.parse(req.body||'{}'):(req.body||{});
     const text=String(body.text||'').trim().slice(0,4000);
     if(!text){res.statusCode=400;return res.end('Missing text')}
-    const voice=['marin','cedar'].includes(body.voice)?body.voice:'marin';
+    const voice=['marin','cedar'].includes(body.voice)?body.voice:'marin',mode=['normal','context','advanced'].includes(body.mode)?body.mode:'normal';
+    const extra=mode==='context'?' When the text shifts from a chapter title or short historical note into Scripture, give a small natural pause so the listener can feel the change, but keep the whole reading flowing as one audiobook experience.':mode==='advanced'?' Treat short scholarly or theological context as a calm narrator aside, with a brief pause before returning to Scripture. Keep the context concise in tone and do not make it sound like a lecture.':'';
     const r=await fetch('https://api.openai.com/v1/audio/speech',{
       method:'POST',
       headers:{'authorization':`Bearer ${process.env.OPENAI_API_KEY}`,'content-type':'application/json'},
-      body:JSON.stringify({
-        model:'gpt-4o-mini-tts',voice,input:text,response_format:'mp3',
-        instructions:'Read Scripture in a calm, warm, intelligent natural voice. Use restrained emotion, clear diction, gentle pacing, meaningful pauses at sentence and paragraph boundaries, and never sound theatrical or synthetic.'
-      })
+      body:JSON.stringify({model:'gpt-4o-mini-tts',voice,input:text,response_format:'mp3',instructions:'Read in a calm, warm, intelligent natural voice. Scripture should sound reverent but not theatrical. Use restrained emotion, clear diction, gentle pacing, and meaningful pauses at sentence boundaries. Never sound synthetic.'+extra})
     });
     if(!r.ok){res.statusCode=r.status;return res.end(await r.text())}
     const buf=Buffer.from(await r.arrayBuffer());
