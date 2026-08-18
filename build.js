@@ -5,7 +5,7 @@ fs.rmSync('dist',{recursive:true,force:true});
 fs.mkdirSync('dist',{recursive:true});
 execFileSync('tar',['--no-same-owner','-xzf','native-bible-app.tar.gz','-C','dist'],{stdio:'inherit'});
 
-const release='21';
+const release='22';
 for(const f of ['study-v2.js','study.css','curated-notes.js','natural-audio.js','study-hub.js','study-hub.css','chronology.js','chronology.css']) fs.copyFileSync(f,'dist/'+(f==='study-v2.js'?'study.js':f));
 const dataFiles=fs.readdirSync('.').filter(x=>/^study-data-\d+\.js$/.test(x)).sort();
 for(const f of dataFiles) fs.copyFileSync(f,`dist/${f}`);
@@ -55,5 +55,5 @@ fs.writeFileSync('dist/index.html',html);
 
 for(const f of ['dist/app.js','dist/study.js','dist/natural-audio.js','dist/study-hub.js','dist/research-suite.js','dist/chronology.js'])execFileSync(process.execPath,['--check',f],{stdio:'inherit'});
 
-const swPath='dist/sw.js';if(fs.existsSync(swPath)){let sw=fs.readFileSync(swPath,'utf8');sw=sw.replace(/const V=['\"][^'\"]+['\"]/ ,"const V='meb-native-v21-chronology-dates'");const add=['/study.js','/study.css','/curated-notes.js','/natural-audio.js','/study-hub.js','/study-hub.css','/research-data.js','/research-texts.js','/research-suite.js','/research-suite.css','/chronology.js','/chronology.css',...dataFiles.map(f=>'/'+f)];sw=sw.replace("'/manifest.webmanifest'",`'/manifest.webmanifest',${add.map(x=>`'${x}'`).join(',')}`);fs.writeFileSync(swPath,sw)}
+const swPath='dist/sw.js';if(fs.existsSync(swPath)){let sw=fs.readFileSync(swPath,'utf8');sw=sw.replace(/const V=['\"][^'\"]+['\"]/ ,"const V='meb-native-v22-fast-ai-audio'");const add=['/study.js','/study.css','/curated-notes.js','/natural-audio.js','/study-hub.js','/study-hub.css','/research-data.js','/research-texts.js','/research-suite.js','/research-suite.css','/chronology.js','/chronology.css',...dataFiles.map(f=>'/'+f)];sw=sw.replace("'/manifest.webmanifest'",`'/manifest.webmanifest',${add.map(x=>`'${x}'`).join(',')}`);fs.writeFileSync(swPath,sw)}
 console.log('Modern Ethiopian Bible chronology release '+release+' built and syntax checked');
