@@ -61,6 +61,7 @@
     if(next){ensureContext()?.resume?.().catch?.(()=>{});if(audioPlaying())start()}else stop();
     const p=profiles[profileFor()];const state=$('#audioState');if(state)state.textContent=next?`Ambient ready · ${p.label} · ${p.key}`:'Ambient music off';updateButton()
   }
+  window.MEB_AMBIENT={enabled,set(next){next=!!next;if(enabled()!==next)toggleAmbient()}};
   function ensureControl(){
     const ctr=$('.audioControls');if(!ctr)return;if($('#audioAmbient')){updateButton();return}
     const b=document.createElement('button');b.id='audioAmbient';b.className='audioExtra audioAmbient';b.type='button';b.onclick=toggleAmbient;const sleep=$('#audioSleep'),close=$('#audioClose');ctr.insertBefore(b,sleep||close);updateButton()
