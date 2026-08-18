@@ -1,7 +1,38 @@
 const {execFileSync}=require('child_process');
 const fs=require('fs');
-const release='25';
+const release='26';
 for(const f of ['experience.js','experience.css','ambient-audio.js'])fs.copyFileSync(f,'dist/'+f);
+
+// Keep the mobile Home control in the header flow so it can never cover the other top icons.
+fs.appendFileSync('dist/styles.css',`\n/* Release 26: compact non-overlapping mobile Home button */\n@media(max-width:900px){\n  .topbar #homeBtn{\n    position:static!important;\n    inset:auto!important;\n    left:auto!important;\n    top:auto!important;\n    transform:none!important;\n    z-index:auto!important;\n    display:grid!important;\n    place-items:center!important;\n    flex:0 0 44px!important;\n    width:44px!important;\n    min-width:44px!important;\n    max-width:44px!important;\n    height:44px!important;\n    min-height:44px!important;\n    padding:0!important;\n    margin:0!important;\n    gap:0!important;\n    border:1px solid var(--line)!important;\n    border-radius:50%!important;\n    background:var(--paper)!important;\n    color:var(--ink)!important;\n    box-shadow:none!important;\n  }\n  .topbar #homeBtn .mobileHomeIcon{display:grid!important;place-items:center!important;font-size:22px!important;line-height:1!important}\n  .topbar #homeBtn .mobileHomeText{display:none!important}\n}\n`);
+
+// Put Ambient Music inside the Read Aloud settings area instead of burying it in the playback controls.
+{
+  const ambientPath='dist/ambient-audio.js';
+  let ambient=fs.readFileSync(ambientPath,'utf8');
+  const before=ambient;
+  ambient=ambient.replace(/  function ensureControl\(\)\{[\s\S]*?\n  \}\n  function init\(\)\{/,
+`  function ensureControl(){
+    const modes=$('#audioModes'),ctr=$('.audioControls');
+    let b=$('#audioAmbient');
+    if(b){b.onclick=toggleAmbient;updateButton();return}
+    b=document.createElement('button');b.id='audioAmbient';b.className='audioExtra audioAmbient';b.type='button';b.onclick=toggleAmbient;
+    if(modes){
+      let row=$('#audioAmbientSetting');
+      if(!row){row=document.createElement('div');row.id='audioAmbientSetting';row.className='audioAmbientSetting';row.innerHTML='<div class="audioAmbientCopy"><span>AMBIENT MUSIC</span><small>Quiet adaptive music behind Read Aloud</small></div>';modes.appendChild(row)}
+      row.appendChild(b);
+    }else if(ctr){
+      const sleep=$('#audioSleep'),close=$('#audioClose');ctr.insertBefore(b,sleep||close);
+    }else return;
+    updateButton();
+  }
+  function init(){`);
+  if(ambient===before)throw new Error('Ambient Read Aloud control patch target not found');
+  fs.writeFileSync(ambientPath,ambient);
+}
+
+fs.appendFileSync('dist/experience.css',`\n/* Release 26: visible Ambient Music setting in Read Aloud */\n.audioAmbientSetting{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:11px;padding-top:11px;border-top:1px solid var(--line)}\n.audioAmbientCopy{min-width:0;display:flex;flex-direction:column;gap:3px}\n.audioAmbientCopy>span{font-size:10px;font-weight:900;letter-spacing:.14em;opacity:.72}\n.audioAmbientCopy>small{display:block!important;font-size:10px;line-height:1.35;opacity:.58}\n.audioAmbientSetting .audioAmbient{flex:0 0 auto;min-width:112px;justify-content:center;white-space:nowrap}\n@media(max-width:520px){.audioAmbientSetting{align-items:flex-start}.audioAmbientSetting .audioAmbient{min-width:104px;font-size:10px!important;padding-left:8px!important;padding-right:8px!important}}\n`);
+
 let html=fs.readFileSync('dist/index.html','utf8');
 html=html.replace(/\?v=\d+/g,`?v=${release}`);
 if(!html.includes('/experience.css'))html=html.replace('</head>',`  <link rel="stylesheet" href="/experience.css?v=${release}" />\n</head>`);
@@ -15,7 +46,7 @@ for(const f of ['dist/experience.js','dist/ambient-audio.js'])execFileSync(proce
 const swPath='dist/sw.js';
 if(fs.existsSync(swPath)){
   let sw=fs.readFileSync(swPath,'utf8');
-  sw=sw.replace(/const V=['"][^'"]+['"]/,`const V='meb-native-v${release}-feelings-ambient'`);
+  sw=sw.replace(/const V=['"][^'"]+['"]/,`const V='meb-native-v${release}-mobile-home-ambient-readaloud'`);
   if(!sw.includes("'/experience.js'"))sw=sw.replace("'/manifest.webmanifest'","'/manifest.webmanifest','/experience.js','/experience.css','/ambient-audio.js'");
   fs.writeFileSync(swPath,sw);
 }
