@@ -6,7 +6,7 @@ fs.mkdirSync('dist',{recursive:true});
 execFileSync('tar',['--no-same-owner','-xzf','native-bible-app.tar.gz','-C','dist'],{stdio:'inherit'});
 
 const release='24';
-for(const f of ['study-v2.js','study.css','curated-notes.js','natural-audio.js','study-hub.js','study-hub.css','chronology.js','chronology.css']) fs.copyFileSync(f,'dist/'+(f==='study-v2.js'?'study.js':f));
+for(const f of ['study-v2.js','study.css','curated-notes.js','natural-audio.js','study-hub.js','study-hub.css','voice-commands.js','voice-commands.css','chronology.js','chronology.css']) fs.copyFileSync(f,'dist/'+(f==='study-v2.js'?'study.js':f));
 const dataFiles=fs.readdirSync('.').filter(x=>/^study-data-\d+\.js$/.test(x)).sort();
 for(const f of dataFiles) fs.copyFileSync(f,`dist/${f}`);
 
@@ -55,15 +55,17 @@ if(!html.includes(brandBlock))throw new Error('Header brand target not found');
 html=html.replace(brandBlock,homeBlock);
 html=html.replace(/href=["']\/styles\.css(?:\?v=[^"']*)?["']/,`href="/styles.css?v=${release}"`);
 if(!html.includes('/study.css'))html=html.replace('</head>','  <link rel="stylesheet" href="/study.css?v='+release+'" />\n  <link rel="stylesheet" href="/study-hub.css?v='+release+'" />\n</head>');else if(!html.includes('/study-hub.css'))html=html.replace('</head>','  <link rel="stylesheet" href="/study-hub.css?v='+release+'" />\n</head>');
+if(!html.includes('/voice-commands.css'))html=html.replace('</head>','  <link rel="stylesheet" href="/voice-commands.css?v='+release+'" />\n</head>');
 if(!html.includes('/research-suite.css'))html=html.replace('</head>',`  <link rel="stylesheet" href="/research-suite.css?v=${release}" />\n</head>`);
 if(!html.includes('/chronology.css'))html=html.replace('</head>',`  <link rel="stylesheet" href="/chronology.css?v=${release}" />\n</head>`);
 if(!html.includes('/study.js')){const scripts=dataFiles.map(f=>'  <script src="/'+f+'?v='+release+'"></script>').join('\n')+'\n  <script src="/curated-notes.js?v='+release+'"></script>\n  <script src="/study.js?v='+release+'"></script>\n  <script src="/natural-audio.js?v='+release+'"></script>\n  <script src="/study-hub.js?v='+release+'"></script>\n';html=html.replace('</body>',scripts+'</body>')}else if(!html.includes('/study-hub.js'))html=html.replace('</body>','  <script src="/study-hub.js?v='+release+'"></script>\n</body>');
 if(!html.includes('/research-suite.js'))html=html.replace('</body>',`  <script src="/research-data.js?v=${release}"></script>\n  <script src="/research-texts.js?v=${release}"></script>\n  <script src="/research-suite.js?v=${release}"></script>\n</body>`);
 if(!html.includes('/chronology.js'))html=html.replace('</body>',`  <script src="/chronology.js?v=${release}"></script>\n</body>`);
+if(!html.includes('/voice-commands.js'))html=html.replace('</body>',`  <script src="/voice-commands.js?v=${release}"></script>\n</body>`);
 fs.writeFileSync('dist/index.html',html);
 
-for(const f of ['dist/app.js','dist/study.js','dist/natural-audio.js','dist/study-hub.js','dist/research-suite.js','dist/chronology.js'])execFileSync(process.execPath,['--check',f],{stdio:'inherit'});
+for(const f of ['dist/app.js','dist/study.js','dist/natural-audio.js','dist/study-hub.js','dist/voice-commands.js','dist/research-suite.js','dist/chronology.js'])execFileSync(process.execPath,['--check',f],{stdio:'inherit'});
 
-const swPath='dist/sw.js';if(fs.existsSync(swPath)){let sw=fs.readFileSync(swPath,'utf8');sw=sw.replace(/const V=['\"][^'\"]+['\"]/ ,"const V='meb-native-v24-fixed-mobile-home'");const add=['/study.js','/study.css','/curated-notes.js','/natural-audio.js','/study-hub.js','/study-hub.css','/research-data.js','/research-texts.js','/research-suite.js','/research-suite.css','/chronology.js','/chronology.css',...dataFiles.map(f=>'/'+f)];sw=sw.replace("'/manifest.webmanifest'",`'/manifest.webmanifest',${add.map(x=>`'${x}'`).join(',')}`);fs.writeFileSync(swPath,sw)}
+const swPath='dist/sw.js';if(fs.existsSync(swPath)){let sw=fs.readFileSync(swPath,'utf8');sw=sw.replace(/const V=['\"][^'\"]+['\"]/ ,"const V='meb-native-v24-fixed-mobile-home'");const add=['/study.js','/study.css','/curated-notes.js','/natural-audio.js','/study-hub.js','/study-hub.css','/voice-commands.js','/voice-commands.css','/research-data.js','/research-texts.js','/research-suite.js','/research-suite.css','/chronology.js','/chronology.css',...dataFiles.map(f=>'/'+f)];sw=sw.replace("'/manifest.webmanifest'",`'/manifest.webmanifest',${add.map(x=>`'${x}'`).join(',')}`);fs.writeFileSync(swPath,sw)}
 if(fs.existsSync(swPath))fs.appendFileSync(swPath,"\nself.addEventListener('install',()=>self.skipWaiting());\nself.addEventListener('activate',event=>event.waitUntil(self.clients.claim()));\n");
 console.log('Modern Ethiopian Bible release '+release+' built and syntax checked');
