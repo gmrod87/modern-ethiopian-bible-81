@@ -1,0 +1,19 @@
+#filters #chronoFilter{white-space:nowrap}
+.drawerBook>span{min-width:0}
+.drawerBook>span .bookDate{display:block;margin-top:3px;font:600 9px/1.25 Arial,sans-serif;letter-spacing:.01em;color:var(--muted);font-style:normal;white-space:normal}
+.chronoNote{margin:2px 10px 12px;padding:12px 13px;border:1px solid color-mix(in srgb,var(--gold) 40%,var(--line));border-radius:13px;background:color-mix(in srgb,var(--gold) 8%,var(--paper));display:flex;flex-direction:column;gap:4px}
+.chronoNote b{font-size:12px;color:var(--ink)}
+.chronoNote span{font:10px/1.45 Arial,sans-serif;color:var(--muted)}
+.chronoBook{width:100%;text-align:left;border-left:0;border-right:0;border-top:0;cursor:pointer;font:inherit}
+.chronoBook>span{display:flex!important;flex-direction:column!important;gap:2px!important;align-items:flex-start!important}
+.chronoBook>span>b{font-size:13px;font-weight:750;color:var(--ink)}
+.chronoBook>span>em{font:700 8px/1.25 Arial,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);font-style:normal}
+.chronoBook>small{max-width:128px!important;text-align:right!important;white-space:normal!important;font:600 9px/1.25 Arial,sans-serif!important;color:var(--muted)!important}
+.chronoResearch{background:color-mix(in srgb,var(--gold) 5%,var(--paper));color:var(--ink)}
+@media(max-width:560px){
+  #filters{overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap!important}
+  #filters::-webkit-scrollbar{display:none}
+  .drawerBook>span .bookDate{font-size:8.5px}
+  .chronoBook>small{max-width:102px!important;font-size:8.5px!important}
+  .chronoBook>span>b{font-size:12px}
+}
