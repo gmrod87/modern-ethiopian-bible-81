@@ -1,0 +1,259 @@
+/* Release 45 — final red + cream theme.
+   This file MUST load last. It uses literal colors so legacy theme variables cannot alter contrast. */
+
+html,body,body.dark{
+  background:#f3ead8!important;
+  color:#1c140f!important;
+  -webkit-text-fill-color:#1c140f!important;
+}
+
+/* Light cream surfaces */
+html body .topbar,
+html body .searchbar,
+html body #app,
+html body #drawer,
+html body .drawerHead,
+html body .filterRow,
+html body .readerTools,
+html body .hero,
+html body .panel,
+html body .card,
+html body .readerHead,
+html body .readerPaper,
+html body .readingSurface,
+html body .chapterText,
+html body .studyHubCard,
+html body .studyAiCard,
+html body .researchSuiteCard,
+html body .dialogCard,
+html body .audioBar,
+html body .sheet,
+html body .modal{
+  background:#f3ead8!important;
+  background-image:none!important;
+  color:#1c140f!important;
+  -webkit-text-fill-color:#1c140f!important;
+  opacity:1!important;
+  filter:none!important;
+  -webkit-filter:none!important;
+  mix-blend-mode:normal!important;
+}
+
+html body .hero,
+html body .panel,
+html body .card,
+html body .readerHead,
+html body .readerPaper,
+html body .readingSurface,
+html body .chapterText,
+html body .studyHubCard,
+html body .studyAiCard,
+html body .researchSuiteCard,
+html body .dialogCard,
+html body .audioBar,
+html body .sheet,
+html body .modal,
+html body .drawerBook{
+  background:#fbf5e9!important;
+}
+
+/* Default readable text on cream */
+html body .topbar *,
+html body .searchbar *,
+html body #app *,
+html body #drawer *,
+html body .readerTools *,
+html body .dialogCard *,
+html body .audioBar *{
+  color:#1c140f!important;
+  -webkit-text-fill-color:#1c140f!important;
+  opacity:1!important;
+  text-shadow:none!important;
+  filter:none!important;
+  -webkit-filter:none!important;
+}
+
+html body input::placeholder,
+html body textarea::placeholder{
+  color:#6a5a50!important;
+  -webkit-text-fill-color:#6a5a50!important;
+  opacity:1!important;
+}
+
+/* Header + search stay cream and dark */
+html body .topbar .round,
+html body .topbar #homeBtn,
+html body .searchbar form,
+html body .searchbar button,
+html body .readerTools button,
+html body .readerTools select,
+html body .drawerBook,
+html body #drawer .filterRow button:not(.active){
+  background:#fbf5e9!important;
+  color:#1c140f!important;
+  -webkit-text-fill-color:#1c140f!important;
+  border-color:#5a4638!important;
+  opacity:1!important;
+}
+
+html body .topbar #homeBtn *,
+html body .topbar #menuBtn,
+html body .topbar #savedBtn,
+html body .searchbar input,
+html body .searchbar button,
+html body .searchbar span{
+  color:#1c140f!important;
+  -webkit-text-fill-color:#1c140f!important;
+  opacity:1!important;
+}
+
+/* Brand red */
+html body #app .eyebrow,
+html body #app .vnum,
+html body #drawer .drawerBook i,
+html body #drawer .drawerHead small{
+  color:#973b2c!important;
+  -webkit-text-fill-color:#973b2c!important;
+}
+
+/* ALL home-page action pills become red with cream text. */
+html body #app .heroActions > a,
+html body #app .heroActions > button,
+html body #app .homeActions > a,
+html body #app .homeActions > button,
+html body #app .primary,
+html body #app button.primary,
+html body #app a.primary,
+html body #app .researchPrimary,
+html body #drawer .filterRow button.active,
+html body .aiFab,
+html body .ai-fab,
+html body [class*="aiFab"],
+html body [class*="ai-fab"],
+html body #app [aria-pressed="true"]{
+  background:#973b2c!important;
+  background-image:none!important;
+  border-color:#7f2f22!important;
+  color:#f8efe3!important;
+  -webkit-text-fill-color:#f8efe3!important;
+  opacity:1!important;
+  filter:none!important;
+  -webkit-filter:none!important;
+  box-shadow:none!important;
+}
+
+html body #app .heroActions > a *,
+html body #app .heroActions > button *,
+html body #app .homeActions > a *,
+html body #app .homeActions > button *,
+html body #app .primary *,
+html body #app button.primary *,
+html body #app a.primary *,
+html body #app .researchPrimary *,
+html body #drawer .filterRow button.active *,
+html body .aiFab *,
+html body .ai-fab *,
+html body [class*="aiFab"] *,
+html body [class*="ai-fab"] *,
+html body #app [aria-pressed="true"] *{
+  color:#f8efe3!important;
+  -webkit-text-fill-color:#f8efe3!important;
+  opacity:1!important;
+}
+
+/* Replace every known legacy black/dark information card with deep red + cream text. */
+html body #app .bookBackground,
+html body #app .book-background,
+html body #app .studyContext,
+html body #app .study-context,
+html body #app .darkCard,
+html body #app .dark-card,
+html body #app .contextCard,
+html body #app .context-card,
+html body #app [class*="darkPanel"],
+html body #app [class*="dark-card"],
+html body #app [class*="DarkCard"],
+html body #app .bookContext,
+html body #app .book-context,
+html body #app .studyContextCard,
+html body #app .bookBackgroundCard{
+  background:#7f2f22!important;
+  background-image:none!important;
+  border-color:#6f271d!important;
+  color:#f8efe3!important;
+  -webkit-text-fill-color:#f8efe3!important;
+  opacity:1!important;
+  filter:none!important;
+  -webkit-filter:none!important;
+  box-shadow:none!important;
+}
+
+html body #app .bookBackground *,
+html body #app .book-background *,
+html body #app .studyContext *,
+html body #app .study-context *,
+html body #app .darkCard *,
+html body #app .dark-card *,
+html body #app .contextCard *,
+html body #app .context-card *,
+html body #app [class*="darkPanel"] *,
+html body #app [class*="dark-card"] *,
+html body #app [class*="DarkCard"] *,
+html body #app .bookContext *,
+html body #app .book-context *,
+html body #app .studyContextCard *,
+html body #app .bookBackgroundCard *{
+  color:#f8efe3!important;
+  -webkit-text-fill-color:#f8efe3!important;
+  opacity:1!important;
+}
+
+/* Safety net for the exact dark pill problem shown in the iPhone screenshots. */
+html body #app a[style*="background"],
+html body #app button[style*="background"]{
+  opacity:1!important;
+}
+
+/* Reader controls should remain cream with dark text, not red. */
+html body #app .readerTools button,
+html body #app .readerTools select,
+html body #app .readerTools option,
+html body #app .readerTools input,
+html body #app .readerTools label{
+  background:#fbf5e9!important;
+  color:#1c140f!important;
+  -webkit-text-fill-color:#1c140f!important;
+  border-color:#5a4638!important;
+  opacity:1!important;
+}
+
+/* Red cards repeated after reader safety rules so their inverse text always wins. */
+html body #app .bookBackground,
+html body #app .bookBackground *,
+html body #app .book-background,
+html body #app .book-background *,
+html body #app .studyContext,
+html body #app .studyContext *,
+html body #app .study-context,
+html body #app .study-context *,
+html body #app .darkCard,
+html body #app .darkCard *,
+html body #app .dark-card,
+html body #app .dark-card *,
+html body #app .contextCard,
+html body #app .contextCard *,
+html body #app .context-card,
+html body #app .context-card *,
+html body #app [class*="darkPanel"],
+html body #app [class*="darkPanel"] *,
+html body #app [class*="dark-card"],
+html body #app [class*="dark-card"] *,
+html body #app [class*="DarkCard"],
+html body #app [class*="DarkCard"] *{
+  background-color:#7f2f22!important;
+  color:#f8efe3!important;
+  -webkit-text-fill-color:#f8efe3!important;
+}
+
+/* Keep hidden UI hidden. */
+[hidden],.hidden{display:none!important}
