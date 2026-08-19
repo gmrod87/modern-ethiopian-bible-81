@@ -1,6 +1,6 @@
 const fs=require('fs');
 
-const release='35';
+const release='36';
 const styles='dist/styles.css';
 if(fs.existsSync(styles)){
   fs.appendFileSync(styles,`
@@ -108,5 +108,9 @@ const swPath='dist/sw.js';
 if(fs.existsSync(swPath)){
   let sw=fs.readFileSync(swPath,'utf8');
   sw=sw.replace(/const V=['"][^'"]+['"]/,`const V='the81-v${release}-cream-frosted'`);
+  sw += `\n/* Release ${release}: take control immediately and purge stale app caches. */\nself.addEventListener('install',()=>self.skipWaiting());\nself.addEventListener('activate',event=>{event.waitUntil((async()=>{const keys=await caches.keys();await Promise.all(keys.filter(k=>k!==V).map(k=>caches.delete(k)));await self.clients.claim();})())});\n`;
   fs.writeFileSync(swPath,sw);
 }
+
+/* A network-only rescue page for installed iOS PWAs that remain controlled by an old service worker. */
+fs.writeFileSync('dist/refresh.html',`<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#f3ead8"><title>Refreshing Bible</title><style>html,body{margin:0;min-height:100%;background:#f3ead8;color:#3b261c;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}main{min-height:100vh;display:grid;place-items:center;padding:28px;box-sizing:border-box;text-align:center}.box{max-width:420px;padding:28px 24px;border:1px solid rgba(83,48,35,.16);border-radius:24px;background:rgba(255,248,236,.72);backdrop-filter:blur(18px)}h1{font-family:Georgia,serif;font-size:28px;margin:0 0 10px}p{line-height:1.55;opacity:.72;margin:0}</style></head><body><main><div class="box"><h1>Updating your Bible</h1><p>Clearing the old app version and loading the new cream theme…</p></div></main><script>(async()=>{try{if('serviceWorker'in navigator){const regs=await navigator.serviceWorker.getRegistrations();await Promise.all(regs.map(r=>r.unregister()))}if('caches'in window){const keys=await caches.keys();await Promise.all(keys.map(k=>caches.delete(k)))}}catch(e){}location.replace('/?v=${release}&fresh='+Date.now())})()</script></body></html>`);
