@@ -1,0 +1,108 @@
+/* Release 35 — final mobile header fix + richer illuminated artwork */
+
+/* This file is intentionally loaded LAST. It must beat the old high-specificity mobile Home rules. */
+@media (max-width:900px){
+  .topbar{
+    position:sticky!important;
+    top:0!important;
+    z-index:5000!important;
+    display:grid!important;
+    grid-template-columns:44px minmax(0,1fr) 44px 44px!important;
+    align-items:center!important;
+    gap:8px!important;
+    min-height:68px!important;
+    height:68px!important;
+    padding-top:max(10px,env(safe-area-inset-top))!important;
+    padding-right:max(10px,env(safe-area-inset-right))!important;
+    padding-bottom:8px!important;
+    padding-left:max(10px,env(safe-area-inset-left))!important;
+  }
+  .topbar #menuBtn{grid-column:1!important}
+  .topbar #homeBtn{
+    grid-column:2!important;
+    position:static!important;
+    inset:auto!important;
+    left:auto!important;
+    right:auto!important;
+    top:auto!important;
+    bottom:auto!important;
+    transform:none!important;
+    z-index:auto!important;
+    display:flex!important;
+    visibility:visible!important;
+    opacity:1!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:none!important;
+    height:44px!important;
+    min-height:44px!important;
+    margin:0!important;
+    padding:0 12px!important;
+    flex:none!important;
+    align-items:center!important;
+    justify-content:center!important;
+    border:1px solid rgba(255,255,255,.38)!important;
+    border-radius:999px!important;
+    background:rgba(255,255,255,.07)!important;
+    color:#fff!important;
+    box-shadow:inset 0 1px rgba(255,255,255,.13)!important;
+    backdrop-filter:blur(16px) saturate(112%)!important;
+    -webkit-backdrop-filter:blur(16px) saturate(112%)!important;
+    text-decoration:none!important;
+    overflow:hidden!important;
+  }
+  .topbar #homeBtn .brandCross,
+  .topbar #homeBtn .mobileHomeIcon,
+  .topbar #homeBtn .mobileHomeText{display:none!important}
+  .topbar #homeBtn .brandTitle{display:flex!important;min-width:0!important;align-items:center!important;justify-content:center!important}
+  .topbar #homeBtn .brandTitle b{display:block!important;color:#fff!important;font-size:14px!important;line-height:1!important;font-weight:780!important;letter-spacing:.01em!important;white-space:nowrap!important}
+  .topbar #homeBtn .brandTitle small{display:none!important}
+  .topbar #savedBtn{grid-column:3!important}
+  .topbar #themeBtn{grid-column:4!important}
+  .topbar .round{
+    position:static!important;
+    transform:none!important;
+    width:44px!important;
+    min-width:44px!important;
+    height:44px!important;
+    min-height:44px!important;
+    margin:0!important;
+    border:1px solid rgba(255,255,255,.38)!important;
+    background:rgba(255,255,255,.07)!important;
+    box-shadow:inset 0 1px rgba(255,255,255,.13)!important;
+  }
+  .searchbar{top:68px!important;z-index:4990!important}
+}
+
+/* Let the new illuminated artwork show rather than the old thin-line treatment. */
+.bookTile::before,.drawerBook::before,.featureCard::before,.category::before{
+  filter:none!important;
+  opacity:1!important;
+  background-position:center!important;
+  background-size:cover!important;
+}
+.bookTile::after,.drawerBook::after,.featureCard::after,.category::after{
+  background:linear-gradient(180deg,rgba(7,14,17,.03) 18%,rgba(7,14,17,.13) 52%,rgba(7,14,17,.72) 100%)!important;
+}
+.bookTile,.drawerBook,.featureCard,.category{
+  border-color:rgba(255,246,222,.42)!important;
+  box-shadow:inset 0 0 0 1px rgba(78,53,28,.16),0 12px 30px rgba(0,0,0,.10)!important;
+}
+.bookTile b,.drawerBook span{ text-shadow:0 2px 12px rgba(0,0,0,.5)!important; }
+.bookTile small,.bookTile>span,.drawerBook small,.drawerBook i{color:rgba(255,255,255,.82)!important;text-shadow:0 1px 8px rgba(0,0,0,.52)!important}
+
+/* The homepage artwork now reads as an illuminated manuscript rather than a plain gradient. */
+.the81-home .hero::before{
+  inset:4.5%!important;
+  border:1px solid rgba(255,238,199,.48)!important;
+  box-shadow:inset 0 0 0 5px rgba(72,48,25,.10),inset 0 0 52px rgba(40,25,12,.11)!important;
+  opacity:1!important;
+}
+.hero.the81Hero,.the81-home .hero{background-position:center 38%!important}
+
+@media (max-width:560px){
+  .topbar{grid-template-columns:42px minmax(0,1fr) 42px 42px!important;gap:7px!important}
+  .topbar .round{width:42px!important;min-width:42px!important;height:42px!important;min-height:42px!important}
+  .topbar #homeBtn{height:42px!important;min-height:42px!important;padding:0 8px!important}
+  .topbar #homeBtn .brandTitle b{font-size:13px!important}
+}
