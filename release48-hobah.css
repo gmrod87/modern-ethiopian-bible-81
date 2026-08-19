@@ -1,11 +1,26 @@
-/* Hobah brand layer — cream, black and copper emblem. */
-.hobahHomeBrand{display:flex;align-items:center;justify-content:center;width:100%;margin:4px auto 26px;padding:0 2px;box-sizing:border-box}
-.hobahHomeBrand img{display:block;width:min(720px,100%);height:auto;max-height:220px;object-fit:contain;filter:drop-shadow(0 14px 28px rgba(42,29,22,.08))}
-.the81Hero.hobahBranded>h1{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
-.the81Hero.hobahBranded{padding-top:28px!important}
-.the81Hero.hobahBranded .eyebrow{color:#A95635!important;letter-spacing:.16em!important}
-.topbar .brandTitle b{letter-spacing:-.025em!important;color:#1E1814!important}
-.topbar .brandCross{font-size:0!important;display:grid!important;place-items:center!important;width:38px!important;height:38px!important;flex:0 0 38px!important;background:transparent!important}
-.topbar .hobahHeaderMark{display:block!important;width:34px!important;height:34px!important;object-fit:contain!important;border-radius:9px!important;filter:drop-shadow(0 3px 6px rgba(42,29,22,.08))}
-@media(max-width:700px){.hobahHomeBrand{margin:0 auto 18px}.hobahHomeBrand img{width:100%;max-height:166px}.the81Hero.hobahBranded{padding-top:20px!important}.topbar .brandCross{width:34px!important;height:34px!important;flex-basis:34px!important}.topbar .hobahHeaderMark{width:31px!important;height:31px!important}}
-@media(max-width:430px){.hobahHomeBrand img{max-height:140px}.hobahHomeBrand{margin-bottom:12px}.topbar .brandCross{width:30px!important;height:30px!important;flex-basis:30px!important}.topbar .hobahHeaderMark{width:28px!important;height:28px!important}}
+/* Hobah brand layer — cream, black and copper H emblem. */
+.hobahHomeBrand{display:flex!important;align-items:center!important;justify-content:center!important;width:100%!important;margin:0 auto 18px!important;padding:0!important;box-sizing:border-box!important;position:relative!important;z-index:2!important}
+.hero.hobahBranded .hobahHomeBrand img,.hero.the81Hero.hobahBranded .hobahHomeBrand img{display:block!important;visibility:visible!important;opacity:1!important;width:112px!important;height:112px!important;max-width:112px!important;max-height:112px!important;object-fit:contain!important;border-radius:25px!important;filter:drop-shadow(0 12px 24px rgba(42,29,22,.12))!important}
+.hero.hobahBranded .eyebrow,.hero.the81Hero.hobahBranded .eyebrow{color:#A95635!important;-webkit-text-fill-color:#A95635!important;letter-spacing:.16em!important}
+
+/* Release 47 hides the old cross with an ID selector; this deliberately outranks it. */
+.topbar #homeBtn .brandCross{font-size:0!important;display:grid!important;visibility:visible!important;opacity:1!important;place-items:center!important;width:38px!important;height:38px!important;min-width:38px!important;flex:0 0 38px!important;background:transparent!important;margin-right:9px!important}
+.topbar #homeBtn .hobahHeaderMark{display:block!important;visibility:visible!important;opacity:1!important;width:36px!important;height:36px!important;object-fit:contain!important;border-radius:10px!important;filter:drop-shadow(0 3px 7px rgba(42,29,22,.10))!important}
+.topbar #homeBtn{display:flex!important;align-items:center!important;justify-content:center!important;gap:0!important}
+.topbar #homeBtn .brandTitle{display:flex!important;flex-direction:column!important;align-items:flex-start!important;justify-content:center!important;min-width:0!important}
+.topbar #homeBtn .brandTitle b{letter-spacing:-.025em!important;color:#1E1814!important;-webkit-text-fill-color:#1E1814!important;font-size:21px!important}
+.topbar #homeBtn .brandTitle small{display:none!important}
+
+@media(max-width:700px){
+  .hero.hobahBranded .hobahHomeBrand img,.hero.the81Hero.hobahBranded .hobahHomeBrand img{width:94px!important;height:94px!important;max-width:94px!important;max-height:94px!important;border-radius:22px!important}
+  .hobahHomeBrand{margin-bottom:14px!important}
+  .topbar #homeBtn .brandCross{width:32px!important;height:32px!important;min-width:32px!important;flex-basis:32px!important;margin-right:7px!important}
+  .topbar #homeBtn .hobahHeaderMark{width:31px!important;height:31px!important;border-radius:9px!important}
+  .topbar #homeBtn .brandTitle b{font-size:20px!important}
+}
+@media(max-width:430px){
+  .hero.hobahBranded .hobahHomeBrand img,.hero.the81Hero.hobahBranded .hobahHomeBrand img{width:82px!important;height:82px!important;max-width:82px!important;max-height:82px!important;border-radius:19px!important}
+  .topbar #homeBtn .brandCross{width:29px!important;height:29px!important;min-width:29px!important;flex-basis:29px!important;margin-right:6px!important}
+  .topbar #homeBtn .hobahHeaderMark{width:28px!important;height:28px!important;border-radius:8px!important}
+  .topbar #homeBtn .brandTitle b{font-size:19px!important}
+}
