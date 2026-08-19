@@ -1,7 +1,7 @@
 const {execFileSync}=require('child_process');
 const fs=require('fs');
 const path=require('path');
-const release='31';
+const release='32';
 
 for(const f of ['experience.js','experience.css','ambient-audio.js','the81-theme.js','the81-theme.css']){
   if(fs.existsSync(f))fs.copyFileSync(f,'dist/'+f);
@@ -14,14 +14,17 @@ if(fs.existsSync(srcArt))for(const name of fs.readdirSync(srcArt)){
   if(fs.statSync(src).isFile())fs.copyFileSync(src,dst);
 }
 
-// Temporary artwork fallback while the rest of the supplied illustrations are being added.
+// Convert any legacy image references to the new valid SVG artwork set.
 for(const f of ['dist/the81-theme.css','dist/the81-theme.js'])if(fs.existsSync(f)){
   let s=fs.readFileSync(f,'utf8');
-  s=s.replace(/\/assets\/the81\/(creation|exodus|babel|esther|psalms|gospel)\.webp/g,'/assets/the81/creation.svg');
+  s=s.replace(/\/assets\/the81\/(creation|exodus|babel|esther|psalms|gospel)\.webp/g,'/assets/the81/$1.svg');
   fs.writeFileSync(f,s);
 }
 
 fs.appendFileSync('dist/styles.css',`\n/* Release ${release}: compact mobile Home */\n@media(max-width:900px){.topbar #homeBtn{position:static!important;inset:auto!important;left:auto!important;top:auto!important;transform:none!important;z-index:auto!important;flex:0 0 auto!important;margin:0!important}}\n`);
+
+// Make artwork visible above the page background, and make the Books drawer own the top layer.
+fs.appendFileSync('dist/the81-theme.css',`\n/* Release ${release}: visible artwork + drawer stacking fix */\nhtml{background:#0e171c!important}\nbody{position:relative!important;isolation:isolate!important;background:transparent!important}\nbody::before{z-index:-2!important;opacity:1!important}\nbody::after{z-index:-1!important}\n.topbar{z-index:150!important}\n.searchbar{z-index:145!important}\n.drawer{position:fixed!important;top:0!important;bottom:0!important;height:100dvh!important;z-index:3200!important}\n.drawerHead{position:sticky!important;top:0!important;z-index:6!important}\n.backdrop{z-index:3100!important}\n@media(max-width:900px){.drawer{width:min(94vw,430px)!important}.drawerHead{padding-top:max(14px,env(safe-area-inset-top))!important}}\n`);
 
 // Keep Ambient Music safe from the old MutationObserver feedback loop.
 {
