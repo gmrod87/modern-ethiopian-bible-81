@@ -1,1 +1,1 @@
-{"$schema":"https://openapi.vercel.sh/vercel.json","buildCommand":"node build.js && node postbuild-experience.js && node postbuild-read-aloud.js && node release35-postbuild.js && node release36-postbuild.js && node release37-postbuild.js && node release47-postbuild.js && node release48-postbuild.js && node release49-postbuild.js","outputDirectory":"dist"}
+{"$schema":"https://openapi.vercel.sh/vercel.json","buildCommand":"node production-build.js","outputDirectory":"dist"}
