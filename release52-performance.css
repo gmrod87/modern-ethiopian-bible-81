@@ -1,0 +1,54 @@
+/* Hobah Release 52 — responsiveness and paint-performance pass. */
+
+/* iPhone Safari performs much better with solid sticky surfaces than live blur filters. */
+.topbar,.searchbar{
+  -webkit-backdrop-filter:none!important;
+  backdrop-filter:none!important;
+  background:#FCFBF8!important;
+  background-image:none!important;
+  will-change:auto!important;
+}
+.topbar{box-shadow:0 2px 10px rgba(19,35,30,.045)!important}
+.searchbar{background:#EEECE5!important;box-shadow:none!important}
+
+/* Header interactions should respond on the first touch without animated/filter work. */
+.topbar button,.topbar a,.topbar #homeBtn,.searchbar button,.searchbar input{
+  touch-action:manipulation!important;
+  -webkit-tap-highlight-color:transparent!important;
+  transition:none!important;
+  animation:none!important;
+}
+.topbar #homeBtn .hobahHeaderMark{
+  filter:none!important;
+  -webkit-filter:none!important;
+  transform:none!important;
+}
+
+/* Keep drawer animation GPU-cheap; never animate layout properties. */
+.drawer{
+  will-change:transform!important;
+  backface-visibility:hidden!important;
+  -webkit-backface-visibility:hidden!important;
+}
+.drawer:not(.open){pointer-events:none!important}
+.drawer.open{pointer-events:auto!important}
+.backdrop{will-change:opacity!important}
+
+/* Large reading lists can skip off-screen paint work on modern Safari/Chromium. */
+.drawerBook,.bookTile,.searchResult,.libraryItem,.studyVerse,.researchResult{
+  content-visibility:auto;
+  contain-intrinsic-size:72px;
+}
+
+/* Avoid expensive smooth scrolling while navigating; explicit verse jumps can still opt in. */
+html{scroll-behavior:auto!important}
+
+@media(max-width:700px){
+  .topbar,.searchbar{transform:none!important}
+  .topbar{contain:layout style!important}
+  .searchbar{contain:layout style!important}
+}
+
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+}
