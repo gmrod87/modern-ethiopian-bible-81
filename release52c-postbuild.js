@@ -1,0 +1,12 @@
+const fs=require('fs');
+const {execFileSync}=require('child_process');
+const p='dist/app.js';
+if(!fs.existsSync(p))throw new Error('Release52c: dist/app.js missing');
+let app=fs.readFileSync(p,'utf8');
+app=app.replace(/\$+\('#filters button'\)\.forEach/g,()=>"$$('#filters button').forEach");
+const hits=app.match(/\$\$\('#filters button'\)\.forEach/g)||[];
+if(hits.length!==2)throw new Error(`Release52c: expected 2 filter bindings, found ${hits.length}`);
+if(/\$\$\$+\('#filters button'\)/.test(app))throw new Error('Release52c: triple-dollar selector remains');
+fs.writeFileSync(p,app);
+for(const f of ['dist/app.js','dist/feature-loader.js','dist/sw.js'])execFileSync(process.execPath,['--check',f],{stdio:'inherit'});
+console.log('Hobah Release 52c filter bindings normalized and verified');
