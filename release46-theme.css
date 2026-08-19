@@ -1,0 +1,300 @@
+/* Release 46 — cream surfaces, black text, red accents only.
+   This file must load last and intentionally avoids dark/red information panels. */
+
+:root{
+  --r46-cream:#f3ead8;
+  --r46-paper:#fbf5e9;
+  --r46-ink:#17120f;
+  --r46-red:#973b2c;
+  --r46-red-dark:#7f2f22;
+  --r46-line:#5a4638;
+  --r46-muted:#5f534c;
+}
+
+html,body,body.dark{
+  background:var(--r46-cream)!important;
+  background-image:none!important;
+  color:var(--r46-ink)!important;
+  -webkit-text-fill-color:var(--r46-ink)!important;
+}
+
+/* Core app surfaces: cream/paper only. */
+html body .topbar,
+html body .searchbar,
+html body #app,
+html body #drawer,
+html body .drawerHead,
+html body .filterRow,
+html body .readerTools,
+html body .hero,
+html body .panel,
+html body .card,
+html body .readerHead,
+html body .readerPaper,
+html body .readingSurface,
+html body .chapterText,
+html body .studyHubCard,
+html body .studyAiCard,
+html body .researchSuiteCard,
+html body .dialogCard,
+html body .sheet,
+html body .modal,
+html body .drawerBook,
+html body .studyAvailable,
+html body .featureCard,
+html body .category,
+html body .editionStats,
+html body .researchNote,
+html body .feelingCard{
+  background:var(--r46-paper)!important;
+  background-image:none!important;
+  color:var(--r46-ink)!important;
+  -webkit-text-fill-color:var(--r46-ink)!important;
+  opacity:1!important;
+  filter:none!important;
+  -webkit-filter:none!important;
+  mix-blend-mode:normal!important;
+  box-shadow:none!important;
+}
+
+html body .topbar,
+html body .searchbar,
+html body #drawer,
+html body .drawerHead,
+html body .filterRow,
+html body .readerTools{
+  background:var(--r46-cream)!important;
+}
+
+/* Default text is literal near-black; do not inherit legacy theme variables. */
+html body .topbar *,
+html body .searchbar *,
+html body #app *,
+html body #drawer *,
+html body .readerTools *,
+html body .dialogCard *,
+html body .audioBar *{
+  color:var(--r46-ink)!important;
+  -webkit-text-fill-color:var(--r46-ink)!important;
+  opacity:1!important;
+  text-shadow:none!important;
+  filter:none!important;
+  -webkit-filter:none!important;
+  mix-blend-mode:normal!important;
+}
+
+html body input::placeholder,
+html body textarea::placeholder{
+  color:var(--r46-muted)!important;
+  -webkit-text-fill-color:var(--r46-muted)!important;
+  opacity:1!important;
+}
+
+/* Header/search/reader controls: cream with black text. */
+html body .topbar .round,
+html body .topbar #homeBtn,
+html body .searchbar form,
+html body .searchbar button,
+html body .readerTools button,
+html body .readerTools select,
+html body .readerTools input,
+html body #drawer .filterRow button,
+html body #drawer .drawerBook,
+html body #app button:not(.primary),
+html body #app select,
+html body #app input,
+html body #app textarea{
+  background:var(--r46-paper)!important;
+  color:var(--r46-ink)!important;
+  -webkit-text-fill-color:var(--r46-ink)!important;
+  border-color:var(--r46-line)!important;
+  opacity:1!important;
+  box-shadow:none!important;
+}
+
+/* Red is an accent, not a panel background. */
+html body #app .eyebrow,
+html body #app .vnum,
+html body #app .bookNo,
+html body #app .chapterNo,
+html body #drawer .drawerBook i,
+html body #drawer .drawerHead small,
+html body #app a:not(.primary){
+  color:var(--r46-red)!important;
+  -webkit-text-fill-color:var(--r46-red)!important;
+}
+
+/* Primary actions may be red; text stays cream/white. */
+html body #app .primary,
+html body #app button.primary,
+html body #app a.primary,
+html body #app .researchPrimary,
+html body #drawer .filterRow button.active,
+html body #app [aria-pressed="true"],
+html body .aiFab,
+html body .ai-fab,
+html body [class*="aiFab"],
+html body [class*="ai-fab"]{
+  background:var(--r46-red)!important;
+  background-image:none!important;
+  border-color:var(--r46-red-dark)!important;
+  color:#fff8ec!important;
+  -webkit-text-fill-color:#fff8ec!important;
+  opacity:1!important;
+  box-shadow:none!important;
+}
+
+html body #app .primary *,
+html body #app button.primary *,
+html body #app a.primary *,
+html body #app .researchPrimary *,
+html body #drawer .filterRow button.active *,
+html body #app [aria-pressed="true"] *,
+html body .aiFab *,
+html body .ai-fab *,
+html body [class*="aiFab"] *,
+html body [class*="ai-fab"] *{
+  color:#fff8ec!important;
+  -webkit-text-fill-color:#fff8ec!important;
+}
+
+/* Previously dark information/context cards: now cream with black text and a red accent. */
+html body #app .bookBackground,
+html body #app .book-background,
+html body #app .studyContext,
+html body #app .study-context,
+html body #app .darkCard,
+html body #app .dark-card,
+html body #app .contextCard,
+html body #app .context-card,
+html body #app [class*="darkPanel"],
+html body #app [class*="dark-card"],
+html body #app [class*="DarkCard"],
+html body #app .bookContext,
+html body #app .book-context,
+html body #app .studyContextCard,
+html body #app .bookBackgroundCard{
+  background:var(--r46-paper)!important;
+  background-image:none!important;
+  border:1px solid var(--r46-red)!important;
+  color:var(--r46-ink)!important;
+  -webkit-text-fill-color:var(--r46-ink)!important;
+  opacity:1!important;
+  filter:none!important;
+  -webkit-filter:none!important;
+  box-shadow:none!important;
+}
+
+html body #app .bookBackground *,
+html body #app .book-background *,
+html body #app .studyContext *,
+html body #app .study-context *,
+html body #app .darkCard *,
+html body #app .dark-card *,
+html body #app .contextCard *,
+html body #app .context-card *,
+html body #app [class*="darkPanel"] *,
+html body #app [class*="dark-card"] *,
+html body #app [class*="DarkCard"] *,
+html body #app .bookContext *,
+html body #app .book-context *,
+html body #app .studyContextCard *,
+html body #app .bookBackgroundCard *{
+  color:var(--r46-ink)!important;
+  -webkit-text-fill-color:var(--r46-ink)!important;
+  opacity:1!important;
+}
+
+html body #app .bookBackground h1,
+html body #app .bookBackground h2,
+html body #app .bookBackground h3,
+html body #app .book-background h1,
+html body #app .book-background h2,
+html body #app .book-background h3,
+html body #app .studyContext h1,
+html body #app .studyContext h2,
+html body #app .studyContext h3,
+html body #app .study-context h1,
+html body #app .study-context h2,
+html body #app .study-context h3{
+  color:var(--r46-red)!important;
+  -webkit-text-fill-color:var(--r46-red)!important;
+}
+
+/* Read Aloud: cream panel, black copy, red active/play accent. */
+html body .audioBar,
+html body .audioBar.audioBarClean{
+  background:var(--r46-paper)!important;
+  background-image:none!important;
+  color:var(--r46-ink)!important;
+  -webkit-text-fill-color:var(--r46-ink)!important;
+  border:1px solid var(--r46-red)!important;
+  opacity:1!important;
+  filter:none!important;
+  -webkit-filter:none!important;
+  backdrop-filter:blur(12px)!important;
+  -webkit-backdrop-filter:blur(12px)!important;
+  box-shadow:0 12px 34px rgba(23,18,15,.12)!important;
+}
+
+html body .audioBar.audioBarClean *,
+html body .audioBar *{
+  color:var(--r46-ink)!important;
+  -webkit-text-fill-color:var(--r46-ink)!important;
+  opacity:1!important;
+}
+
+html body .audioBar.audioBarClean .audioPanelLabel,
+html body .audioBar.audioBarClean .audioAmbientSetting,
+html body .audioBar.audioBarClean .audioVoiceSetting,
+html body .audioBar.audioBarClean #audioModes{
+  border-color:rgba(151,59,44,.35)!important;
+}
+
+html body .audioBar.audioBarClean button,
+html body .audioBar.audioBarClean select,
+html body .audioBar.audioBarClean .audioContinuous,
+html body .audioBar.audioBarClean [data-audio-mode]{
+  background:var(--r46-paper)!important;
+  color:var(--r46-ink)!important;
+  -webkit-text-fill-color:var(--r46-ink)!important;
+  border-color:var(--r46-line)!important;
+  box-shadow:none!important;
+}
+
+html body .audioBar.audioBarClean #audioPlay,
+html body .audioBar.audioBarClean [data-audio-mode].active,
+html body .audioBar.audioBarClean .audioAmbient.active,
+html body .audioBar.audioBarClean button[aria-pressed="true"]{
+  background:var(--r46-red)!important;
+  border-color:var(--r46-red-dark)!important;
+  color:#fff8ec!important;
+  -webkit-text-fill-color:#fff8ec!important;
+}
+
+html body .audioBar.audioBarClean #audioPlay *,
+html body .audioBar.audioBarClean [data-audio-mode].active *,
+html body .audioBar.audioBarClean .audioAmbient.active *,
+html body .audioBar.audioBarClean button[aria-pressed="true"] *{
+  color:#fff8ec!important;
+  -webkit-text-fill-color:#fff8ec!important;
+}
+
+/* Keep the close button cream/black. */
+html body .audioBar.audioBarClean .audioTopClose,
+html body .audioBar.audioBarClean #audioClose{
+  background:var(--r46-paper)!important;
+  color:var(--r46-ink)!important;
+  -webkit-text-fill-color:var(--r46-ink)!important;
+  border-color:var(--r46-line)!important;
+}
+
+/* Backdrops may dim the page, but never darken the panel itself. */
+html body .backdrop,
+html body .modalBackdrop,
+html body .dialog::backdrop{
+  background:rgba(23,18,15,.22)!important;
+}
+
+/* No hidden element resurrection. */
+[hidden],.hidden{display:none!important}
