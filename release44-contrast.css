@@ -1,0 +1,146 @@
+/* Release 44 — literal high-specificity contrast lock.
+   Do not use theme variables here: legacy modules redefine them locally. */
+html body .topbar,
+html body .searchbar,
+html body #app,
+html body #drawer,
+html body .readerTools,
+html body .audioBar,
+html body .dialog,
+html body .modal,
+html body .sheet {
+  opacity:1!important;
+  filter:none!important;
+  -webkit-filter:none!important;
+  mix-blend-mode:normal!important;
+}
+
+html body .topbar *,
+html body .searchbar *,
+html body #app *,
+html body #drawer *,
+html body .readerTools *,
+html body .audioBar *,
+html body .dialog *,
+html body .modal *,
+html body .sheet * {
+  color:#17120f!important;
+  -webkit-text-fill-color:#17120f!important;
+  opacity:1!important;
+  text-shadow:none!important;
+  filter:none!important;
+  -webkit-filter:none!important;
+  mix-blend-mode:normal!important;
+}
+
+html body .searchbar input::placeholder,
+html body #app input::placeholder,
+html body #app textarea::placeholder,
+html body #drawer input::placeholder {
+  color:#5a4f49!important;
+  -webkit-text-fill-color:#5a4f49!important;
+  opacity:1!important;
+}
+
+/* Primary red controls: always white text. */
+html body #app .primary,
+html body #app button.primary,
+html body #app a.primary,
+html body #app .researchPrimary,
+html body #app [aria-pressed="true"],
+html body #drawer .filterRow button.active,
+html body .aiFab,
+html body .ai-fab,
+html body [class*="aiFab"],
+html body [class*="ai-fab"] {
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  opacity:1!important;
+}
+html body #app .primary *,
+html body #app button.primary *,
+html body #app a.primary *,
+html body #app .researchPrimary *,
+html body #app [aria-pressed="true"] *,
+html body #drawer .filterRow button.active *,
+html body .aiFab *,
+html body .ai-fab *,
+html body [class*="aiFab"] *,
+html body [class*="ai-fab"] * {
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  opacity:1!important;
+}
+
+/* Legacy dark cards: always white text. */
+html body #app .bookBackground,
+html body #app .book-background,
+html body #app .studyContext,
+html body #app .study-context,
+html body #app .darkCard,
+html body #app .dark-card,
+html body #app .contextCard,
+html body #app .context-card,
+html body #app [class*="darkPanel"],
+html body #app [class*="dark-card"],
+html body #app [class*="DarkCard"] {
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+}
+html body #app .bookBackground *,
+html body #app .book-background *,
+html body #app .studyContext *,
+html body #app .study-context *,
+html body #app .darkCard *,
+html body #app .dark-card *,
+html body #app .contextCard *,
+html body #app .context-card *,
+html body #app [class*="darkPanel"] *,
+html body #app [class*="dark-card"] *,
+html body #app [class*="DarkCard"] * {
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+  opacity:1!important;
+}
+
+/* Explicitly pin the elements visible in the reported iPhone screenshots. */
+html body .topbar #menuBtn,
+html body .topbar #homeBtn,
+html body .topbar #homeBtn *,
+html body .topbar #savedBtn,
+html body .searchbar span,
+html body .searchbar input,
+html body .searchbar button,
+html body #drawer .drawerBook span,
+html body #drawer .drawerBook small,
+html body #app h1,
+html body #app h2,
+html body #app h3,
+html body #app h4,
+html body #app p,
+html body #app label,
+html body #app button:not(.primary),
+html body #app select {
+  color:#17120f!important;
+  -webkit-text-fill-color:#17120f!important;
+  opacity:1!important;
+}
+
+/* Red/dark exceptions repeated after screenshot pins so they cannot be overridden. */
+html body #app .primary,
+html body #app .primary *,
+html body #app button.primary,
+html body #app button.primary *,
+html body #drawer .filterRow button.active,
+html body #drawer .filterRow button.active *,
+html body .aiFab,
+html body .aiFab *,
+html body .ai-fab,
+html body .ai-fab *,
+html body [class*="aiFab"],
+html body [class*="aiFab"] *,
+html body [class*="ai-fab"],
+html body [class*="ai-fab"] * {
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+}
