@@ -1,0 +1,35 @@
+/* Release 51 — Ancient Canon home hero and Hobah emblem cleanup */
+
+/* Header: emblem only, perfectly centered. */
+.topbar #homeBtn{display:flex!important;align-items:center!important;justify-content:center!important;padding:0!important;gap:0!important}
+.topbar #homeBtn .brandTitle,.topbar #homeBtn .mobileHomeIcon,.topbar #homeBtn .mobileHomeText{display:none!important}
+.topbar #homeBtn .brandCross{display:grid!important;visibility:visible!important;opacity:1!important;place-items:center!important;width:44px!important;height:44px!important;min-width:44px!important;flex:0 0 44px!important;margin:0!important;background:transparent!important;font-size:0!important}
+.topbar #homeBtn .hobahHeaderMark{display:block!important;visibility:visible!important;opacity:1!important;width:42px!important;height:42px!important;max-width:42px!important;max-height:42px!important;object-fit:contain!important;border-radius:10px!important;filter:drop-shadow(0 3px 7px rgba(42,29,22,.10))!important}
+
+/* Home hero: no large emblem or decorative flourish row. */
+.hero .hobahHomeBrand,.hero.the81Hero .hobahHomeBrand{display:none!important}
+.hero::after,.hero.the81Hero::after{content:none!important;display:none!important}
+.hero .heroDecor,.hero .hero-decoration,.hero .heroDecoration,.hero .ornaments,.hero .ornament,.hero .flourish,.hero .heroFlourish,.hero .heroLines,.hero .heroSymbols,.hero .editionMark,.hero .heroMark,.hero .sigil,.hero .decorRow,
+.hero.the81Hero .heroDecor,.hero.the81Hero .hero-decoration,.hero.the81Hero .heroDecoration,.hero.the81Hero .ornaments,.hero.the81Hero .ornament,.hero.the81Hero .flourish,.hero.the81Hero .heroFlourish,.hero.the81Hero .heroLines,.hero.the81Hero .heroSymbols,.hero.the81Hero .editionMark,.hero.the81Hero .heroMark,.hero.the81Hero .sigil,.hero.the81Hero .decorRow{display:none!important}
+
+/* Center the small research-edition line. */
+.hero .eyebrow,.hero.the81Hero .eyebrow{display:block!important;width:100%!important;max-width:none!important;margin:6px auto 22px!important;text-align:center!important;color:#A95635!important;-webkit-text-fill-color:#A95635!important;font-size:10px!important;font-weight:900!important;line-height:1.45!important;letter-spacing:.15em!important;text-transform:uppercase!important}
+
+/* The Ancient Canon — bold / italic / bold. */
+.hero h1.ancientCanonTitle,.hero.the81Hero h1.ancientCanonTitle{display:block!important;position:static!important;width:auto!important;height:auto!important;overflow:visible!important;clip:auto!important;white-space:normal!important;margin:0 0 22px!important;padding:0!important;color:#12362f!important;-webkit-text-fill-color:#12362f!important;font-family:Georgia,"Times New Roman",serif!important;font-size:clamp(54px,10vw,92px)!important;line-height:.88!important;letter-spacing:-.06em!important;text-align:left!important}
+.hero h1.ancientCanonTitle span{display:block!important;color:inherit!important;-webkit-text-fill-color:inherit!important}
+.hero h1.ancientCanonTitle .ancientLine1,.hero h1.ancientCanonTitle .ancientLine3{font-style:normal!important;font-weight:700!important}
+.hero h1.ancientCanonTitle .ancientLine2{font-style:italic!important;font-weight:500!important;letter-spacing:-.055em!important}
+
+@media(max-width:700px){
+  .topbar #homeBtn .brandCross{width:40px!important;height:40px!important;min-width:40px!important;flex-basis:40px!important}
+  .topbar #homeBtn .hobahHeaderMark{width:38px!important;height:38px!important;max-width:38px!important;max-height:38px!important}
+  .hero .eyebrow,.hero.the81Hero .eyebrow{margin-top:2px!important;margin-bottom:18px!important;font-size:9px!important;letter-spacing:.13em!important}
+  .hero h1.ancientCanonTitle,.hero.the81Hero h1.ancientCanonTitle{font-size:clamp(52px,13vw,78px)!important}
+}
+
+@media(max-width:430px){
+  .topbar #homeBtn .brandCross{width:38px!important;height:38px!important;min-width:38px!important;flex-basis:38px!important}
+  .topbar #homeBtn .hobahHeaderMark{width:36px!important;height:36px!important;max-width:36px!important;max-height:36px!important;border-radius:9px!important}
+  .hero h1.ancientCanonTitle,.hero.the81Hero h1.ancientCanonTitle{font-size:58px!important}
+}
