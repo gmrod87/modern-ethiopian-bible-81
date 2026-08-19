@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="Hobah — The Ethiopian Bible App">
+<defs>
+  <linearGradient id="paper" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fffdf8"/><stop offset="1" stop-color="#ece8df"/></linearGradient>
+  <linearGradient id="green" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0d332d"/><stop offset="1" stop-color="#174c42"/></linearGradient>
+  <linearGradient id="copper" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#efb16c"/><stop offset=".45" stop-color="#b9613f"/><stop offset="1" stop-color="#7d3a2a"/></linearGradient>
+  <linearGradient id="ivory" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fffdf5"/><stop offset="1" stop-color="#eadfc9"/></linearGradient>
+  <radialGradient id="glow"><stop stop-color="#ffd48e" stop-opacity=".9"/><stop offset="1" stop-color="#ffd48e" stop-opacity="0"/></radialGradient>
+  <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%"><feDropShadow dx="0" dy="14" stdDeviation="16" flood-color="#071a16" flood-opacity=".18"/></filter>
+</defs>
+<rect width="1200" height="630" fill="url(#paper)"/>
+<path d="M0 0h1200v72C1020 30 886 20 725 28 514 40 262 112 0 78Z" fill="#153c35" opacity=".98"/>
+<path d="M0 630h1200v-70c-173 37-318 42-465 27-209-21-404-72-735-32Z" fill="#153c35" opacity=".98"/>
+<path d="M0 82C291 123 495 39 727 31c158-6 314 6 473 42" fill="none" stroke="#bd6946" stroke-width="5"/>
+<path d="M0 552c272-37 490 29 713 40 177 9 329-5 487-32" fill="none" stroke="#bd6946" stroke-width="5"/>
+<g transform="translate(82 147) scale(.68)" filter="url(#shadow)">
+  <rect x="16" y="16" width="480" height="480" rx="118" fill="url(#green)"/>
+  <rect x="26" y="26" width="460" height="460" rx="108" fill="none" stroke="url(#copper)" stroke-width="10"/>
+  <circle cx="256" cy="191" r="116" fill="url(#glow)"/>
+  <path d="M89 325c47-65 82-89 126-95-24 30-34 59-38 95H89Zm334 0c-47-65-82-89-126-95 24 30 34 59 38 95h88Z" fill="#082720" opacity=".92"/>
+  <path d="M117 348c49-28 100-34 139-8 39-26 90-20 139 8v76c-47-23-96-27-139 3-43-30-92-26-139-3Z" fill="url(#ivory)" stroke="#b76b43" stroke-width="7"/>
+  <text x="256" y="297" text-anchor="middle" font-family="Georgia,serif" font-size="252" font-weight="700" fill="url(#ivory)" stroke="#c48152" stroke-width="4" paint-order="stroke">H</text>
+  <path d="M256 414c-8-34-8-58 3-82 10-23 33-39 20-67-8-18-28-25-22-45 4-14 19-22 20-37" fill="none" stroke="url(#copper)" stroke-width="20" stroke-linecap="round"/>
+  <path d="M255 161c-22 26-31 43-30 59 1 20 15 36 31 36 19 0 33-16 33-36 0-17-10-34-34-59Z" fill="#ffb554"/>
+  <path d="M256 181c-11 15-16 25-15 35 0 11 7 19 15 19 9 0 16-8 16-19 0-10-5-20-16-35Z" fill="#fff6cd"/>
+  <path d="M226 252h60l-11 25h-38Z" fill="url(#copper)"/>
+  <path d="M256 71l8 24 24 8-24 8-8 24-8-24-24-8 24-8Z" fill="#f4b86d"/>
+</g>
+<text x="500" y="290" font-family="Georgia, 'Times New Roman', serif" font-size="138" font-weight="700" letter-spacing="-5" fill="#12362f">Hobah</text>
+<path d="M505 327h525" stroke="#d8d3ca" stroke-width="2"/>
+<path d="M505 327h145" stroke="url(#copper)" stroke-width="6" stroke-linecap="round"/>
+<path d="M765 316l6 11 12 6-12 6-6 12-6-12-12-6 12-6Z" fill="#b96240"/>
+<text x="505" y="383" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700" letter-spacing="5" fill="#52635c">READ · LISTEN · SEARCH · STUDY</text>
+<text x="505" y="435" font-family="Georgia,serif" font-size="31" font-style="italic" fill="#7c4937">The Ethiopian Bible App</text>
+<text x="505" y="480" font-family="Arial, Helvetica, sans-serif" font-size="20" fill="#6c746f">All 81 books in one modern reading, study and audio experience.</text>
+<circle cx="1110" cy="115" r="5" fill="#d08b58"/><circle cx="1090" cy="115" r="3" fill="#d08b58" opacity=".6"/>
+</svg>
