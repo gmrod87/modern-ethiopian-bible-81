@@ -8,7 +8,6 @@ for(const f of ['release47-codex.css','release47-codex.js']) fs.copyFileSync(f,'
 
 const htmlPath='dist/index.html';
 let h=fs.readFileSync(htmlPath,'utf8');
-// Remove all previous visual-release styles; keep feature CSS and functional runtimes.
 h=h.replace(/\s*<link[^>]+href=["']\/(?:release39-clean|release44-contrast|release45-theme|release46-theme|release47-codex)\.css[^"']*["'][^>]*>/gi,'');
 h=h.replace(/\s*<script[^>]+src=["']\/release47-codex\.js[^"']*["'][^>]*><\/script>/gi,'');
 h=h.replace(/<title>[\s\S]*?<\/title>/i,`<title>${brand}</title>`);
@@ -17,22 +16,24 @@ h=h.replace(/<meta name="description" content="[^"]*"\s*\/?\s*>/i,`<meta name="d
 h=h.replace(/<meta name="theme-color" content="[^"]*"\s*\/?\s*>/i,'<meta name="theme-color" content="#EEECE5" />');
 h=h.replace(/<meta name="apple-mobile-web-app-status-bar-style" content="[^"]*"\s*\/?\s*>/i,'<meta name="apple-mobile-web-app-status-bar-style" content="default" />');
 h=h.replaceAll('Modern Ethiopian Bible',brand).replaceAll('The 81',brand).replaceAll('The Complete 81 Books',subtitle).replaceAll('THE COMPLETE 81 BOOKS','THE ETHIOPIAN CANON • 81 BOOKS');
+h=h.replace('placeholder="Search all 81 books…"','placeholder="Search Codex 81…"');
+h=h.replace('<div><small>THE COMPLETE EDITION</small><h2>Books</h2></div>','<div><small>CODEX LIBRARY</small><h2>81 Books</h2></div>');
+h=h.replace('<section class="hero the81Hero" id="bootFallback"><span class="eyebrow">THE ETHIOPIAN CANON • 81 BOOKS</span><h1><span class="theWord">The</span><span class="theNumber">81</span></h1><p>The Word. The Story. The Way.</p></section>','<section class="hero the81Hero" id="bootFallback"><span class="eyebrow">THE ETHIOPIAN CANON • 81 BOOKS</span><h1>Codex 81</h1><p>Read. Listen. Search. Study.</p></section>');
 h=h.replace('</head>',`  <link rel="icon" href="/codex81-icon.svg" type="image/svg+xml" />\n  <link rel="stylesheet" href="/release47-codex.css?v=${v}" />\n</head>`);
 h=h.replace('</body>',`  <script src="/release47-codex.js?v=${v}" defer></script>\n</body>`);
 fs.writeFileSync(htmlPath,h);
 
-// Rebrand dynamically rendered home/header strings without touching feature logic.
 const appPath='dist/app.js';
 if(fs.existsSync(appPath)){
   let a=fs.readFileSync(appPath,'utf8');
   a=a.replaceAll('Modern Ethiopian Bible',brand)
      .replaceAll('The 81',brand)
      .replaceAll('The Complete 81 Books',subtitle)
-     .replaceAll('THE COMPLETE 81 BOOKS','THE ETHIOPIAN CANON • 81 BOOKS');
+     .replaceAll('THE COMPLETE 81 BOOKS','THE ETHIOPIAN CANON • 81 BOOKS')
+     .replaceAll('Search all 81 books…','Search Codex 81…');
   fs.writeFileSync(appPath,a);
 }
 
-// New lightweight brand mark for browser/PWA-capable surfaces.
 fs.writeFileSync('dist/codex81-icon.svg',`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="116" fill="#244D45"/><path d="M104 118h304v276H104z" fill="#FCFBF8" opacity=".98"/><path d="M135 118v276M377 118v276" stroke="#C56F4C" stroke-width="12"/><text x="256" y="310" text-anchor="middle" font-family="Georgia,serif" font-size="176" font-weight="700" fill="#13231E">81</text><circle cx="256" cy="94" r="18" fill="#C56F4C"/></svg>`);
 
 const manifest='dist/manifest.webmanifest';
