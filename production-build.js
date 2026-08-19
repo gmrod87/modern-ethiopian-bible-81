@@ -9,7 +9,8 @@ const steps=[
   'release47-postbuild.js',
   'release48-postbuild.js',
   'release49-postbuild.js',
-  'release50-postbuild.js'
+  'release50-postbuild.js',
+  'release51-postbuild.js'
 ];
 for(const step of steps){
   console.log(`Running ${step}`);
