@@ -1,26 +1,39 @@
 (()=>{
   const brand='Hobah';
-  function apply(){
-    document.title=brand;
-    const home=document.querySelector('#homeBtn .brandTitle b');if(home)home.textContent=brand;
-    const cross=document.querySelector('#homeBtn .brandCross');
+  function ensureHeader(){
+    const homeBtn=document.querySelector('#homeBtn');
+    if(!homeBtn)return;
+    homeBtn.setAttribute('aria-label','Hobah home');
+    const title=homeBtn.querySelector('.brandTitle b');if(title)title.textContent=brand;
+    const cross=homeBtn.querySelector('.brandCross');
     if(cross&&!cross.querySelector('.hobahHeaderMark')){
       cross.textContent='';
-      const mark=document.createElement('img');mark.className='hobahHeaderMark';mark.src='/hobah-mark.svg?v=49';mark.alt='';mark.width=34;mark.height=34;mark.decoding='async';
+      const mark=document.createElement('img');
+      mark.className='hobahHeaderMark';
+      mark.src='/hobah-mark.svg?v=50';
+      mark.alt='';mark.width=38;mark.height=38;mark.decoding='async';
       cross.appendChild(mark);
     }
-    const hero=document.querySelector('#app .the81Hero, #app .hero');
+  }
+  function ensureHomeBrand(){
     const isHome=!location.hash||location.hash==='#home'||location.hash.startsWith('#home');
-    if(hero&&isHome&&!hero.querySelector('.hobahHomeBrand')){
-      const wrap=document.createElement('div');wrap.className='hobahHomeBrand';
-      const img=document.createElement('img');img.src='/hobah-logo.svg?v=49';img.alt='Hobah';img.width=1200;img.height=320;img.decoding='async';img.fetchPriority='high';
+    if(!isHome)return;
+    const hero=document.querySelector('#app .the81Hero, #app .hero');
+    if(!hero)return;
+    hero.classList.add('hobahBranded');
+    let wrap=hero.querySelector('.hobahHomeBrand');
+    if(!wrap){
+      wrap=document.createElement('div');wrap.className='hobahHomeBrand';
+      const img=document.createElement('img');
+      img.src='/hobah-mark.svg?v=50';img.alt='Hobah';img.width=512;img.height=512;img.decoding='async';img.fetchPriority='high';
       wrap.appendChild(img);
       const eyebrow=hero.querySelector('.eyebrow');
-      if(eyebrow&&eyebrow.nextSibling)hero.insertBefore(wrap,eyebrow.nextSibling);else hero.prepend(wrap);
-      hero.classList.add('hobahBranded');
+      if(eyebrow)hero.insertBefore(wrap,eyebrow);else hero.prepend(wrap);
     }
   }
-  const app=document.querySelector('#app');if(app)new MutationObserver(apply).observe(app,{childList:true,subtree:true});
-  addEventListener('hashchange',()=>setTimeout(apply,0));
+  function apply(){document.title=brand;ensureHeader();ensureHomeBrand()}
+  const app=document.querySelector('#app');if(app)new MutationObserver(()=>requestAnimationFrame(apply)).observe(app,{childList:true,subtree:true});
+  addEventListener('hashchange',()=>requestAnimationFrame(apply));
   if(document.readyState==='loading')addEventListener('DOMContentLoaded',apply,{once:true});else apply();
+  setTimeout(apply,250);setTimeout(apply,900);
 })();
