@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Hobah">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#0d332d"/><stop offset="1" stop-color="#174c42"/></linearGradient>
+  <linearGradient id="copper" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f0b46f"/><stop offset=".42" stop-color="#b95f3c"/><stop offset="1" stop-color="#7e3a2b"/></linearGradient>
+  <linearGradient id="ivory" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fffdf5"/><stop offset="1" stop-color="#eadfc9"/></linearGradient>
+  <radialGradient id="glow"><stop stop-color="#ffd48e" stop-opacity=".95"/><stop offset="1" stop-color="#ffd48e" stop-opacity="0"/></radialGradient>
+  <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#061814" flood-opacity=".38"/></filter>
+</defs>
+<rect x="16" y="16" width="480" height="480" rx="118" fill="url(#bg)"/>
+<rect x="26" y="26" width="460" height="460" rx="108" fill="none" stroke="url(#copper)" stroke-width="10"/>
+<circle cx="256" cy="191" r="116" fill="url(#glow)"/>
+<path d="M89 325c47-65 82-89 126-95-24 30-34 59-38 95H89Zm334 0c-47-65-82-89-126-95 24 30 34 59 38 95h88Z" fill="#082720" opacity=".92"/>
+<path d="M117 348c49-28 100-34 139-8 39-26 90-20 139 8v76c-47-23-96-27-139 3-43-30-92-26-139-3Z" fill="url(#ivory)" stroke="#b76b43" stroke-width="7" filter="url(#shadow)"/>
+<path d="M126 367c44-18 86-20 130 4 44-24 86-22 130-4M126 392c44-17 86-19 130 5 44-24 86-22 130-5" fill="none" stroke="#c9b999" stroke-width="6" stroke-linecap="round"/>
+<text x="256" y="297" text-anchor="middle" font-family="Georgia,serif" font-size="252" font-weight="700" fill="url(#ivory)" stroke="#c48152" stroke-width="4" paint-order="stroke">H</text>
+<path d="M256 414c-8-34-8-58 3-82 10-23 33-39 20-67-8-18-28-25-22-45 4-14 19-22 20-37" fill="none" stroke="url(#copper)" stroke-width="20" stroke-linecap="round"/>
+<path d="M255 161c-22 26-31 43-30 59 1 20 15 36 31 36 19 0 33-16 33-36 0-17-10-34-34-59Z" fill="#ffb554"/>
+<path d="M256 181c-11 15-16 25-15 35 0 11 7 19 15 19 9 0 16-8 16-19 0-10-5-20-16-35Z" fill="#fff6cd"/>
+<path d="M226 252h60l-11 25h-38Z" fill="url(#copper)"/>
+<path d="M256 71l8 24 24 8-24 8-8 24-8-24-24-8 24-8Z" fill="#f4b86d"/>
+<path d="M163 128a132 132 0 0 1 186 0" fill="none" stroke="#d99259" stroke-width="4" stroke-linecap="round" opacity=".7"/>
+<path d="M153 447h206" stroke="#b76542" stroke-width="5" stroke-linecap="round" opacity=".75"/>
+</svg>
