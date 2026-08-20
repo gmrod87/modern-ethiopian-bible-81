@@ -19,12 +19,15 @@ module.exports=async function handler(req,res){
     if(!text){res.statusCode=400;return res.end('Missing text')}
     const voice=['marin','cedar'].includes(body.voice)?body.voice:'marin',mode=['normal','context','advanced'].includes(body.mode)?body.mode:'normal';
     const extra=mode==='context'?' When the text shifts from a chapter title or short historical note into Scripture, give a small natural pause so the listener can feel the change, but keep the whole reading flowing as one audiobook experience.':mode==='advanced'?' Treat short scholarly or theological context as a calm narrator aside, with a brief pause before returning to Scripture. Keep the context concise in tone and do not make it sound like a lecture.':'';
+    const narrator=voice==='cedar'
+      ?'Use a deep, resonant adult male narrator voice with a low register, grounded warmth, measured authority, and natural conversational phrasing. Keep the pitch comfortably low without sounding forced or theatrical.'
+      :'Use a warm, clear adult female narrator voice with natural conversational phrasing, gentle presence, and calm confidence.';
     const controller=new AbortController();
     res.on('close',()=>{if(!res.writableEnded)controller.abort()});
     const r=await fetch('https://api.openai.com/v1/audio/speech',{
       method:'POST',signal:controller.signal,
       headers:{'authorization':`Bearer ${process.env.OPENAI_API_KEY}`,'content-type':'application/json'},
-      body:JSON.stringify({model:'gpt-4o-mini-tts',voice,input:text,response_format:'mp3',instructions:'Read in a calm, warm, intelligent natural voice. Scripture should sound reverent but not theatrical. Use restrained emotion, clear diction, gentle pacing, and meaningful pauses at sentence boundaries. Do not announce verse numbers or verse labels unless a number is genuinely part of the Scripture sentence itself. Never sound synthetic.'+extra})
+      body:JSON.stringify({model:'gpt-4o-mini-tts',voice,input:text,response_format:'mp3',instructions:narrator+' Scripture should sound reverent but not theatrical. Use restrained emotion, clear diction, gentle pacing, and meaningful pauses at sentence boundaries. Do not announce verse numbers or verse labels unless a number is genuinely part of the Scripture sentence itself. Never sound synthetic.'+extra})
     });
     if(!r.ok){res.statusCode=r.status;return res.end(await r.text())}
     res.statusCode=200;

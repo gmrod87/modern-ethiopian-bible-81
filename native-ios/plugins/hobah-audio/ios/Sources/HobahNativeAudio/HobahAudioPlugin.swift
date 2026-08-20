@@ -78,6 +78,10 @@ public class HobahAudioPlugin: CAPPlugin, CAPBridgedPlugin, AVAudioPlayerDelegat
         return Float(min(2.0, max(0.5, value)))
     }
 
+    private func normalizedVoice(_ value: String) -> String {
+        return value == "cedar" ? "cedar" : "marin"
+    }
+
     private func cacheData(_ data: Data, id: String) {
         cacheQueue.async { [weak self] in
             guard let self else { return }
@@ -95,7 +99,7 @@ public class HobahAudioPlugin: CAPPlugin, CAPBridgedPlugin, AVAudioPlayerDelegat
         return cacheQueue.sync { cache[id] }
     }
 
-    private func fetchAudio(id: String, text: String, mode: String, completion: @escaping (Result<Data, Error>) -> Void) {
+    private func fetchAudio(id: String, text: String, mode: String, voice: String, completion: @escaping (Result<Data, Error>) -> Void) {
         if let data = cachedData(id: id) {
             completion(.success(data))
             return
@@ -106,7 +110,7 @@ public class HobahAudioPlugin: CAPPlugin, CAPBridgedPlugin, AVAudioPlayerDelegat
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: [
                 "text": String(text.prefix(1800)),
-                "voice": "marin",
+                "voice": normalizedVoice(voice),
                 "mode": ["normal", "context", "advanced"].contains(mode) ? mode : "normal"
             ])
         } catch {
@@ -134,11 +138,12 @@ public class HobahAudioPlugin: CAPPlugin, CAPBridgedPlugin, AVAudioPlayerDelegat
             return
         }
         let mode = call.getString("mode") ?? "normal"
+        let voice = call.getString("voice") ?? "marin"
         if cachedData(id: id) != nil {
             call.resolve(["cached": true])
             return
         }
-        fetchAudio(id: id, text: text, mode: mode) { result in
+        fetchAudio(id: id, text: text, mode: mode, voice: voice) { result in
             DispatchQueue.main.async {
                 switch result {
                 case .success:
@@ -156,10 +161,11 @@ public class HobahAudioPlugin: CAPPlugin, CAPBridgedPlugin, AVAudioPlayerDelegat
             return
         }
         let mode = call.getString("mode") ?? "normal"
+        let voice = call.getString("voice") ?? "marin"
         let title = call.getString("title") ?? "Hobah"
         let subtitle = call.getString("subtitle") ?? "The Ancient Canon"
         let rate = normalizedRate(call.getDouble("rate") ?? 1.0)
-        fetchAudio(id: id, text: text, mode: mode) { [weak self] result in
+        fetchAudio(id: id, text: text, mode: mode, voice: voice) { [weak self] result in
             DispatchQueue.main.async {
                 guard let self else { return }
                 switch result {

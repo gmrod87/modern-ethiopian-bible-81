@@ -36,11 +36,10 @@ replaceRange(
   if(window.HobahNativeVoice){
     setTimeout(()=>{
       if(!state.listening||state.audio.suppressRecognition)return;
-      Promise.resolve(window.HobahNativeVoiceReady)
-        .then(()=>window.HobahNativeVoice.start({locale:'en-AU'}))
+      startNativeVoiceSession(false)
         .then(()=>{syncAudioUI();setAudioStatus('Listening • say explain that, save that, stop, or play')})
-        .catch(e=>{console.warn('Native Voice restart',e);state.listening=false;syncAudioUI();setAudioStatus('Voice Commands stopped')});
-    },120);
+        .catch(e=>{console.warn('Native Voice restart',e);scheduleNativeVoiceRecovery(e)});
+    },220);
     return;
   }
   setTimeout(()=>{if(state.listening&&!state.audio.suppressRecognition){try{state.recognition?.start()}catch{}}},60);
@@ -51,12 +50,47 @@ replaceRange(
 replaceRange(
   'function startVoiceCommands(){',
   '\nfunction stopVoiceCommands(){',
-`function startVoiceCommands(){
+`let nativeVoiceRecoveryTimer=0,nativeVoiceRecoveryCount=0,nativeVoiceStarting=false;
+async function startNativeVoiceSession(requestPermission=true){
+  if(!window.HobahNativeVoice)return;
+  if(nativeVoiceStarting)return;
+  nativeVoiceStarting=true;
+  try{
+    await Promise.resolve(window.HobahNativeVoiceReady);
+    if(requestPermission){
+      const permissions=await window.HobahNativeVoice.requestPermissions();
+      if(permissions?.speech==='denied'||permissions?.microphone==='denied')throw Error('Microphone and Speech Recognition permission are required for Voice Commands');
+    }
+    await window.HobahNativeVoice.start({locale:'en-AU'});
+    await sleep(90);
+    const status=await window.HobahNativeVoice.getState().catch(()=>({listening:true,available:true}));
+    if(status?.available===false)throw Error('Speech recognition is temporarily unavailable');
+    if(status?.listening===false)throw Error('Voice Commands did not start');
+    nativeVoiceRecoveryCount=0;
+  }finally{nativeVoiceStarting=false}
+}
+function scheduleNativeVoiceRecovery(error){
+  if(!window.HobahNativeVoice||!state.listening||state.audio.suppressRecognition)return;
+  clearTimeout(nativeVoiceRecoveryTimer);
+  if(nativeVoiceRecoveryCount>=4){
+    state.listening=false;syncAudioUI();setAudioStatus('Voice Commands stopped • tap to retry');
+    if(error)toast(error?.message||'Voice Commands stopped');
+    return;
+  }
+  const delay=220+nativeVoiceRecoveryCount*220;nativeVoiceRecoveryCount++;
+  nativeVoiceRecoveryTimer=setTimeout(()=>{
+    if(!state.listening||state.audio.suppressRecognition)return;
+    startNativeVoiceSession(false)
+      .then(()=>{syncAudioUI();setAudioStatus('Listening • say explain that, save that, stop, or play')})
+      .catch(e=>{console.warn('Native Voice recovery',e);scheduleNativeVoiceRecovery(e)});
+  },delay);
+}
+function startVoiceCommands(){
   if(window.HobahNativeVoice){
     if(state.listening)return;
+    clearTimeout(nativeVoiceRecoveryTimer);nativeVoiceRecoveryCount=0;
     state.listening=true;syncAudioUI();setAudioStatus('Voice Commands • starting…');
-    Promise.resolve(window.HobahNativeVoiceReady)
-      .then(()=>window.HobahNativeVoice.start({locale:'en-AU'}))
+    startNativeVoiceSession(true)
       .then(()=>{syncAudioUI();setAudioStatus('Listening • say explain that, save that, stop, or play');ensureStudyRealtime().catch(()=>{})})
       .catch(e=>{console.warn('Native Voice start',e);state.listening=false;syncAudioUI();setAudioStatus('Microphone permission needed');toast(e?.message||'Voice Commands need microphone and speech permission')});
     return;
@@ -78,10 +112,10 @@ replaceRange(
   'function stopVoiceCommands(){',
   '\nlet lastVoice=',
 `function stopVoiceCommands(){
-  state.listening=false;
+  state.listening=false;clearTimeout(nativeVoiceRecoveryTimer);nativeVoiceRecoveryCount=0;
   if(window.HobahNativeVoice)window.HobahNativeVoice.stop().catch(()=>{});
   else try{state.recognition?.stop()}catch{}
-  closeStudyRealtime();syncAudioUI();
+  closeStudyRealtime();syncAudioUI();setAudioStatus('Voice Commands off');
 }
 
 document.addEventListener('hobah:native-voice-transcript',e=>{
@@ -90,8 +124,13 @@ document.addEventListener('hobah:native-voice-transcript',e=>{
 });
 document.addEventListener('hobah:native-voice-state',e=>{
   if(!window.HobahNativeVoice)return;
+  if(e.detail?.listening){
+    nativeVoiceRecoveryCount=0;clearTimeout(nativeVoiceRecoveryTimer);
+    if(state.listening&&!state.audio.suppressRecognition)setAudioStatus('Listening • say explain that, save that, stop, or play');
+    return;
+  }
   if(e.detail?.error&&!state.audio.suppressRecognition)setAudioStatus('Voice Commands • '+e.detail.error);
-  else if(e.detail?.listening&&state.listening&&!state.audio.suppressRecognition)setAudioStatus('Listening • say explain that, save that, stop, or play');
+  if(state.listening&&!state.audio.suppressRecognition)scheduleNativeVoiceRecovery(e.detail?.error?new Error(e.detail.error):null);
 });
 `,
   'Voice Commands stop/events'
@@ -100,8 +139,8 @@ document.addEventListener('hobah:native-voice-state',e=>{
 const bootstrapTwo="Promise.allSettled([Promise.resolve(window.HobahNativeReady),Promise.resolve(window.HobahNativeAudioReady)]).finally(()=>bootstrap());";
 if(app.includes(bootstrapTwo))app=app.replace(bootstrapTwo,"Promise.allSettled([Promise.resolve(window.HobahNativeReady),Promise.resolve(window.HobahNativeAudioReady),Promise.resolve(window.HobahNativeVoiceReady)]).finally(()=>bootstrap());");
 
-for(const required of ['HobahNativeVoice','HobahNativeVoiceReady','hobah:native-voice-transcript','save that','explain that']){
+for(const required of ['HobahNativeVoice','HobahNativeVoiceReady','hobah:native-voice-transcript','scheduleNativeVoiceRecovery','save that','explain that']){
   if(!app.includes(required))throw new Error('Native Voice integration missing '+required);
 }
 await writeFile(appPath,app);
-console.log('Hobah native Voice Study bridge patched into command system');
+console.log('Hobah native Voice Study bridge patched with permission preflight and automatic recovery');
