@@ -1,4 +1,8 @@
 module.exports=async function handler(req,res){
+  res.setHeader('access-control-allow-origin','*');
+  res.setHeader('access-control-allow-methods','GET,POST,OPTIONS');
+  res.setHeader('access-control-allow-headers','content-type');
+  if(req.method==='OPTIONS'){res.statusCode=204;return res.end()}
   const json=(status,payload)=>{res.statusCode=status;res.setHeader('content-type','application/json');return res.end(JSON.stringify(payload))};
   const apiKey=process.env.OPENAI_API_KEY||process.env.OPENAI_KEY||process.env.OPENAI_SECRET_KEY||'';
   if(req.method==='GET'&&req.query&&req.query.health){
