@@ -20,10 +20,12 @@ await cp(path.join(nativeRoot,'src','native.css'),path.join(www,'native.css'));
 // never has to base64-decode or gunzip them in its WebView.
 await mkdir(path.join(www,'search'),{recursive:true});
 for(const cat of ['ot','eth','nt']){
-  const encoded=(await readFile(path.join(www,`${cat}.b64`),'utf8')).trim();
+  const source=path.join(www,`${cat}.b64`);
+  const encoded=(await readFile(source,'utf8')).trim();
   const json=gunzipSync(Buffer.from(encoded,'base64')).toString('utf8');
-  JSON.parse(json); // validate before shipping the bundle
+  JSON.parse(json);
   await writeFile(path.join(www,'search',`${cat}.json`),json);
+  await rm(source,{force:true});
 }
 
 let html=await readFile(path.join(www,'index.html'),'utf8');
@@ -39,9 +41,7 @@ let app=await readFile(path.join(www,'app.js'),'utf8');
 const vm=app.match(/const V='(\d+)';/);
 if(!vm)throw new Error('Native prep: runtime version not found');
 if(!app.includes('const apiURL='))app=app.replace(vm[0],`${vm[0]}\nconst apiURL=p=>window.HOBAH_API_BASE?window.HOBAH_API_BASE.replace(/\\/$/,'')+p:p;`);
-for(const endpoint of ['/api/tts','/api/study-chat','/api/realtime-study']){
-  app=app.replaceAll(`fetch('${endpoint}'`,`fetch(apiURL('${endpoint}')`);
-}
+for(const endpoint of ['/api/tts','/api/study-chat','/api/realtime-study'])app=app.replaceAll(`fetch('${endpoint}'`,`fetch(apiURL('${endpoint}')`);
 
 // Native search uses already-expanded local JSON instead of DecompressionStream.
 const searchStart='async function loadCorpus(cat){';
@@ -50,6 +50,17 @@ const si=app.indexOf(searchStart),se=app.indexOf(searchEnd,si);
 if(si<0||se<0)throw new Error('Native prep: search loader not found');
 const nativeSearch=`async function loadCorpus(cat){\n  if(state.corpora[cat])return state.corpora[cat];\n  const r=await fetch('/search/'+cat+'.json',{cache:'force-cache'});\n  if(!r.ok)throw Error('Offline search corpus unavailable');\n  state.corpora[cat]=await r.json();return state.corpora[cat];\n}`;
 app=app.slice(0,si)+nativeSearch+app.slice(se);
+
+// Do not leave users waiting on remote services when the native device is offline.
+const studySig="async function askStudy(question,{speak=false,body=null,autoResume=false,quick=false}={}){";
+if(!app.includes(studySig))throw new Error('Native prep: Study AI entrypoint not found');
+app=app.replace(studySig,studySig+"\n  if(window.HOBAH_NATIVE&&window.HOBAH_NETWORK_CONNECTED===false){toast('Study AI needs an internet connection');return 'Study AI requires an internet connection.';}");
+const ttsSig='async function getSpeechBlob(text,mode=null){';
+if(!app.includes(ttsSig))throw new Error('Native prep: TTS entrypoint not found');
+app=app.replace(ttsSig,ttsSig+"\n  if(window.HOBAH_NATIVE&&window.HOBAH_NETWORK_CONNECTED===false)throw Error('Natural voice needs an internet connection');");
+const rtSig='async function ensureStudyRealtime(){';
+if(!app.includes(rtSig))throw new Error('Native prep: realtime Study entrypoint not found');
+app=app.replace(rtSig,rtSig+"\n  if(window.HOBAH_NATIVE&&window.HOBAH_NETWORK_CONNECTED===false)throw Error('Realtime Study AI needs an internet connection');");
 
 const oldShare="if(navigator.share)await navigator.share({title:ref,text,url:location.href});else await navigator.clipboard.writeText(text)";
 const nativeShare="if(window.HobahNative?.share)await window.HobahNative.share({title:ref,text,url:location.hash});else if(navigator.share)await navigator.share({title:ref,text,url:location.href});else await navigator.clipboard.writeText(text)";
@@ -63,4 +74,4 @@ await writeFile(path.join(www,'app.js'),app);
 
 const books=JSON.parse(await readFile(path.join(www,'books.json'),'utf8'));
 for(const book of books){if(!existsSync(path.join(www,'data',`${book.slug}.json`)))throw new Error(`Native prep missing offline book: ${book.slug}`)}
-console.log(`Hobah native web bundle prepared: ${books.length} books + pre-expanded offline search`);
+console.log(`Hobah native web bundle prepared: ${books.length} books + pre-expanded offline search + native offline guards`);
