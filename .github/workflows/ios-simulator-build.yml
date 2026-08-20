@@ -10,6 +10,13 @@ on:
       - 'package.json'
       - 'release75-appstore-ready.js'
 
+permissions:
+  contents: write
+
+concurrency:
+  group: hobah-ios-simulator-main
+  cancel-in-progress: true
+
 jobs:
   ios-simulator:
     runs-on: macos-latest
@@ -103,3 +110,44 @@ jobs:
             native-ios/ios/App
             !native-ios/ios/build
           if-no-files-found: error
+
+      - name: Publish compiler status
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          JOB_STATUS: ${{ job.status }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          XCODE_VERSION="$(xcodebuild -version 2>/dev/null | tr '\n' ' ' || true)"
+          BODY=$(cat <<EOF
+          # Hobah iOS Compiler Status
+
+          - status: ${JOB_STATUS}
+          - source_commit: ${GITHUB_SHA}
+          - run_id: ${GITHUB_RUN_ID}
+          - xcode: ${XCODE_VERSION:-unavailable}
+          - checked_at_utc: $(date -u +'%Y-%m-%dT%H:%M:%SZ')
+          - native_voice_study: enabled
+          - simulator_target: iPhone/iPad
+          EOF
+          )
+          ENCODED="$(printf '%s' "$BODY" | base64)"
+          REPO="${GITHUB_REPOSITORY}"
+          STATUS_BRANCH="ci-ios-status"
+          if ! gh api "repos/${REPO}/git/ref/heads/${STATUS_BRANCH}" >/dev/null 2>&1; then
+            gh api -X POST "repos/${REPO}/git/refs" -f ref="refs/heads/${STATUS_BRANCH}" -f sha="${GITHUB_SHA}" >/dev/null
+          fi
+          OLD_SHA="$(gh api "repos/${REPO}/contents/ios-simulator-status.md?ref=${STATUS_BRANCH}" --jq '.sha' 2>/dev/null || true)"
+          if [ -n "$OLD_SHA" ]; then
+            gh api -X PUT "repos/${REPO}/contents/ios-simulator-status.md" \
+              -f message="Update Hobah iOS compiler status" \
+              -f content="$ENCODED" \
+              -f branch="$STATUS_BRANCH" \
+              -f sha="$OLD_SHA" >/dev/null
+          else
+            gh api -X PUT "repos/${REPO}/contents/ios-simulator-status.md" \
+              -f message="Publish Hobah iOS compiler status" \
+              -f content="$ENCODED" \
+              -f branch="$STATUS_BRANCH" >/dev/null
+          fi
