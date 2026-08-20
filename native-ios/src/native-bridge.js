@@ -7,6 +7,7 @@ import { Preferences } from '@capacitor/preferences';
 import { Share } from '@capacitor/share';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { StatusBar, Style } from '@capacitor/status-bar';
+import { TextZoom } from '@capacitor/text-zoom';
 
 const API_BASE='https://modern-ethiopian-bible-81.vercel.app';
 const PUBLIC_BASE='https://modern-ethiopian-bible-81.vercel.app';
@@ -59,6 +60,13 @@ async function restorePreferences(){
   }
 }
 
+async function applyPreferredTextZoom(){
+  try{
+    const {value}=await TextZoom.getPreferred();
+    if(Number.isFinite(value))await TextZoom.set({value:Math.min(1.6,Math.max(.85,value))});
+  }catch{}
+}
+
 let scrollTimer=0;
 function saveReadingPosition(){
   const hash=location.hash||'#home';
@@ -109,9 +117,7 @@ function bindMediaSession(){
         title:ref,
         artist:'Hobah',
         album:status,
-        artwork:[
-          {src:`${PUBLIC_BASE}/hobah-icon-180-v52.png`,sizes:'180x180',type:'image/png'}
-        ]
+        artwork:[{src:`${PUBLIC_BASE}/hobah-icon-180-v52.png`,sizes:'180x180',type:'image/png'}]
       });
     }catch{}
   };
@@ -163,6 +169,7 @@ function bindNativeUI(){
 async function boot(){
   if(!Capacitor.isNativePlatform())return;
   await restorePreferences();
+  await applyPreferredTextZoom();
   try{await StatusBar.setStyle({style:Style.Dark})}catch{}
   try{await StatusBar.setBackgroundColor({color:'#F3EFE5'})}catch{}
   try{await StatusBar.setOverlaysWebView({overlay:false})}catch{}
@@ -190,6 +197,7 @@ window.HobahNative={
   openExternal:url=>Browser.open({url:webURL(url)}),
   openAbout,
   savePreferences,
+  applyPreferredTextZoom,
   apiBase:API_BASE
 };
 window.HobahNativeReady=boot();
