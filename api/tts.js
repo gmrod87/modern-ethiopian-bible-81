@@ -20,11 +20,11 @@ module.exports=async function handler(req,res){
     const r=await fetch('https://api.openai.com/v1/audio/speech',{
       method:'POST',signal:controller.signal,
       headers:{'authorization':`Bearer ${process.env.OPENAI_API_KEY}`,'content-type':'application/json'},
-      body:JSON.stringify({model:'gpt-4o-mini-tts',voice,input:text,response_format:'wav',instructions:'Read in a calm, warm, intelligent natural voice. Scripture should sound reverent but not theatrical. Use restrained emotion, clear diction, gentle pacing, and meaningful pauses at sentence boundaries. Never sound synthetic.'+extra})
+      body:JSON.stringify({model:'gpt-4o-mini-tts',voice,input:text,response_format:'mp3',instructions:'Read in a calm, warm, intelligent natural voice. Scripture should sound reverent but not theatrical. Use restrained emotion, clear diction, gentle pacing, and meaningful pauses at sentence boundaries. Do not announce verse numbers or verse labels unless a number is genuinely part of the Scripture sentence itself. Never sound synthetic.'+extra})
     });
     if(!r.ok){res.statusCode=r.status;return res.end(await r.text())}
     res.statusCode=200;
-    res.setHeader('content-type','audio/wav');
+    res.setHeader('content-type','audio/mpeg');
     res.setHeader('cache-control','private, max-age=86400');
     res.setHeader('x-accel-buffering','no');
     res.flushHeaders?.();
