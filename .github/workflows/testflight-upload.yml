@@ -1,0 +1,184 @@
+name: Upload Hobah to TestFlight
+
+on:
+  workflow_dispatch:
+    inputs:
+      marketing_version:
+        description: 'App version shown in App Store Connect'
+        required: true
+        default: '1.0.0'
+
+permissions:
+  contents: read
+
+jobs:
+  testflight:
+    runs-on: macos-latest
+    timeout-minutes: 50
+    env:
+      BUNDLE_ID: com.hobah.bible
+      APP_NAME: Hobah
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Verify Apple signing secrets
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          API_P8: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8_BASE64 }}
+          CERT_P12: ${{ secrets.APPLE_DISTRIBUTION_P12_BASE64 }}
+          CERT_PASSWORD: ${{ secrets.APPLE_DISTRIBUTION_P12_PASSWORD }}
+        run: |
+          set -euo pipefail
+          missing=0
+          for name in APPLE_TEAM_ID KEY_ID ISSUER_ID API_P8 CERT_P12 CERT_PASSWORD; do
+            if [ -z "${!name:-}" ]; then echo "Missing required secret: $name" >&2; missing=1; fi
+          done
+          test "$missing" -eq 0
+
+      - name: Select Xcode 26
+        shell: bash
+        run: |
+          set -euo pipefail
+          XCODE_APP="$(find /Applications -maxdepth 1 -type d -name 'Xcode_26*.app' | sort -V | tail -1)"
+          if [ -z "$XCODE_APP" ]; then
+            echo 'Xcode 26 is not installed on this runner.' >&2
+            exit 1
+          fi
+          sudo xcode-select --switch "$XCODE_APP/Contents/Developer"
+          xcodebuild -version | tee /tmp/xcode-version.txt
+          head -1 /tmp/xcode-version.txt | grep -E '^Xcode 26([ .]|$)'
+
+      - name: Install Apple distribution certificate and API key
+        env:
+          KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          API_P8: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8_BASE64 }}
+          CERT_P12: ${{ secrets.APPLE_DISTRIBUTION_P12_BASE64 }}
+          CERT_PASSWORD: ${{ secrets.APPLE_DISTRIBUTION_P12_PASSWORD }}
+        run: |
+          set -euo pipefail
+          KEYCHAIN="$RUNNER_TEMP/hobah-signing.keychain-db"
+          KEYCHAIN_PASSWORD="$(openssl rand -hex 24)"
+          CERT_PATH="$RUNNER_TEMP/hobah-distribution.p12"
+          API_DIR="$HOME/.appstoreconnect/private_keys"
+          API_PATH="$API_DIR/AuthKey_${KEY_ID}.p8"
+          mkdir -p "$API_DIR"
+          printf '%s' "$CERT_P12" | base64 --decode > "$CERT_PATH"
+          printf '%s' "$API_P8" | base64 --decode > "$API_PATH"
+          chmod 600 "$API_PATH"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security import "$CERT_PATH" -P "$CERT_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN"
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security list-keychain -d user -s "$KEYCHAIN" login.keychain-db
+          security find-identity -v -p codesigning "$KEYCHAIN"
+          echo "ASC_KEY_PATH=$API_PATH" >> "$GITHUB_ENV"
+
+      - name: Build Hobah web release
+        run: |
+          npm install
+          npm run build
+
+      - name: Generate native iOS project
+        working-directory: native-ios
+        run: |
+          npm install
+          npm run prepare:web
+          npm run build:bridge
+          node scripts/init-ios.mjs
+          npx cap sync ios
+          node scripts/post-ios.mjs
+          npm run doctor
+
+      - name: Archive signed Hobah app
+        working-directory: native-ios
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          MARKETING_VERSION: ${{ inputs.marketing_version }}
+        run: |
+          set -euo pipefail
+          rm -rf ios/archive ios/export
+          mkdir -p ios/archive ios/export
+          COMMON=(
+            -scheme App
+            -configuration Release
+            -destination 'generic/platform=iOS'
+            -archivePath ios/archive/Hobah.xcarchive
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID"
+            PRODUCT_BUNDLE_IDENTIFIER="$BUNDLE_ID"
+            MARKETING_VERSION="$MARKETING_VERSION"
+            CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER"
+            CODE_SIGN_STYLE=Automatic
+            -allowProvisioningUpdates
+            -authenticationKeyPath "$ASC_KEY_PATH"
+            -authenticationKeyID "$KEY_ID"
+            -authenticationKeyIssuerID "$ISSUER_ID"
+            archive
+          )
+          if [ -d ios/App/App.xcworkspace ]; then
+            xcodebuild -workspace ios/App/App.xcworkspace "${COMMON[@]}"
+          else
+            xcodebuild -project ios/App/App.xcodeproj "${COMMON[@]}"
+          fi
+          test -d ios/archive/Hobah.xcarchive
+
+      - name: Export App Store IPA
+        working-directory: native-ios
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+          cat > ios/ExportOptions.plist <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>teamID</key><string>${APPLE_TEAM_ID}</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>stripSwiftSymbols</key><true/>
+            <key>uploadSymbols</key><true/>
+          </dict></plist>
+          PLIST
+          xcodebuild \
+            -exportArchive \
+            -archivePath ios/archive/Hobah.xcarchive \
+            -exportPath ios/export \
+            -exportOptionsPlist ios/ExportOptions.plist \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$ASC_KEY_PATH" \
+            -authenticationKeyID "$KEY_ID" \
+            -authenticationKeyIssuerID "$ISSUER_ID"
+          IPA="$(find ios/export -maxdepth 1 -name '*.ipa' -print -quit)"
+          test -n "$IPA"
+          echo "IPA_PATH=$IPA" >> "$GITHUB_ENV"
+
+      - name: Upload IPA to TestFlight
+        env:
+          KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+        run: |
+          set -euo pipefail
+          echo "Uploading $IPA_PATH to App Store Connect…"
+          if xcrun altool --help >/dev/null 2>&1; then
+            xcrun altool --upload-app --type ios --file "$IPA_PATH" --apiKey "$KEY_ID" --apiIssuer "$ISSUER_ID"
+          else
+            xcrun iTMSTransporter -m upload -assetFile "$IPA_PATH" -apiKey "$KEY_ID" -apiIssuer "$ISSUER_ID" -v informational
+          fi
+
+      - name: Archive signed IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: hobah-testflight-ipa
+          path: native-ios/ios/export/*.ipa
+          if-no-files-found: error
