@@ -129,13 +129,11 @@ jobs:
           import re, sys
           p, team, profile = sys.argv[1:]
           s=open(p).read()
-          # Only alter the App target's Debug/Release build settings blocks by matching PRODUCT_BUNDLE_IDENTIFIER.
           pattern=r'(buildSettings = \{.*?PRODUCT_BUNDLE_IDENTIFIER = [^;]+;.*?\n\s*\};)'
           def patch(m):
               block=m.group(1)
               if 'PRODUCT_BUNDLE_IDENTIFIER' not in block:
                   return block
-              # Remove any existing signing keys in this App-target block.
               block=re.sub(r'\n\s*(CODE_SIGN_IDENTITY|CODE_SIGN_STYLE|DEVELOPMENT_TEAM|PROVISIONING_PROFILE_SPECIFIER|PROVISIONING_PROFILE)\s*=\s*[^;]+;','',block)
               insert=(f'\n\t\t\t\tCODE_SIGN_STYLE = Manual;'
                       f'\n\t\t\t\tCODE_SIGN_IDENTITY = "Apple Distribution";'
@@ -208,24 +206,34 @@ jobs:
           echo "IPA_PATH=$IPA" >> "$GITHUB_ENV"
 
       - name: Upload IPA to TestFlight
+        id: app_store_upload
         env:
           KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
         run: |
-          set -euo pipefail
+          set -uo pipefail
+          LOG="$RUNNER_TEMP/app-store-upload.log"
+          : > "$LOG"
           echo "Uploading $IPA_PATH to App Store Connect…"
+          set +e
           if xcrun altool --help >/dev/null 2>&1; then
-            xcrun altool --upload-app --type ios --file "$IPA_PATH" --apiKey "$KEY_ID" --apiIssuer "$ISSUER_ID"
+            xcrun altool --upload-app --type ios --file "$IPA_PATH" --apiKey "$KEY_ID" --apiIssuer "$ISSUER_ID" 2>&1 | tee "$LOG"
+            STATUS=${PIPESTATUS[0]}
           else
-            xcrun iTMSTransporter -m upload -assetFile "$IPA_PATH" -apiKey "$KEY_ID" -apiIssuer "$ISSUER_ID" -v informational
+            xcrun iTMSTransporter -m upload -assetFile "$IPA_PATH" -apiKey "$KEY_ID" -apiIssuer "$ISSUER_ID" -v informational 2>&1 | tee "$LOG"
+            STATUS=${PIPESTATUS[0]}
           fi
+          set -e
+          echo "upload_exit_code=$STATUS" >> "$GITHUB_OUTPUT"
+          exit "$STATUS"
 
       - name: Archive signed IPA
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: hobah-testflight-ipa
           path: native-ios/ios/export/*.ipa
-          if-no-files-found: error
+          if-no-files-found: warn
 
       - name: Publish TestFlight status
         if: always()
@@ -245,6 +253,15 @@ jobs:
           - checked_at_utc: $(date -u +'%Y-%m-%dT%H:%M:%SZ')
           EOF
           )
+          if [ -f "$RUNNER_TEMP/app-store-upload.log" ]; then
+            UPLOAD_OUTPUT="$(tail -n 140 "$RUNNER_TEMP/app-store-upload.log")"
+            BODY="${BODY}
+
+          ## App Store Connect upload output
+          \\`\\`\\`
+          ${UPLOAD_OUTPUT}
+          \\`\\`\\`"
+          fi
           ENCODED="$(printf '%s' "$BODY" | base64)"
           REPO="${GITHUB_REPOSITORY}"
           STATUS_BRANCH="ci-testflight-status"
