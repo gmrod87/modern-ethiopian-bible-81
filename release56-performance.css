@@ -1,0 +1,73 @@
+/* Hobah Release 56 — stability + interaction performance */
+:root{--r56-header:72px}
+
+/* Header: keep every control inside the grid. Nothing floats over another button. */
+.topbar{
+  grid-template-columns:44px minmax(0,1fr) 44px 44px!important;
+  gap:6px!important;
+  overflow:visible!important;
+}
+.topbar>*{pointer-events:auto!important}
+.topbar::before,.topbar::after,.topbar #homeBtn::before,.topbar #homeBtn::after{pointer-events:none!important}
+.topbar #menuBtn{grid-column:1!important;grid-row:1!important}
+.topbar #homeBtn{
+  position:static!important;
+  inset:auto!important;
+  grid-column:2!important;
+  grid-row:1!important;
+  align-self:center!important;
+  justify-self:stretch!important;
+  transform:none!important;
+  width:100%!important;
+  max-width:none!important;
+  min-width:0!important;
+  height:44px!important;
+  min-height:44px!important;
+  margin:0!important;
+  padding:0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  border:0!important;
+  background:transparent!important;
+  z-index:auto!important;
+}
+.topbar #homeBtn .brandCross{width:42px!important;height:42px!important;min-width:42px!important}
+.topbar #homeBtn .hobahHeaderMark{width:40px!important;height:40px!important;max-width:40px!important;max-height:40px!important}
+.topbar #studyHubBtn{grid-column:3!important;grid-row:1!important}
+.topbar #savedBtn{grid-column:4!important;grid-row:1!important}
+#themeBtn{display:none!important}
+
+/* Off-screen content should not cost layout/paint time on long pages. */
+.section,.searchResult,.libraryItem,.drawerBook{content-visibility:auto;contain-intrinsic-size:auto 120px}
+.section{contain-intrinsic-size:auto 520px}
+
+/* Keep transforms compositor-friendly and avoid unnecessary paint work. */
+.drawer{will-change:transform;contain:layout paint style}
+.backdrop{will-change:opacity}
+.chapterText{contain:layout style}
+
+/* iPhone/Safari: heavy live blur on several sticky/floating layers causes scroll jank. */
+@media(max-width:820px){
+  .topbar,.searchbar,.drawerHead,.audioBar,.readerTools{
+    -webkit-backdrop-filter:none!important;
+    backdrop-filter:none!important;
+  }
+  .topbar{background:rgba(255,253,248,.97)!important}
+  .searchbar{background:rgba(238,234,225,.97)!important}
+  .drawerHead{background:rgba(255,253,248,.98)!important}
+  .app{padding-left:12px!important;padding-right:12px!important}
+}
+
+@media(max-width:520px){
+  .topbar{
+    grid-template-columns:42px minmax(0,1fr) 42px 42px!important;
+    gap:4px!important;
+    padding-left:10px!important;
+    padding-right:10px!important;
+  }
+  .topbar .round{width:40px!important;height:40px!important;min-width:40px!important;min-height:40px!important}
+  .topbar #homeBtn{height:40px!important;min-height:40px!important}
+  .topbar #homeBtn .brandCross{width:38px!important;height:38px!important;min-width:38px!important}
+  .topbar #homeBtn .hobahHeaderMark{width:37px!important;height:37px!important;max-width:37px!important;max-height:37px!important}
+}
