@@ -21,7 +21,8 @@
     "@capacitor/preferences": "^8.0.0",
     "@capacitor/share": "^8.0.0",
     "@capacitor/splash-screen": "^8.0.0",
-    "@capacitor/status-bar": "^8.0.0"
+    "@capacitor/status-bar": "^8.0.0",
+    "@capacitor/text-zoom": "^8.0.0"
   },
   "devDependencies": {
     "@capacitor/cli": "^8.0.0",
