@@ -17,6 +17,7 @@ add('NSSpeechRecognitionUsageDescription',`\t<key>NSSpeechRecognitionUsageDescri
 add('UIBackgroundModes',`\t<key>UIBackgroundModes</key>\n\t<array>\n\t\t<string>audio</string>\n\t</array>`);
 add('CFBundleURLTypes',`\t<key>CFBundleURLTypes</key>\n\t<array>\n\t\t<dict>\n\t\t\t<key>CFBundleTypeRole</key>\n\t\t\t<string>Editor</string>\n\t\t\t<key>CFBundleURLName</key>\n\t\t\t<string>com.hobah.bible</string>\n\t\t\t<key>CFBundleURLSchemes</key>\n\t\t\t<array><string>hobah</string></array>\n\t\t</dict>\n\t</array>`);
 add('ITSAppUsesNonExemptEncryption',`\t<key>ITSAppUsesNonExemptEncryption</key>\n\t<false/>`);
+add('UIViewControllerBasedStatusBarAppearance',`\t<key>UIViewControllerBasedStatusBarAppearance</key>\n\t<true/>`);
 await writeFile(infoPath,info);
 
 let delegate=await readFile(delegatePath,'utf8');
@@ -63,4 +64,4 @@ if(existsSync(path.dirname(splashDir))){
   await writeFile(path.join(splashDir,'Contents.json'),JSON.stringify(splashContents,null,2));
 }
 
-console.log('Hobah iOS native settings, permissions, background audio, icon and splash applied');
+console.log('Hobah iOS native settings, permissions, background audio, status bar, icon and splash applied');
