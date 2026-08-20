@@ -1,0 +1,50 @@
+name: Build Hobah iOS Simulator
+
+on:
+  workflow_dispatch:
+
+jobs:
+  ios-simulator:
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Xcode version
+        run: xcodebuild -version
+      - name: Install Hobah web dependencies
+        run: npm install
+      - name: Build Hobah web release
+        run: npm run build
+      - name: Install Capacitor dependencies
+        working-directory: native-ios
+        run: npm install
+      - name: Prepare native web bundle
+        working-directory: native-ios
+        run: |
+          npm run prepare:web
+          npm run build:bridge
+      - name: Generate and sync Xcode project
+        working-directory: native-ios
+        run: |
+          node scripts/init-ios.mjs
+          npx cap sync ios
+          node scripts/post-ios.mjs
+          npm run doctor
+      - name: Build unsigned iOS Simulator app
+        working-directory: native-ios
+        run: |
+          set -e
+          if [ -d ios/App/App.xcworkspace ]; then
+            xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Debug -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO build
+          else
+            xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO build
+          fi
+      - name: Archive generated Xcode project
+        uses: actions/upload-artifact@v4
+        with:
+          name: hobah-ios-xcode-project
+          path: native-ios/ios
+          if-no-files-found: error
