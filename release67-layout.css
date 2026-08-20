@@ -1,6 +1,6 @@
 /* Hobah Release 67 — symmetric mobile header + aligned library filters */
 
-/* Header: Study AI left, Hobah mark locked to the true viewport center, favourite right. */
+/* Header: Study icon left, Hobah mark locked to the true viewport center, favourite right. */
 .topbar{
   position:sticky!important;
   display:grid!important;
@@ -25,13 +25,29 @@
   justify-self:start!important;
   align-self:center!important;
   margin:0!important;
-  min-width:0!important;
+  width:44px!important;
+  min-width:44px!important;
   height:44px!important;
-  padding:0 16px!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:50%!important;
+  background:transparent!important;
+  box-shadow:none!important;
   display:inline-flex!important;
   align-items:center!important;
   justify-content:center!important;
   line-height:1!important;
+  font-size:0!important;
+  color:var(--green)!important;
+}
+.topbar .studyAiHeaderBtn::before{
+  content:"✦";
+  display:block;
+  font-size:25px;
+  line-height:1;
+  font-weight:400;
+  color:var(--green);
+  transform:translateY(-1px);
 }
 .topbar #savedBtn{
   grid-column:3!important;
@@ -82,12 +98,14 @@
   .searchbar{padding-left:18px!important;padding-right:18px!important}
   .app{padding-left:18px!important;padding-right:18px!important}
   .drawer{padding-left:18px!important;padding-right:18px!important}
-  .topbar .studyAiHeaderBtn{height:42px!important;padding:0 14px!important;font-size:14px!important}
+  .topbar .studyAiHeaderBtn{width:42px!important;min-width:42px!important;height:42px!important;padding:0!important}
+  .topbar .studyAiHeaderBtn::before{font-size:23px!important}
   .topbar #savedBtn{width:42px!important;height:42px!important}
   .topbar .brand{top:calc(env(safe-area-inset-top) + 12px)!important}
 }
 
 @media (max-width:350px){
-  .topbar .studyAiHeaderBtn{padding:0 11px!important;font-size:13px!important}
+  .topbar .studyAiHeaderBtn{width:40px!important;min-width:40px!important;height:40px!important;padding:0!important}
+  .topbar .studyAiHeaderBtn::before{font-size:22px!important}
   .drawerFilters{grid-template-columns:1fr!important}
 }
