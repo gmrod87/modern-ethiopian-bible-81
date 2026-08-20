@@ -1,7 +1,7 @@
 # Hobah TestFlight Status
 
 - status: failure
-- source_commit: ea108b6f221d57db5dacbb5aaaed69c0261a14dd
-- run_id: 32369314923
+- source_commit: c681873d9f1618dfd891666d4e2194bba48805ec
+- run_id: 32369709217
 - bundle_id: com.hobah.bible
-- checked_at_utc: 2026-08-20T12:33:30Z
+- checked_at_utc: 2026-08-20T12:37:36Z
