@@ -6,7 +6,7 @@ const read=f=>fs.readFileSync(p(f),'utf8');
 const write=(f,s)=>fs.writeFileSync(p(f),s);
 
 if(!fs.existsSync(D))throw new Error('Release59: dist missing');
-for(const f of ['natural-audio.js','release55-voice.js','release55-study-audio.js']){
+for(const f of ['natural-audio.js','release55-voice.js','release55-study-audio.js','release59-study-loader.js','curated-notes.js','study-hub.js','study-hub.css']){
   if(!fs.existsSync(f))throw new Error(`Release59: ${f} missing`);
   fs.copyFileSync(f,p(f));
 }
@@ -37,9 +37,11 @@ css+=`\n/* Hobah Release ${V}: natural narration + context + voice commands */\n
 write('hobah-core-ui.css',css);
 
 let html=read('index.html');
-html=html.replace(/\s*<script[^>]+src=["']\/(?:natural-audio|release55-study-audio|release55-voice|study-data-\d{2})\.js[^"']*["'][^>]*><\/script>/g,'');
+html=html.replace(/\s*<link[^>]+href=["']\/study-hub\.css[^"']*["'][^>]*>/g,'');
+html=html.replace('</head>',`  <link rel="stylesheet" href="/study-hub.css?v=${V}" />\n</head>`);
+html=html.replace(/\s*<script[^>]+src=["']\/(?:natural-audio|release55-study-audio|release55-voice|release59-study-loader|study-data-\d{2})\.js[^"']*["'][^>]*><\/script>/g,'');
 const studyTags=Array.from({length:10},(_,i)=>`  <script src="/study-data-${String(i).padStart(2,'0')}.js?v=${V}"></script>`).join('\n');
-const audioTags=`${studyTags}\n  <script src="/natural-audio.js?v=${V}"></script>\n  <script src="/release55-study-audio.js?v=${V}"></script>\n  <script src="/release55-voice.js?v=${V}"></script>`;
+const audioTags=`${studyTags}\n  <script src="/release59-study-loader.js?v=${V}"></script>\n  <script src="/natural-audio.js?v=${V}"></script>\n  <script src="/release55-study-audio.js?v=${V}"></script>\n  <script src="/release55-voice.js?v=${V}"></script>`;
 html=html.replace('</body>',`${audioTags}\n</body>`);
 write('index.html',html);
 
@@ -47,10 +49,11 @@ let app=read('app.js');
 app=app.replace(/navigator\.serviceWorker\.register\('\/sw\.js\?v=\d+'\)/g,`navigator.serviceWorker.register('/sw.js?v=${V}')`);
 write('app.js',app);
 
-for(const f of ['app.js','natural-audio.js','release55-study-audio.js','release55-voice.js','sw.js']){
+for(const f of ['app.js','natural-audio.js','release55-study-audio.js','release55-voice.js','release59-study-loader.js','curated-notes.js','study-hub.js','sw.js']){
   execFileSync(process.execPath,['--check',p(f)],{stdio:'inherit'});
 }
 const out=read('index.html');
 if(!out.includes(`/natural-audio.js?v=${V}`)||!out.includes(`/release55-voice.js?v=${V}`))throw new Error('Release59 voice scripts missing from production HTML');
+if(!out.includes(`/release59-study-loader.js?v=${V}`)||!out.includes(`/study-hub.css?v=${V}`))throw new Error('Release59 Study AI bridge missing from production HTML');
 if(!out.includes('/study-data-00.js')||!out.includes('/study-data-09.js'))throw new Error('Release59 context data missing from production HTML');
-console.log(`Hobah Release ${V}: natural voice, context modes and voice-command toggle restored`);
+console.log(`Hobah Release ${V}: natural voice, context modes, voice commands and lazy Study AI restored`);
