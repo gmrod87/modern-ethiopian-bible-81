@@ -1,0 +1,30 @@
+{
+  "name": "hobah-ios",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prepare:web": "node scripts/prepare-web.mjs",
+    "build:bridge": "node scripts/build-bridge.mjs",
+    "ios:init": "node scripts/init-ios.mjs",
+    "ios:sync": "npm run prepare:web && npm run build:bridge && npx cap sync ios && node scripts/post-ios.mjs && npm run doctor",
+    "ios:open": "npm run ios:sync && npx cap open ios",
+    "doctor": "node scripts/doctor.mjs"
+  },
+  "dependencies": {
+    "@capacitor/app": "^8.0.0",
+    "@capacitor/core": "^8.0.0",
+    "@capacitor/haptics": "^8.0.0",
+    "@capacitor/ios": "^8.0.0",
+    "@capacitor/network": "^8.0.0",
+    "@capacitor/preferences": "^8.0.0",
+    "@capacitor/share": "^8.0.0",
+    "@capacitor/splash-screen": "^8.0.0",
+    "@capacitor/status-bar": "^8.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.0.0",
+    "esbuild": "^0.25.0",
+    "sharp": "^0.34.3"
+  }
+}
