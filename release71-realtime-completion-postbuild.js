@@ -1,0 +1,35 @@
+const fs=require('fs'),path=require('path'),{execFileSync}=require('child_process');
+const D='dist',V='71',p=f=>path.join(D,f);
+if(!fs.existsSync(p('app.js')))throw new Error('Release71: dist/app.js missing');
+let app=fs.readFileSync(p('app.js'),'utf8');
+const swap=(from,to,label)=>{if(!app.includes(from))throw new Error('Release71 patch missing: '+label);app=app.replace(from,()=>to)};
+
+swap("const V='70';","const V='71';",'runtime version');
+
+swap(
+"  const rt={pc:new RTCPeerConnection(),dc:null,audio:document.createElement('audio'),pending:null,promise:null,doneTimer:null};\n  studyRealtime=rt;rt.audio.autoplay=true;rt.audio.setAttribute('playsinline','');rt.audio.className='studyRealtimeAudio';rt.audio.hidden=true;document.body.appendChild(rt.audio);",
+"  const rt={pc:new RTCPeerConnection(),dc:null,audio:document.createElement('audio'),pending:null,promise:null,doneTimer:null};\n  studyRealtime=rt;rt.audio.autoplay=true;rt.audio.volume=1;rt.audio.muted=false;rt.audio.setAttribute('playsinline','');rt.audio.className='studyRealtimeAudio';rt.audio.hidden=true;document.body.appendChild(rt.audio);",
+'stable realtime output level'
+);
+
+swap(
+"  rt.pc.ontrack=e=>{rt.audio.srcObject=e.streams[0];rt.audio.play().catch(()=>{})};",
+"  rt.pc.ontrack=e=>{rt.audio.srcObject=e.streams[0];rt.audio.volume=1;rt.audio.muted=false;rt.audio.play().catch(()=>{})};",
+'keep realtime element at full level'
+);
+
+const oldHandler=`  rt.dc.addEventListener('message',e=>{\n    let ev;try{ev=JSON.parse(e.data)}catch{return}const pending=rt.pending;if(!pending)return;\n    if(ev.type==='response.output_audio_transcript.delta'&&ev.delta){pending.transcript+=ev.delta;if(!pending.started){pending.started=true;setAudioStatus('Study AI • speaking…')}}\n    if(ev.type==='error'){const msg=ev.error?.message||'Realtime Study AI failed';rt.pending=null;pending.reject(new Error(msg));return}\n    if(ev.type==='response.done'){\n      if(rt.doneTimer)clearTimeout(rt.doneTimer);rt.doneTimer=setTimeout(()=>{if(rt.pending!==pending)return;rt.pending=null;pending.resolve(clean(pending.transcript))},260);\n    }\n  });`;
+const newHandler=`  rt.dc.addEventListener('message',e=>{\n    let ev;try{ev=JSON.parse(e.data)}catch{return}const pending=rt.pending;if(!pending)return;\n    if(ev.type==='response.created'){pending.responseId=ev.response?.id||pending.responseId}\n    if(ev.response_id&&pending.responseId&&ev.response_id!==pending.responseId)return;\n    if(ev.type==='response.output_audio_transcript.delta'&&ev.delta){\n      pending.transcript+=ev.delta;\n      if(!pending.started){pending.started=true;if(pending.firstAudioTimer)clearTimeout(pending.firstAudioTimer);setAudioStatus('Study AI • speaking…')}\n    }\n    if(ev.type==='response.output_audio_transcript.done'&&ev.transcript)pending.transcript=ev.transcript;\n    if(ev.type==='output_audio_buffer.started'){\n      pending.started=true;pending.audioStarted=true;if(pending.firstAudioTimer)clearTimeout(pending.firstAudioTimer);\n      rt.audio.volume=1;rt.audio.muted=false;setAudioStatus('Study AI • speaking…');\n    }\n    if(ev.type==='output_audio_buffer.stopped'){pending.audioStopped=true;pending.finish?.()}\n    if(ev.type==='error'){const msg=ev.error?.message||'Realtime Study AI failed';rt.pending=null;pending.reject(new Error(msg));return}\n    if(ev.type==='response.done'){\n      pending.responseDone=true;pending.responseStatus=ev.response?.status||'completed';\n      if(pending.responseStatus!=='completed'){rt.pending=null;pending.reject(new Error('Realtime Study AI '+pending.responseStatus));return}\n      pending.finish?.();\n      if(rt.doneTimer)clearTimeout(rt.doneTimer);\n      rt.doneTimer=setTimeout(()=>{if(rt.pending!==pending)return;pending.audioStopped=true;pending.finish?.()},15000);\n    }\n  });`;
+swap(oldHandler,newHandler,'wait for drained realtime audio');
+
+const oldPromise=`  return await new Promise((resolve,reject)=>{\n    const timeout=setTimeout(()=>{if(rt.pending){rt.pending=null;reject(Error('Realtime Study AI timed out'))}},18000);\n    rt.pending={transcript:'',started:false,resolve:v=>{clearTimeout(timeout);resolve(v)},reject:e=>{clearTimeout(timeout);reject(e)}};\n    rt.dc.send(JSON.stringify({type:'response.create',response:{conversation:'none',metadata:{kind:'hobah-study'},output_modalities:['audio'],instructions:'Answer immediately with no preamble. Give the direct answer in the first sentence, then only the most useful context. Keep this spoken answer concise, natural, rigorous, and around 120 to 180 words. Do not read verse numbers aloud.',input:[{type:'message',role:'user',content:[{type:'input_text',text:prompt}]}]}}));\n  });`;
+const newPromise=`  return await new Promise((resolve,reject)=>{\n    let settled=false;\n    const hardTimer=setTimeout(()=>{if(rt.pending){rt.pending=null;reject(Error('Realtime Study AI timed out'))}},180000);\n    const firstAudioTimer=setTimeout(()=>{if(rt.pending&&!rt.pending.started){rt.pending=null;reject(Error('Realtime Study AI did not begin speaking'))}},12000);\n    const pending={transcript:'',started:false,audioStarted:false,audioStopped:false,responseDone:false,responseId:null,firstAudioTimer,finish:null,resolve:null,reject:null};\n    const clearTimers=()=>{clearTimeout(hardTimer);clearTimeout(firstAudioTimer);if(rt.doneTimer){clearTimeout(rt.doneTimer);rt.doneTimer=null}};\n    pending.resolve=v=>{if(settled)return;settled=true;clearTimers();resolve(v)};\n    pending.reject=e=>{if(settled)return;settled=true;clearTimers();reject(e)};\n    pending.finish=()=>{if(settled||!pending.responseDone||!pending.audioStopped)return;rt.pending=null;pending.resolve(clean(pending.transcript))};\n    rt.pending=pending;\n    rt.dc.send(JSON.stringify({type:'response.create',response:{conversation:'none',metadata:{kind:'hobah-study'},output_modalities:['audio'],max_output_tokens:'inf',instructions:'Answer immediately with no preamble. Give the direct answer in the first sentence, then fully explain the verse and its immediate context before stopping. Do not cut the explanation short just to be concise. Use roughly 220 to 320 spoken words when the passage needs it, with a natural complete ending. Speak at a steady, even volume and calm pace. Do not read verse numbers aloud.',input:[{type:'message',role:'user',content:[{type:'input_text',text:prompt}]}]}}));\n  });`;
+swap(oldPromise,newPromise,'long-form realtime completion watchdog');
+
+fs.writeFileSync(p('app.js'),app);
+let html=fs.readFileSync(p('index.html'),'utf8');
+html=html.replace('/styles.css?v=70','/styles.css?v=71').replace('/app.js?v=70','/app.js?v=71').replace('/manifest.webmanifest?v=70','/manifest.webmanifest?v=71');
+fs.writeFileSync(p('index.html'),html);
+if(fs.existsSync(p('manifest.webmanifest'))){const m=JSON.parse(fs.readFileSync(p('manifest.webmanifest'),'utf8'));m.start_url='/?v=71#home';fs.writeFileSync(p('manifest.webmanifest'),JSON.stringify(m))}
+execFileSync(process.execPath,['--check',p('app.js')],{stdio:'inherit'});
+console.log('Hobah Release 71: complete realtime Study AI answers and stable audio handoff applied');
