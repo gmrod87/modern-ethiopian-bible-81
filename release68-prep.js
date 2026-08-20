@@ -45,7 +45,7 @@ swap(
 `;
 replace(
   "fs.writeFileSync(p('app.js'),app);",
-  finalPatches+"\\nfs.writeFileSync(p('app.js'),app);",
+  finalPatches+"\nfs.writeFileSync(p('app.js'),app);",
   'final low-latency patches'
 );
 fs.writeFileSync(file,s);
