@@ -7,7 +7,8 @@ const config: CapacitorConfig = {
   backgroundColor: '#F3EFE5',
   ios: {
     contentInset: 'never',
-    allowsLinkPreview: false
+    allowsLinkPreview: false,
+    preferredContentMode: 'mobile'
   },
   server: {
     iosScheme: 'capacitor'
