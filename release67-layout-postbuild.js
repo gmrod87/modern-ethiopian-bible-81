@@ -1,0 +1,14 @@
+const fs=require('fs');
+const path=require('path');
+const {execFileSync}=require('child_process');
+const D='dist',V='67';
+const p=f=>path.join(D,f);
+if(!fs.existsSync(D))throw new Error('Release67: dist missing');
+if(!fs.existsSync('release67-layout.css'))throw new Error('Release67: layout css missing');
+fs.copyFileSync('release67-layout.css',p('release67-layout.css'));
+let html=fs.readFileSync(p('index.html'),'utf8');
+html=html.replace(/\s*<link[^>]+href=["']\/release67-layout\.css(?:\?v=[^"']*)?["'][^>]*>/g,'');
+html=html.replace('</head>',`  <link rel="stylesheet" href="/release67-layout.css?v=${V}">\n</head>`);
+fs.writeFileSync(p('index.html'),html);
+if(!fs.readFileSync(p('index.html'),'utf8').includes('/release67-layout.css?v=67'))throw new Error('Release67 stylesheet not injected');
+console.log('Hobah Release 67: symmetric header and aligned drawer filters applied');
