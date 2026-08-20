@@ -79,9 +79,10 @@
     let tries=0;
     const tick=()=>{
       mountLaunchers();
-      if(++tries<24&&!($('.readerTools')||$('.heroActions')))requestAnimationFrame(tick);
+      const ready=$('.readerTools')||$('.heroActions');
+      if(!ready&&++tries<30)setTimeout(tick,100);
     };
-    requestAnimationFrame(tick);
+    tick();
   }
 
   async function activateLazyButton(btn,kind){
