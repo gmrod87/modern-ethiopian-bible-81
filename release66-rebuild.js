@@ -1,9 +1,13 @@
 const fs=require('fs'),path=require('path'),{execFileSync}=require('child_process');
 const D='dist',V='66';
-if(!fs.existsSync(D))throw new Error('Run build.js before release66-rebuild.js');
+if(!fs.existsSync(D))throw new Error('Run build-core57.js before release66-rebuild.js');
 
 fs.copyFileSync('release66-app.js',path.join(D,'app.js'));
 fs.copyFileSync('release66.css',path.join(D,'styles.css'));
+
+// Copy the study payloads and Hobah assets needed by the clean runtime.
+for(const f of fs.readdirSync('.').filter(x=>/^study-data-\d+\.js$/.test(x)).sort())fs.copyFileSync(f,path.join(D,f));
+for(const f of ['curated-notes.js','hobah-mark.svg','hobah-icon-180-v52.png','hobah-favicon-v52.png'])if(fs.existsSync(f))fs.copyFileSync(f,path.join(D,f));
 
 const html=`<!doctype html>
 <html lang="en">
