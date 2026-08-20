@@ -110,7 +110,7 @@ public class HobahVoicePlugin: CAPPlugin, CAPBridgedPlugin {
         guard wantsListening, !restartPending else { return }
         restartPending = true
         stopEngine(restorePlayback: false)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.22) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) { [weak self] in
             guard let self else { return }
             self.restartPending = false
             guard self.wantsListening else { return }
@@ -133,7 +133,13 @@ public class HobahVoicePlugin: CAPPlugin, CAPBridgedPlugin {
         try configureListeningSession()
         let req = SFSpeechAudioBufferRecognitionRequest()
         req.shouldReportPartialResults = true
-        req.taskHint = .dictation
+        req.taskHint = .confirmation
+        req.contextualStrings = [
+            "Hobah", "Hey Hobah", "explain that", "explain this", "explain that in more detail",
+            "what does that mean", "tell me more", "go deeper", "save that", "save this",
+            "stop", "pause", "stop reading", "continue", "resume", "keep reading",
+            "next verse", "previous verse", "go back"
+        ]
         request = req
 
         let input = engine.inputNode
