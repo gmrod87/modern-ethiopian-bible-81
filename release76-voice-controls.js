@@ -7,7 +7,7 @@ const swap=(from,to,label)=>{if(!app.includes(from))throw new Error('Release76 p
 swap("const V='75';","const V='76';",'runtime version');
 
 swap(
-"const ttsCache=new Map(),ttsInFlight=new Map();\nfunction ttsKey(text,mode){return `${mode||'normal'}|${clean(text)}`}",
+"const ttsCache=new Map(),ttsInFlight=new Map();\nfunction ttsKey(text,mode){return (mode||'normal')+'|'+clean(text)}",
 `function selectedNarrator(){return localGet('hobah:ttsVoice','female')==='male'?'male':'female'}
 function selectedVoiceId(){return selectedNarrator()==='male'?'cedar':'marin'}
 const ttsCache=new Map(),ttsInFlight=new Map();
