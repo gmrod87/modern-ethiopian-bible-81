@@ -1,4 +1,4 @@
-import { HobahAudio } from '@hobah/native-audio';
+import { HobahAudio, HobahVoice } from '@hobah/native-audio';
 
 function keyFor(text,mode='normal'){
   const s=`${mode}|${String(text||'').trim()}`;let h=2166136261;
@@ -13,11 +13,15 @@ async function play({text,mode='normal',title='Hobah',subtitle='The Ancient Cano
   requireOnline();const id=keyFor(text,mode);
   await HobahAudio.play({id,text,mode,title,subtitle,rate});return id;
 }
-async function init(){
+async function initAudio(){
   await HobahAudio.addListener('ended',e=>document.dispatchEvent(new CustomEvent('hobah:native-audio-ended',{detail:e})));
   await HobahAudio.addListener('remoteNext',e=>document.dispatchEvent(new CustomEvent('hobah:native-audio-next',{detail:e})));
   await HobahAudio.addListener('remotePrevious',e=>document.dispatchEvent(new CustomEvent('hobah:native-audio-previous',{detail:e})));
   await HobahAudio.addListener('stateChange',e=>document.dispatchEvent(new CustomEvent('hobah:native-audio-state',{detail:e})));
+}
+async function initVoice(){
+  await HobahVoice.addListener('transcript',e=>document.dispatchEvent(new CustomEvent('hobah:native-voice-transcript',{detail:e})));
+  await HobahVoice.addListener('stateChange',e=>document.dispatchEvent(new CustomEvent('hobah:native-voice-state',{detail:e})));
 }
 
 window.HobahNativeAudio={
@@ -31,4 +35,11 @@ window.HobahNativeAudio={
   getState:()=>HobahAudio.getState(),
   clearCache:()=>HobahAudio.clearCache()
 };
-window.HobahNativeAudioReady=init();
+window.HobahNativeVoice={
+  requestPermissions:()=>HobahVoice.requestPermissions(),
+  start:(options={locale:'en-AU'})=>HobahVoice.start(options),
+  stop:()=>HobahVoice.stop(),
+  getState:()=>HobahVoice.getState()
+};
+window.HobahNativeAudioReady=initAudio();
+window.HobahNativeVoiceReady=initVoice();
