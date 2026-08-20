@@ -11,4 +11,12 @@ export interface HobahAudioPlugin {
   clearCache():Promise<void>;
   addListener(eventName:'ended'|'remoteNext'|'remotePrevious'|'stateChange',listenerFunc:(event:any)=>void):Promise<PluginListenerHandle>;
 }
+export interface HobahVoicePlugin {
+  requestPermissions():Promise<{speech:string;microphone:string}>;
+  start(options?:{locale?:string}):Promise<void>;
+  stop():Promise<void>;
+  getState():Promise<{listening:boolean;available:boolean}>;
+  addListener(eventName:'transcript'|'stateChange',listenerFunc:(event:any)=>void):Promise<PluginListenerHandle>;
+}
 export declare const HobahAudio:HobahAudioPlugin;
+export declare const HobahVoice:HobahVoicePlugin;
