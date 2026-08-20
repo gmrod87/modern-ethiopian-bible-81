@@ -39,8 +39,8 @@ natural=natural.replace(/>READ MODE</g,'>CONTEXT<').replace(/>Normal</g,'>None<'
 natural=natural.replace(/const r=await fetch\('\/api\/tts\?health=1',[^;]+;enabled=r\.ok;if\(enabled\)\{/g,'enabled=true;if(enabled){');
 write('natural-audio.js',natural);
 
-// 5) Use the proven Release 55 Study-AI narration bridge and fastest voice-command loop.
-fs.copyFileSync('release55-study-audio.js',p('read-aloud-v2.js'));
+// 5) Use the immediate streaming Study-AI narration bridge and fastest voice-command loop.
+fs.copyFileSync('release64-study-audio.js',p('read-aloud-v2.js'));
 let voice=fs.readFileSync('release55-voice.js','utf8');
 voice=voice.replace(/restartTimer=setTimeout\(\(\)=>\{restarting=false;startListening\(false\)\},\d+\)/,'restartTimer=setTimeout(()=>{restarting=false;startListening(false)},25)');
 voice=voice.replace(/now-lastCommandAt<\d+/,'now-lastCommandAt<300');
