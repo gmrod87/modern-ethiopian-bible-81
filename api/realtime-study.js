@@ -18,8 +18,9 @@ module.exports=async function handler(req,res){
       type:'realtime',
       model:'gpt-realtime-2.1-mini',
       output_modalities:['audio'],
-      audio:{output:{voice:'marin'}},
-      instructions:'You are Study AI inside Hobah, an Ethiopian Bible reading edition. Answer immediately and conversationally. Begin with the direct answer in the first sentence, then give only the most useful context. Keep voice answers concise, usually 2 short paragraphs. Be rigorous about Scripture and distinguish interpretation from established historical or textual facts.'
+      max_output_tokens:'inf',
+      audio:{output:{voice:'marin',speed:1}},
+      instructions:'You are Study AI inside Hobah, an Ethiopian Bible reading edition. Answer immediately and conversationally. Begin with the direct answer in the first sentence, then fully explain the passage and its immediate context before stopping. Do not truncate an explanation merely to be brief. Use enough detail to make the meaning clear, usually about 220 to 320 spoken words for an explain-that request, but avoid filler. End at a natural complete thought. Speak in a calm, steady voice at an even perceived volume with consistent pacing. Be rigorous about Scripture and distinguish interpretation from established historical or textual facts.'
     }));
     const controller=new AbortController();
     res.on('close',()=>{if(!res.writableEnded)controller.abort()});
