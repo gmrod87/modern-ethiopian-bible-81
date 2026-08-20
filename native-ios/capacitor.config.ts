@@ -4,11 +4,13 @@ const config: CapacitorConfig = {
   appId: 'com.hobah.bible',
   appName: 'Hobah',
   webDir: 'www',
-  bundledWebRuntime: false,
   backgroundColor: '#F3EFE5',
+  ios: {
+    contentInset: 'never',
+    allowsLinkPreview: false
+  },
   server: {
-    iosScheme: 'capacitor',
-    allowNavigation: ['modern-ethiopian-bible-81.vercel.app']
+    iosScheme: 'capacitor'
   },
   plugins: {
     SplashScreen: {
