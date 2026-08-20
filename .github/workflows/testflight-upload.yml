@@ -243,26 +243,23 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          BODY=$(cat <<EOF
-          # Hobah TestFlight Status
-
-          - status: ${JOB_STATUS}
-          - source_commit: ${GITHUB_SHA}
-          - run_id: ${GITHUB_RUN_ID}
-          - bundle_id: ${BUNDLE_ID}
-          - checked_at_utc: $(date -u +'%Y-%m-%dT%H:%M:%SZ')
-          EOF
-          )
-          if [ -f "$RUNNER_TEMP/app-store-upload.log" ]; then
-            UPLOAD_OUTPUT="$(tail -n 140 "$RUNNER_TEMP/app-store-upload.log")"
-            BODY="${BODY}
-
-          ## App Store Connect upload output
-          \\`\\`\\`
-          ${UPLOAD_OUTPUT}
-          \\`\\`\\`"
-          fi
-          ENCODED="$(printf '%s' "$BODY" | base64)"
+          STATUS_FILE="$RUNNER_TEMP/testflight-status.md"
+          {
+            echo '# Hobah TestFlight Status'
+            echo
+            echo "- status: ${JOB_STATUS}"
+            echo "- source_commit: ${GITHUB_SHA}"
+            echo "- run_id: ${GITHUB_RUN_ID}"
+            echo "- bundle_id: ${BUNDLE_ID}"
+            echo "- checked_at_utc: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+            if [ -f "$RUNNER_TEMP/app-store-upload.log" ]; then
+              echo
+              echo '## App Store Connect upload output'
+              echo
+              tail -n 180 "$RUNNER_TEMP/app-store-upload.log"
+            fi
+          } > "$STATUS_FILE"
+          ENCODED="$(base64 < "$STATUS_FILE")"
           REPO="${GITHUB_REPOSITORY}"
           STATUS_BRANCH="ci-testflight-status"
           if ! gh api "repos/${REPO}/git/ref/heads/${STATUS_BRANCH}" >/dev/null 2>&1; then
