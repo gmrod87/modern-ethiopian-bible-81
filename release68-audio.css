@@ -1,0 +1,33 @@
+/* Hobah Release 68 — centered transport control + low-latency audio polish */
+#audioPlay{
+  display:grid!important;
+  place-items:center!important;
+  padding:0!important;
+  line-height:1!important;
+  text-align:center!important;
+  overflow:hidden;
+}
+#audioPlay::before{
+  content:"▶";
+  display:block;
+  font-size:15px;
+  line-height:1;
+  transform:translateX(1px);
+}
+#audioPlay[data-state="pause"]::before{
+  content:"";
+  width:14px;
+  height:18px;
+  background:linear-gradient(90deg,currentColor 0 4px,transparent 4px 10px,currentColor 10px 14px);
+  transform:none;
+}
+#audioPlay[data-state="loading"]::before{
+  content:"…";
+  width:auto;
+  height:auto;
+  background:none;
+  font-size:20px;
+  line-height:.7;
+  transform:translateY(-2px);
+}
+#audioDock[data-study-speaking="1"] #audioPlay::before{opacity:.92}
