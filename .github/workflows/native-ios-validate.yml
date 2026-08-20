@@ -1,0 +1,40 @@
+name: Validate Hobah Native Bundle
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'native-ios/**'
+      - 'api/**'
+      - 'package.json'
+      - 'release75-appstore-readiness.js'
+      - 'privacy.html'
+      - 'support.html'
+  workflow_dispatch:
+
+jobs:
+  validate-native-bundle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - name: Install web build dependencies
+        run: npm install
+      - name: Build production Hobah
+        run: npm run build
+      - name: Install native Capacitor dependencies
+        working-directory: native-ios
+        run: npm install
+      - name: Prepare bundled offline Bible
+        working-directory: native-ios
+        run: npm run prepare:web
+      - name: Bundle native bridge
+        working-directory: native-ios
+        run: npm run build:bridge
+      - name: Validate native bundle
+        working-directory: native-ios
+        run: npm run doctor
