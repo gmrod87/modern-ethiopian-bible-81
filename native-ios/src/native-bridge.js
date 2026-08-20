@@ -17,6 +17,7 @@ const PREFERENCE_KEYS=[
 
 window.HOBAH_API_BASE=API_BASE;
 window.HOBAH_NATIVE=true;
+window.HOBAH_NETWORK_CONNECTED=true;
 
 function webURL(url=''){
   if(!url)return PUBLIC_BASE;
@@ -91,6 +92,7 @@ async function restoreReadingPosition(){
 }
 
 function setOfflineUI(connected){
+  window.HOBAH_NETWORK_CONNECTED=!!connected;
   document.body.classList.toggle('nativeOffline',!connected);
   let el=document.getElementById('nativeOfflineBanner');
   if(!el){
@@ -198,6 +200,7 @@ window.HobahNative={
   openAbout,
   savePreferences,
   applyPreferredTextZoom,
+  isOnline:()=>window.HOBAH_NETWORK_CONNECTED!==false,
   apiBase:API_BASE
 };
 window.HobahNativeReady=boot();
