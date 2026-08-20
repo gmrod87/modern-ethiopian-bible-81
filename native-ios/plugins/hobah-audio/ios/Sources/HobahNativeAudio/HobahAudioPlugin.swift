@@ -36,6 +36,13 @@ public class HobahAudioPlugin: CAPPlugin, CAPBridgedPlugin, AVAudioPlayerDelegat
     private func configureAudioSession() {
         do {
             let session = AVAudioSession.sharedInstance()
+            // Voice Commands own a playAndRecord/voiceChat session while the microphone
+            // is listening. Do not replace it with playback-only when a new Scripture
+            // chunk starts, otherwise iOS can stop the recognition engine mid-read.
+            if session.category == .playAndRecord {
+                try session.setActive(true, options: [])
+                return
+            }
             try session.setCategory(.playback, mode: .spokenAudio, options: [])
             try session.setActive(true)
         } catch {
