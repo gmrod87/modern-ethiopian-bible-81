@@ -6,8 +6,8 @@
   "scripts": {
     "prepare:web": "node scripts/prepare-web.mjs",
     "build:bridge": "node scripts/build-bridge.mjs",
-    "ios:init": "node scripts/init-ios.mjs",
-    "ios:sync": "npm run prepare:web && npm run build:bridge && npx cap sync ios && node scripts/post-ios.mjs && npm run doctor",
+    "ios:init": "npm run prepare:web && npm run build:bridge && node scripts/init-ios.mjs && node scripts/post-ios.mjs",
+    "ios:sync": "npm run prepare:web && npm run build:bridge && node scripts/init-ios.mjs && npx cap sync ios && node scripts/post-ios.mjs && npm run doctor",
     "ios:open": "npm run ios:sync && npx cap open ios",
     "doctor": "node scripts/doctor.mjs"
   },
