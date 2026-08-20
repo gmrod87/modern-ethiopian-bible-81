@@ -1,5 +1,6 @@
 Hobah TestFlight upload trigger
-Requested: 2026-08-20 22:30 AEST
+Requested: 2026-08-20 22:36 AEST
 Version: 1.0.0
 Bundle ID: com.hobah.bible
 Apple signing mode: Manual App Store profile
+Validation fixes: multitasking plist + opaque app icons
