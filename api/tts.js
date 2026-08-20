@@ -1,4 +1,8 @@
 module.exports=async function handler(req,res){
+  res.setHeader('access-control-allow-origin','*');
+  res.setHeader('access-control-allow-methods','GET,POST,OPTIONS');
+  res.setHeader('access-control-allow-headers','content-type');
+  if(req.method==='OPTIONS'){res.statusCode=204;return res.end()}
   if(req.method==='GET'){
     if(req.query&&req.query.health){
       res.statusCode=process.env.OPENAI_API_KEY?200:503;
