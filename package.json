@@ -1,1 +1,1 @@
-{"scripts":{"build":"node build-core57.js"},"dependencies":{"sharp":"^0.34.3"}}
+{"scripts":{"build":"node build-core57.js && node release59-voice-postbuild.js"},"dependencies":{"sharp":"^0.34.3"}}
