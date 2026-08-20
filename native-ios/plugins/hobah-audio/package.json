@@ -1,0 +1,12 @@
+{
+  "name": "@hobah/native-audio",
+  "version": "1.0.0",
+  "description": "Native iOS spoken-audio player for Hobah",
+  "main": "dist/esm/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "files": ["dist/", "ios/Sources/", "Package.swift", "HobahNativeAudio.podspec"],
+  "license": "UNLICENSED",
+  "peerDependencies": {"@capacitor/core": ">=8.0.0"},
+  "capacitor": {"ios": {"src": "ios"}}
+}
