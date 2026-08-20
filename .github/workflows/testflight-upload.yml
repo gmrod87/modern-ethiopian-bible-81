@@ -201,8 +201,9 @@ jobs:
             -archivePath ios/archive/Hobah.xcarchive \
             -exportPath ios/export \
             -exportOptionsPlist ios/ExportOptions.plist
-          IPA="$(find ios/export -maxdepth 1 -name '*.ipa' -print -quit)"
+          IPA="$(find "$PWD/ios/export" -maxdepth 1 -name '*.ipa' -print -quit)"
           test -n "$IPA"
+          test -f "$IPA"
           echo "IPA_PATH=$IPA" >> "$GITHUB_ENV"
 
       - name: Upload IPA to TestFlight
@@ -214,6 +215,7 @@ jobs:
           set -uo pipefail
           LOG="$RUNNER_TEMP/app-store-upload.log"
           : > "$LOG"
+          test -f "$IPA_PATH" || { echo "IPA missing at $IPA_PATH" | tee "$LOG"; exit 1; }
           echo "Uploading $IPA_PATH to App Store Connect…"
           set +e
           if xcrun altool --help >/dev/null 2>&1; then
