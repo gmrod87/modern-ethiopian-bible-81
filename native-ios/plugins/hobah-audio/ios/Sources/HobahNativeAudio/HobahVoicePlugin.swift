@@ -20,6 +20,7 @@ public class HobahVoicePlugin: CAPPlugin, CAPBridgedPlugin {
     private var recognizer: SFSpeechRecognizer?
     private var wantsListening = false
     private var tapInstalled = false
+    private var restartPending = false
     private var localeID = "en-AU"
 
     override public func load() {
@@ -106,12 +107,16 @@ public class HobahVoicePlugin: CAPPlugin, CAPBridgedPlugin {
     }
 
     private func restartIfNeeded() {
-        guard wantsListening else { return }
+        guard wantsListening, !restartPending else { return }
+        restartPending = true
         stopEngine(restorePlayback: false)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.18) { [weak self] in
-            guard let self, self.wantsListening else { return }
-            do { try self.beginRecognition() }
-            catch {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.22) { [weak self] in
+            guard let self else { return }
+            self.restartPending = false
+            guard self.wantsListening else { return }
+            do {
+                try self.beginRecognition()
+            } catch {
                 self.wantsListening = false
                 self.restorePlaybackSession()
                 self.notifyListeners("stateChange", data: ["listening": false, "error": error.localizedDescription])
@@ -124,6 +129,7 @@ public class HobahVoicePlugin: CAPPlugin, CAPBridgedPlugin {
         guard let recognizer, recognizer.isAvailable else {
             throw NSError(domain: "HobahVoice", code: 1, userInfo: [NSLocalizedDescriptionKey: "Speech recognition is temporarily unavailable"])
         }
+
         try configureListeningSession()
         let req = SFSpeechAudioBufferRecognitionRequest()
         req.shouldReportPartialResults = true
@@ -131,6 +137,11 @@ public class HobahVoicePlugin: CAPPlugin, CAPBridgedPlugin {
         request = req
 
         let input = engine.inputNode
+        // Voice processing provides echo cancellation while Hobah narration is playing,
+        // reducing the chance that the app transcribes its own spoken Scripture.
+        if #available(iOS 13.0, *) {
+            try? input.setVoiceProcessingEnabled(true)
+        }
         let format = input.outputFormat(forBus: 0)
         input.installTap(onBus: 0, bufferSize: 1024, format: format) { [weak req] buffer, _ in
             req?.append(buffer)
@@ -142,7 +153,9 @@ public class HobahVoicePlugin: CAPPlugin, CAPBridgedPlugin {
             if let result {
                 let text = result.bestTranscription.formattedString.trimmingCharacters(in: .whitespacesAndNewlines)
                 if !text.isEmpty {
-                    self.notifyListeners("transcript", data: ["text": text, "final": result.isFinal])
+                    DispatchQueue.main.async {
+                        self.notifyListeners("transcript", data: ["text": text, "final": result.isFinal])
+                    }
                 }
                 if result.isFinal {
                     DispatchQueue.main.async { self.restartIfNeeded() }
@@ -153,6 +166,7 @@ public class HobahVoicePlugin: CAPPlugin, CAPBridgedPlugin {
                 DispatchQueue.main.async { self.restartIfNeeded() }
             }
         }
+
         engine.prepare()
         try engine.start()
         notifyListeners("stateChange", data: ["listening": true])
@@ -161,6 +175,7 @@ public class HobahVoicePlugin: CAPPlugin, CAPBridgedPlugin {
     @objc func start(_ call: CAPPluginCall) {
         localeID = call.getString("locale") ?? "en-AU"
         wantsListening = true
+        restartPending = false
         ensurePermissions { [weak self] granted in
             guard let self else { return }
             guard granted else {
@@ -182,6 +197,7 @@ public class HobahVoicePlugin: CAPPlugin, CAPBridgedPlugin {
 
     @objc func stop(_ call: CAPPluginCall) {
         wantsListening = false
+        restartPending = false
         stopEngine(restorePlayback: true)
         notifyListeners("stateChange", data: ["listening": false])
         call.resolve()
@@ -190,7 +206,9 @@ public class HobahVoicePlugin: CAPPlugin, CAPBridgedPlugin {
     @objc func getState(_ call: CAPPluginCall) {
         call.resolve([
             "listening": wantsListening && engine.isRunning,
-            "available": recognizer?.isAvailable ?? false
+            "available": recognizer?.isAvailable ?? false,
+            "speechPermission": speechState(),
+            "microphonePermission": microphoneState()
         ])
     }
 }
