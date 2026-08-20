@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbf8ef"/><stop offset=".5" stop-color="#eadfc8"/><stop offset="1" stop-color="#cfb98a"/></linearGradient>
+  <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".88"/><stop offset=".48" stop-color="#f8f2e5" stop-opacity=".52"/><stop offset="1" stop-color="#d7c39b" stop-opacity=".7"/></linearGradient>
+  <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="30" stdDeviation="34" flood-color="#173e35" flood-opacity=".24"/></filter>
+</defs>
+<rect width="1024" height="1024" rx="226" fill="url(#bg)"/>
+<circle cx="512" cy="500" r="338" fill="#0d4c3f" opacity=".94"/>
+<circle cx="512" cy="500" r="303" fill="none" stroke="#d7bd78" stroke-width="3" opacity=".75"/>
+<g filter="url(#shadow)"><rect x="280" y="262" width="464" height="464" rx="132" fill="url(#glass)" stroke="#fff" stroke-opacity=".62" stroke-width="5"/></g>
+<path d="M384 347h67v128h122V347h67v330h-67V542H451v135h-67z" fill="#0c3f35"/>
+<path d="M454 427h116" stroke="#a4773b" stroke-width="18" stroke-linecap="round" opacity=".95"/>
+<path d="M512 370v114" stroke="#a4773b" stroke-width="18" stroke-linecap="round" opacity=".95"/>
+<text x="512" y="836" text-anchor="middle" font-family="Georgia,serif" font-size="56" font-weight="700" letter-spacing="6" fill="#173e35">HOBAH</text>
+</svg>
