@@ -97,7 +97,10 @@ document.addEventListener('hobah:native-voice-state',e=>{
   'Voice Commands stop/events'
 );
 
-for(const required of ['HobahNativeVoice','hobah:native-voice-transcript','save that','explain that']){
+const bootstrapTwo="Promise.allSettled([Promise.resolve(window.HobahNativeReady),Promise.resolve(window.HobahNativeAudioReady)]).finally(()=>bootstrap());";
+if(app.includes(bootstrapTwo))app=app.replace(bootstrapTwo,"Promise.allSettled([Promise.resolve(window.HobahNativeReady),Promise.resolve(window.HobahNativeAudioReady),Promise.resolve(window.HobahNativeVoiceReady)]).finally(()=>bootstrap());");
+
+for(const required of ['HobahNativeVoice','HobahNativeVoiceReady','hobah:native-voice-transcript','save that','explain that']){
   if(!app.includes(required))throw new Error('Native Voice integration missing '+required);
 }
 await writeFile(appPath,app);
