@@ -1,0 +1,6 @@
+node_modules/
+www/
+.DS_Store
+*.xcuserstate
+ios/App/App.xcodeproj/xcuserdata/
+ios/App/App.xcworkspace/xcuserdata/
