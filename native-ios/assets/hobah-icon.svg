@@ -1,15 +1,63 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
-<defs>
-  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fbf8ef"/><stop offset=".5" stop-color="#eadfc8"/><stop offset="1" stop-color="#cfb98a"/></linearGradient>
-  <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".88"/><stop offset=".48" stop-color="#f8f2e5" stop-opacity=".52"/><stop offset="1" stop-color="#d7c39b" stop-opacity=".7"/></linearGradient>
-  <filter id="shadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="30" stdDeviation="34" flood-color="#173e35" flood-opacity=".24"/></filter>
-</defs>
-<rect width="1024" height="1024" rx="226" fill="url(#bg)"/>
-<circle cx="512" cy="500" r="338" fill="#0d4c3f" opacity=".94"/>
-<circle cx="512" cy="500" r="303" fill="none" stroke="#d7bd78" stroke-width="3" opacity=".75"/>
-<g filter="url(#shadow)"><rect x="280" y="262" width="464" height="464" rx="132" fill="url(#glass)" stroke="#fff" stroke-opacity=".62" stroke-width="5"/></g>
-<path d="M384 347h67v128h122V347h67v330h-67V542H451v135h-67z" fill="#0c3f35"/>
-<path d="M454 427h116" stroke="#a4773b" stroke-width="18" stroke-linecap="round" opacity=".95"/>
-<path d="M512 370v114" stroke="#a4773b" stroke-width="18" stroke-linecap="round" opacity=".95"/>
-<text x="512" y="836" text-anchor="middle" font-family="Georgia,serif" font-size="56" font-weight="700" letter-spacing="6" fill="#173e35">HOBAH</text>
+  <defs>
+    <radialGradient id="page" cx="50%" cy="42%" r="72%">
+      <stop offset="0" stop-color="#FFFDF7"/>
+      <stop offset="0.68" stop-color="#F8F4EA"/>
+      <stop offset="1" stop-color="#EFE9DC"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#E5CB8D"/>
+      <stop offset="0.5" stop-color="#C9A65D"/>
+      <stop offset="1" stop-color="#E0C17C"/>
+    </linearGradient>
+    <linearGradient id="rim" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFFDF6"/>
+      <stop offset="0.48" stop-color="#FBF6E9"/>
+      <stop offset="1" stop-color="#F1E6CE"/>
+    </linearGradient>
+    <radialGradient id="face" cx="40%" cy="30%" r="82%">
+      <stop offset="0" stop-color="#FFF8E6"/>
+      <stop offset="0.55" stop-color="#F6E5BF"/>
+      <stop offset="1" stop-color="#E8CE98"/>
+    </radialGradient>
+    <linearGradient id="highlight" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF" stop-opacity="0.92"/>
+      <stop offset="0.45" stop-color="#FFF8E9" stop-opacity="0.26"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="panelShadow" x="-30%" y="-30%" width="160%" height="170%">
+      <feDropShadow dx="0" dy="28" stdDeviation="28" flood-color="#6C5632" flood-opacity="0.19"/>
+    </filter>
+    <filter id="softInner" x="-15%" y="-15%" width="130%" height="130%">
+      <feGaussianBlur stdDeviation="10"/>
+    </filter>
+  </defs>
+
+  <!-- Fully opaque canvas for App Store validation. iOS applies the final icon mask. -->
+  <rect width="1024" height="1024" fill="url(#page)"/>
+
+  <!-- Soft shadow under the raised cream tile. -->
+  <rect x="112" y="102" width="800" height="800" rx="218" fill="#E9DECA" filter="url(#panelShadow)"/>
+
+  <!-- Fine gold outer edge and warm raised rim. -->
+  <rect x="112" y="92" width="800" height="800" rx="218" fill="url(#gold)"/>
+  <rect x="118" y="98" width="788" height="788" rx="212" fill="url(#rim)"/>
+  <rect x="132" y="112" width="760" height="760" rx="202" fill="none" stroke="#FFFFFF" stroke-width="5" stroke-opacity="0.78"/>
+
+  <!-- Recessed golden face. -->
+  <rect x="176" y="156" width="672" height="672" rx="180" fill="url(#face)"/>
+  <rect x="176" y="156" width="672" height="672" rx="180" fill="url(#highlight)"/>
+  <rect x="180" y="160" width="664" height="664" rx="176" fill="none" stroke="#FFF9EA" stroke-width="3" stroke-opacity="0.75"/>
+
+  <!-- Subtle lower depth gives the button-like bevel in the reference. -->
+  <path d="M213 722c54 70 142 98 299 98s245-28 299-98c-25 72-98 116-299 116S238 794 213 722Z" fill="#B48D4C" opacity="0.07" filter="url(#softInner)"/>
+
+  <!-- Hobah monogram. -->
+  <text x="500" y="672"
+        text-anchor="middle"
+        font-family="Georgia, 'Times New Roman', serif"
+        font-size="516"
+        font-style="italic"
+        font-weight="700"
+        fill="#211B14">H</text>
 </svg>
