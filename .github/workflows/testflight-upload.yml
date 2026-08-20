@@ -7,9 +7,17 @@ on:
         description: 'App version shown in App Store Connect'
         required: true
         default: '1.0.0'
+  push:
+    branches: [main]
+    paths:
+      - 'native-ios/testflight-trigger.txt'
 
 permissions:
-  contents: read
+  contents: write
+
+concurrency:
+  group: hobah-testflight
+  cancel-in-progress: false
 
 jobs:
   testflight:
@@ -102,7 +110,7 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-          MARKETING_VERSION: ${{ inputs.marketing_version }}
+          MARKETING_VERSION: ${{ inputs.marketing_version || '1.0.0' }}
         run: |
           set -euo pipefail
           rm -rf ios/archive ios/export
@@ -181,3 +189,41 @@ jobs:
           name: hobah-testflight-ipa
           path: native-ios/ios/export/*.ipa
           if-no-files-found: error
+
+      - name: Publish TestFlight status
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          JOB_STATUS: ${{ job.status }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          BODY=$(cat <<EOF
+          # Hobah TestFlight Status
+
+          - status: ${JOB_STATUS}
+          - source_commit: ${GITHUB_SHA}
+          - run_id: ${GITHUB_RUN_ID}
+          - bundle_id: ${BUNDLE_ID}
+          - checked_at_utc: $(date -u +'%Y-%m-%dT%H:%M:%SZ')
+          EOF
+          )
+          ENCODED="$(printf '%s' "$BODY" | base64)"
+          REPO="${GITHUB_REPOSITORY}"
+          STATUS_BRANCH="ci-testflight-status"
+          if ! gh api "repos/${REPO}/git/ref/heads/${STATUS_BRANCH}" >/dev/null 2>&1; then
+            gh api -X POST "repos/${REPO}/git/refs" -f ref="refs/heads/${STATUS_BRANCH}" -f sha="${GITHUB_SHA}" >/dev/null
+          fi
+          OLD_SHA="$(gh api "repos/${REPO}/contents/testflight-status.md?ref=${STATUS_BRANCH}" --jq '.sha' 2>/dev/null || true)"
+          if [ -n "$OLD_SHA" ]; then
+            gh api -X PUT "repos/${REPO}/contents/testflight-status.md" \
+              -f message="Update Hobah TestFlight status" \
+              -f content="$ENCODED" \
+              -f branch="$STATUS_BRANCH" \
+              -f sha="$OLD_SHA" >/dev/null
+          else
+            gh api -X PUT "repos/${REPO}/contents/testflight-status.md" \
+              -f message="Publish Hobah TestFlight status" \
+              -f content="$ENCODED" \
+              -f branch="$STATUS_BRANCH" >/dev/null
+          fi
