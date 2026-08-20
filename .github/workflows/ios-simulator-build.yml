@@ -2,30 +2,56 @@ name: Build Hobah iOS Simulator
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'native-ios/**'
+      - '.github/workflows/ios-simulator-build.yml'
+      - 'package.json'
+      - 'release75-appstore-ready.js'
 
 jobs:
   ios-simulator:
     runs-on: macos-latest
-    timeout-minutes: 30
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Xcode version
-        run: xcodebuild -version
+          cache: 'npm'
+
+      - name: Select Xcode 26
+        shell: bash
+        run: |
+          set -euo pipefail
+          XCODE_APP="$(find /Applications -maxdepth 1 -type d -name 'Xcode_26*.app' | sort -V | tail -1)"
+          if [ -z "$XCODE_APP" ]; then
+            echo 'Xcode 26 is not installed on this runner.' >&2
+            ls -1 /Applications | grep '^Xcode' || true
+            exit 1
+          fi
+          sudo xcode-select --switch "$XCODE_APP/Contents/Developer"
+          xcodebuild -version
+          xcodebuild -version | head -1 | grep -E '^Xcode 26([ .]|$)'
+
       - name: Install Hobah web dependencies
         run: npm install
+
       - name: Build Hobah web release
         run: npm run build
+
       - name: Install Capacitor dependencies
         working-directory: native-ios
         run: npm install
-      - name: Prepare native web bundle
+
+      - name: Prepare native web bundle and bridges
         working-directory: native-ios
         run: |
           npm run prepare:web
           npm run build:bridge
+
       - name: Generate and sync Xcode project
         working-directory: native-ios
         run: |
@@ -33,18 +59,47 @@ jobs:
           npx cap sync ios
           node scripts/post-ios.mjs
           npm run doctor
-      - name: Build unsigned iOS Simulator app
+
+      - name: Build unsigned iPhone/iPad Simulator app
         working-directory: native-ios
         run: |
-          set -e
+          set -euo pipefail
+          rm -rf ios/build
           if [ -d ios/App/App.xcworkspace ]; then
-            xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Debug -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO build
+            xcodebuild \
+              -workspace ios/App/App.xcworkspace \
+              -scheme App \
+              -configuration Debug \
+              -sdk iphonesimulator \
+              -destination 'generic/platform=iOS Simulator' \
+              -derivedDataPath ios/build \
+              CODE_SIGNING_ALLOWED=NO \
+              build
           else
-            xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator CODE_SIGNING_ALLOWED=NO build
+            xcodebuild \
+              -project ios/App/App.xcodeproj \
+              -scheme App \
+              -configuration Debug \
+              -sdk iphonesimulator \
+              -destination 'generic/platform=iOS Simulator' \
+              -derivedDataPath ios/build \
+              CODE_SIGNING_ALLOWED=NO \
+              build
           fi
+          test -d ios/build/Build/Products/Debug-iphonesimulator/App.app
+
+      - name: Archive compiled Simulator app
+        uses: actions/upload-artifact@v4
+        with:
+          name: hobah-ios-simulator-app
+          path: native-ios/ios/build/Build/Products/Debug-iphonesimulator/App.app
+          if-no-files-found: error
+
       - name: Archive generated Xcode project
         uses: actions/upload-artifact@v4
         with:
           name: hobah-ios-xcode-project
-          path: native-ios/ios
+          path: |
+            native-ios/ios/App
+            !native-ios/ios/build
           if-no-files-found: error
