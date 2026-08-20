@@ -1,0 +1,36 @@
+module.exports=async function handler(req,res){
+  const apiKey=process.env.OPENAI_API_KEY||process.env.OPENAI_KEY||process.env.OPENAI_SECRET_KEY||'';
+  if(req.method==='GET'&&req.query&&req.query.health){res.statusCode=apiKey?200:503;res.setHeader('content-type','application/json');return res.end(JSON.stringify({ready:!!apiKey,model:'gpt-realtime-2.1-mini'}))}
+  if(req.method!=='POST'){res.statusCode=405;return res.end('Method not allowed')}
+  if(!apiKey){res.statusCode=503;return res.end('Realtime Study AI is not configured')}
+  try{
+    let sdp='';
+    if(typeof req.body==='string')sdp=req.body;
+    else if(Buffer.isBuffer(req.body))sdp=req.body.toString('utf8');
+    else if(req.body&&typeof req.body==='object'&&typeof req.body.sdp==='string')sdp=req.body.sdp;
+    if(!sdp){
+      for await(const chunk of req)sdp+=Buffer.from(chunk).toString('utf8');
+    }
+    if(!sdp.trim()){res.statusCode=400;return res.end('Missing SDP')}
+    const fd=new FormData();
+    fd.set('sdp',sdp);
+    fd.set('session',JSON.stringify({
+      type:'realtime',
+      model:'gpt-realtime-2.1-mini',
+      output_modalities:['audio'],
+      audio:{output:{voice:'marin'}},
+      instructions:'You are Study AI inside Hobah, an Ethiopian Bible reading edition. Answer immediately and conversationally. Begin with the direct answer in the first sentence, then give only the most useful context. Keep voice answers concise, usually 2 short paragraphs. Be rigorous about Scripture and distinguish interpretation from established historical or textual facts.'
+    }));
+    const controller=new AbortController();
+    res.on('close',()=>{if(!res.writableEnded)controller.abort()});
+    const r=await fetch('https://api.openai.com/v1/realtime/calls',{method:'POST',signal:controller.signal,headers:{authorization:`Bearer ${apiKey}`},body:fd});
+    const text=await r.text();
+    res.statusCode=r.status;
+    res.setHeader('content-type','application/sdp');
+    res.setHeader('cache-control','no-store');
+    return res.end(text);
+  }catch(e){
+    if(e&&e.name==='AbortError')return;
+    res.statusCode=500;return res.end('Realtime Study AI failed');
+  }
+}
