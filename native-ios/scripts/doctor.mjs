@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
 const www=path.join(root,'www');
-const must=['index.html','app.js','styles.css','native.css','native-bridge.js','books.json','privacy.html','support.html'];
+const must=['index.html','app.js','styles.css','native.css','native-bridge.js','native-audio.js','books.json','privacy.html','support.html'];
 for(const f of must)if(!existsSync(path.join(www,f)))throw new Error('Missing native web asset: '+f);
 const books=JSON.parse(await readFile(path.join(www,'books.json'),'utf8'));
 if(books.length!==81)throw new Error(`Expected 81 books, found ${books.length}`);
@@ -25,9 +25,14 @@ for(const endpoint of ['/api/tts','/api/study-chat','/api/realtime-study'])if(!a
 if(app.includes('DecompressionStream'))throw new Error('Native app still decompresses search data at runtime');
 if(!app.includes("fetch('/search/'+cat+'.json'"))throw new Error('Native app is not using local expanded search data');
 if(!app.includes('HOBAH_NETWORK_CONNECTED===false'))throw new Error('Native offline API guards are missing');
+for(const needle of ['HobahNativeAudio.play','hobah:native-audio-ended','hobah:native-audio-next','hobah:native-audio-previous'])if(!app.includes(needle))throw new Error('Native Scripture audio integration missing: '+needle);
 const html=await readFile(path.join(www,'index.html'),'utf8');
-for(const needle of ['native-bridge.js','native.css','bottomAbout'])if(!html.includes(needle))throw new Error('Native HTML integration missing: '+needle);
-if(!app.includes('HobahNativeReady'))throw new Error('Native preferences restore does not gate bootstrap');
+for(const needle of ['native-bridge.js','native-audio.js','native.css','bottomAbout'])if(!html.includes(needle))throw new Error('Native HTML integration missing: '+needle);
+if(!app.includes('HobahNativeReady')||!app.includes('HobahNativeAudioReady'))throw new Error('Native bootstrap does not wait for device/audio bridges');
 const bridge=await readFile(path.join(www,'native-bridge.js'),'utf8');
 if(!bridge.includes('HOBAH_NETWORK_CONNECTED'))throw new Error('Native connectivity bridge missing');
-console.log(`Hobah iOS doctor passed • ${books.length} offline books • pre-expanded search • offline guards • native API bridge ready`);
+const audioBridge=await readFile(path.join(www,'native-audio.js'),'utf8');
+if(!audioBridge.includes('HobahAudio'))throw new Error('Native AVFoundation audio bridge missing');
+const swift=path.join(root,'plugins','hobah-audio','ios','Sources','HobahNativeAudio','HobahAudioPlugin.swift');
+if(!existsSync(swift))throw new Error('Native Swift audio plugin source missing');
+console.log(`Hobah iOS doctor passed • ${books.length} offline books • pre-expanded search • native AVFoundation audio • native API bridge ready`);
