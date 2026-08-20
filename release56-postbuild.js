@@ -10,6 +10,18 @@ if(!fs.existsSync('release56-performance.css'))throw new Error('Release56 perfor
 fs.copyFileSync('release56-feature-loader.js',p('feature-loader.js'));
 fs.copyFileSync('release56-performance.css',p('release56-performance.css'));
 
+/* Keep core startup lean: do not enumerate browser voices or probe TTS until audio is actually used. */
+let app=read('app.js');
+if(app){
+  app=app.replace('renderDrawer(); updateSavedBadge(); populateVoices();','renderDrawer(); updateSavedBadge();');
+  write('app.js',app);
+}
+let natural=read('natural-audio.js');
+if(natural){
+  natural=natural.replace("const r=await fetch('/api/tts?health=1',{cache:'no-store'});enabled=r.ok;if(enabled){","enabled=true;if(enabled){");
+  write('natural-audio.js',natural);
+}
+
 /* Voice commands should consume no microphone/recognition work while Read Aloud is closed. */
 let voice=read('release55-voice.js');
 if(voice){
@@ -46,6 +58,7 @@ html=html.replace(/\s*<link[^>]+href=["']\/release56-performance\.css[^"']*["'][
 html=html.replace('</head>',`  <link rel="stylesheet" href="/release56-performance.css?v=${V}" />\n</head>`);
 html=html.replace(/\/app\.js\?v=\d+/g,`/app.js?v=${V}`);
 html=html.replace(/\/feature-loader\.js\?v=\d+/g,`/feature-loader.js?v=${V}`);
+html=html.replace(/\/natural-audio\.js\?v=\d+/g,`/natural-audio.js?v=${V}`);
 html=html.replace(/\/release55-voice\.js\?v=\d+/g,`/release55-voice.js?v=${V}`);
 write('index.html',html);
 
