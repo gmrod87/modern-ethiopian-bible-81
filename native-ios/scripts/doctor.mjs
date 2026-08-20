@@ -12,10 +12,18 @@ if(books.length!==81)throw new Error(`Expected 81 books, found ${books.length}`)
 const dataFiles=new Set(await readdir(path.join(www,'data')));
 const missing=books.filter(b=>!dataFiles.has(`${b.slug}.json`));
 if(missing.length)throw new Error('Missing offline books: '+missing.map(b=>b.slug).join(', '));
+for(const cat of ['ot','eth','nt']){
+  const p=path.join(www,'search',`${cat}.json`);
+  if(!existsSync(p))throw new Error('Missing pre-expanded offline search corpus: '+cat);
+  const corpus=JSON.parse(await readFile(p,'utf8'));
+  if(!corpus||typeof corpus!=='object'||!Object.keys(corpus).length)throw new Error('Empty offline search corpus: '+cat);
+}
 const app=await readFile(path.join(www,'app.js'),'utf8');
 if(/fetch\(['"]\/api\//.test(app))throw new Error('Native app still contains same-origin API fetches');
 for(const endpoint of ['/api/tts','/api/study-chat','/api/realtime-study'])if(!app.includes(`apiURL('${endpoint}')`))throw new Error('Remote native endpoint missing: '+endpoint);
+if(app.includes('DecompressionStream'))throw new Error('Native app still decompresses search data at runtime');
+if(!app.includes("fetch('/search/'+cat+'.json'"))throw new Error('Native app is not using local expanded search data');
 const html=await readFile(path.join(www,'index.html'),'utf8');
 for(const needle of ['native-bridge.js','native.css','bottomAbout'])if(!html.includes(needle))throw new Error('Native HTML integration missing: '+needle);
 if(!app.includes('HobahNativeReady'))throw new Error('Native preferences restore does not gate bootstrap');
-console.log(`Hobah iOS doctor passed • ${books.length} offline books • native API bridge ready`);
+console.log(`Hobah iOS doctor passed • ${books.length} offline books • pre-expanded offline search • native API bridge ready`);
