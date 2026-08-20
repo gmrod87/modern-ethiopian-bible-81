@@ -1,10 +1,13 @@
 Hobah TestFlight upload trigger
-Requested: 2026-08-21 08:21 AEST
+Requested: 2026-08-21 AEST
 Version: 1.0.0
 Bundle ID: com.hobah.bible
 Apple signing mode: Manual App Store profile
 Validation fixes: multitasking plist + opaque app icons
 Upload fix: absolute signed IPA path
 Brand update: HD cream gold Hobah H app icon
-Release 76: reliable Voice Commands + Female / Deep Male Listen voice selector
-Final TestFlight trigger: Release 76 production commit
+Release 77: preserve native microphone session during Scripture playback
+Release 77: immediate Female / Deep Male voice switching with native cache reset
+Release 77: tuned speech recognizer command phrases and rapid recovery
+Source feature commit: 238cd8a4c2ebf3da13b5f37e31717739bbe8be77
+Final TestFlight trigger: Release 77 native voice fix
