@@ -1,17 +1,19 @@
 Hobah TestFlight upload trigger
-Requested: 2026-08-21 12:15 AEST
+Requested: 2026-08-21 AEST
 Version: 1.0.0
 Bundle ID: com.hobah.bible
 Apple signing mode: Manual App Store profile
-Release 81 Listen rebuild: visuals unchanged
-Release 81 Listen rebuild: tapping Listen opens the existing control dock only and does not start Scripture automatically
-Release 81 Listen rebuild: Voice Commands is off by default and must be turned on from the control dock
-Release 81 Listen rebuild: Play/Pause remains ready and independent from microphone state
-Release 81 Listen rebuild: playback, Voice Commands, and Study AI handoff now use separate explicit state
-Release 81 Voice Commands: maintained Capgo speech engine runs as continuous PTT while enabled
-Release 81 Voice Commands: deterministic force-stop / readyForNextSession teardown prevents stale recognition sessions
-Release 81 Voice Commands: Study AI temporarily suspends the microphone and restores it without losing the user's Voice Commands toggle
-Release 81 native packaging: no longer rewrites the Listen state machine after the web build
-Release 81 production compiler validation: success on merge source commit 4e5766491274f3b36ed0ea891605dbd5c7b8172b (Xcode 26.6)
-Release 81 compiled simulator artifact verified: V=81, open-only Listen handler present, old autoplay handler absent, continuous native speech bridge present
-Final TestFlight trigger: Release 81 Listen rebuild
+Release 82 physical-device voice recovery
+Release 82: Listen visuals unchanged and tapping Listen still opens controls without auto-play
+Release 82: Voice Commands uses the stock @capgo/capacitor-speech-recognition 8.1.0 standard start / partialResults / stop lifecycle
+Release 82: experimental continuousPTT removed
+Release 82: Hobah makes no runtime setPTTState calls
+Release 82: custom patch-capgo-speech iOS audio-engine patch removed from the build pipeline
+Release 82: stock Capgo iOS speech capture implementation is used
+Release 82: native partialResults events feed Hobah commands
+Release 82: getLastPartialResult polling provides an independent transcript fallback while listening
+Release 82: a real transcript is accepted immediately even if listeningState arrives later
+Release 82: physical-device startup confirmation window expanded and lastTranscript can establish live recognition
+Release 82 production compiler validation: success, run 32439990837, Xcode 26.6, iPhone/iPad
+Release 82 compiled artifact verified: V=82, no continuousPTT option, no runtime setPTTState calls, polling fallback present
+Final TestFlight trigger: Release 82 stock speech lifecycle
