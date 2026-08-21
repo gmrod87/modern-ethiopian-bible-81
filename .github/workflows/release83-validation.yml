@@ -5,6 +5,9 @@ on:
     branches: [release83-study-handoff]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   validate-release83:
     runs-on: ubuntu-latest
@@ -43,3 +46,31 @@ jobs:
       - name: Validate native bundle
         working-directory: native-ios
         run: npm run doctor
+      - name: Publish validation status
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          JOB_STATUS: ${{ job.status }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          STATUS_BRANCH="ci-release83-status"
+          STATUS_FILE="$RUNNER_TEMP/release83-status.md"
+          {
+            echo '# Hobah Release 83 Validation'
+            echo
+            echo "- status: ${JOB_STATUS}"
+            echo "- source_commit: ${GITHUB_SHA}"
+            echo "- run_id: ${GITHUB_RUN_ID}"
+            echo "- checked_at_utc: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          } > "$STATUS_FILE"
+          if ! gh api "repos/${GITHUB_REPOSITORY}/git/ref/heads/${STATUS_BRANCH}" >/dev/null 2>&1; then
+            gh api -X POST "repos/${GITHUB_REPOSITORY}/git/refs" -f ref="refs/heads/${STATUS_BRANCH}" -f sha="${GITHUB_SHA}" >/dev/null
+          fi
+          OLD_SHA="$(gh api "repos/${GITHUB_REPOSITORY}/contents/release83-status.md?ref=${STATUS_BRANCH}" --jq '.sha' 2>/dev/null || true)"
+          ENCODED="$(base64 < "$STATUS_FILE")"
+          if [ -n "$OLD_SHA" ]; then
+            gh api -X PUT "repos/${GITHUB_REPOSITORY}/contents/release83-status.md" -f message="Update Release 83 validation status" -f content="$ENCODED" -f branch="$STATUS_BRANCH" -f sha="$OLD_SHA" >/dev/null
+          else
+            gh api -X PUT "repos/${GITHUB_REPOSITORY}/contents/release83-status.md" -f message="Publish Release 83 validation status" -f content="$ENCODED" -f branch="$STATUS_BRANCH" >/dev/null
+          fi
