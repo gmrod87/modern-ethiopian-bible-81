@@ -1,0 +1,4 @@
+Hobah Release 79 compiler validation
+Purpose: stability recovery after Release 78 crash regression
+Native engine: restored to Release 77 path
+Voice command improvement: JavaScript transcript-tail parser only
