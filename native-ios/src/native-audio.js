@@ -20,9 +20,9 @@ function requireOnline(){if(window.HOBAH_NETWORK_CONNECTED===false)throw new Err
 async function prepare({text,mode='normal',voice=selectedVoice()}){
   requireOnline();const id=keyFor(text,mode,voice);await HobahAudio.prepare({id,text,mode,voice});return id;
 }
-async function play({text,mode='normal',voice=selectedVoice(),title='Hobah',subtitle='The Ancient Canon',rate=1,forcePlayback=false}){
+async function play({text,mode='normal',voice=selectedVoice(),title='Hobah',subtitle='The Ancient Canon',rate=1,forcePlayback=false,channel='scripture'}){
   requireOnline();const id=keyFor(text,mode,voice);
-  await HobahAudio.play({id,text,mode,voice,title,subtitle,rate,forcePlayback:!!forcePlayback});return id;
+  await HobahAudio.play({id,text,mode,voice,title,subtitle,rate,forcePlayback:!!forcePlayback,channel:channel==='study'?'study':'scripture'});return id;
 }
 async function initAudio(){
   await HobahAudio.addListener('ended',e=>document.dispatchEvent(new CustomEvent('hobah:native-audio-ended',{detail:e})));
@@ -53,7 +53,7 @@ function startVoicePolling(){
       const last=await SpeechRecognition.getLastPartialResult();
       const text=voiceText(last);if(text)emitVoiceTranscript(text,{source:'poll'});
     }catch{}
-  },220);
+  },180);
 }
 async function initVoice(){
   await SpeechRecognition.addListener('partialResults',event=>{
@@ -79,23 +79,26 @@ async function requestVoicePermissions(){
   const status=result?.speechRecognition||'prompt';
   return {speech:status,microphone:status,engine:'capgo-standard'};
 }
-async function stopExistingSession(){
-  const existing=await SpeechRecognition.isListening().catch(()=>({listening:false}));
-  if(!existing?.listening)return;
+async function forceStopRecognition(){
   await SpeechRecognition.forceStop().catch(()=>SpeechRecognition.stop().catch(()=>{}));
-  await new Promise(r=>setTimeout(r,140));
+  for(let i=0;i<16;i++){
+    const state=await SpeechRecognition.isListening().catch(()=>({listening:false}));
+    if(!state?.listening)break;
+    await new Promise(r=>setTimeout(r,60));
+  }
+  await new Promise(r=>setTimeout(r,80));
 }
 async function startVoice(options={locale:'en-AU'}){
   await Promise.resolve(window.HobahNativeVoiceReady);
   const serial=++voiceSessionSerial,language=options.locale||options.language||'en-AU';
   const availability=await SpeechRecognition.available({language}).catch(()=>({available:false}));
   if(!availability?.available)throw new Error('Speech recognition is temporarily unavailable');
-  await stopExistingSession();
+  await forceStopRecognition();
   if(serial!==voiceSessionSerial)return;
   lastVoiceError='';lastDeliveredText='';lastDeliveredAt=0;
   await SpeechRecognition.start({
     language,
-    maxResults:1,
+    maxResults:3,
     partialResults:true,
     addPunctuation:false,
     contextualStrings:VOICE_CONTEXT,
@@ -105,9 +108,7 @@ async function startVoice(options={locale:'en-AU'}){
 }
 async function stopVoice(){
   ++voiceSessionSerial;stopVoicePolling();lastNativeListening=false;
-  const existing=await SpeechRecognition.isListening().catch(()=>({listening:false}));
-  if(!existing?.listening)return;
-  await SpeechRecognition.forceStop().catch(()=>SpeechRecognition.stop().catch(()=>{}));
+  await forceStopRecognition();
 }
 async function getVoiceState(){
   const [listening,available,permissions,last,version]=await Promise.all([
@@ -131,15 +132,16 @@ async function getVoiceState(){
   };
 }
 
+const channelOf=options=>options?.channel==='study'?'study':'scripture';
 window.HobahNativeAudio={
   keyFor,
   prepare,
   play,
-  pause:()=>HobahAudio.pause(),
-  resume:()=>HobahAudio.resume(),
-  stop:()=>HobahAudio.stop(),
-  setRate:rate=>HobahAudio.setRate({rate}),
-  getState:()=>HobahAudio.getState(),
+  pause:(options={})=>HobahAudio.pause({channel:channelOf(options)}),
+  resume:(options={})=>HobahAudio.resume({channel:channelOf(options)}),
+  stop:(options={})=>HobahAudio.stop({channel:channelOf(options)}),
+  setRate:(rate,options={})=>HobahAudio.setRate({rate,channel:channelOf(options)}),
+  getState:(options={})=>HobahAudio.getState({channel:channelOf(options)}),
   clearCache:()=>HobahAudio.clearCache()
 };
 window.HobahNativeVoice={
