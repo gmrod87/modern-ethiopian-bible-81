@@ -1,0 +1,70 @@
+name: Validate Hobah Release 80 iOS
+
+on:
+  push:
+    branches: [release80-proven-speech-engine]
+    paths:
+      - 'native-ios/**'
+      - '.github/workflows/ios-release80-validation.yml'
+      - 'package.json'
+      - 'release*.js'
+
+jobs:
+  ios-release80:
+    runs-on: macos-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Select Xcode 26
+        shell: bash
+        run: |
+          set -euo pipefail
+          XCODE_APP="$(find /Applications -maxdepth 1 -type d -name 'Xcode_26*.app' | sort -V | tail -1)"
+          test -n "$XCODE_APP"
+          sudo xcode-select --switch "$XCODE_APP/Contents/Developer"
+          xcodebuild -version
+      - name: Build Hobah web release
+        run: |
+          npm install
+          npm run build
+      - name: Install native dependencies
+        working-directory: native-ios
+        run: npm install
+      - name: Prepare and sync native project
+        working-directory: native-ios
+        run: |
+          npm run prepare:web
+          npm run build:bridge
+          node scripts/init-ios.mjs
+          npx cap sync ios
+          node scripts/post-ios.mjs
+          npm run doctor
+      - name: Verify Release 80 speech engine integration
+        working-directory: native-ios
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -R "SpeechRecognitionPlugin" ios/App -n | head
+          grep -R "voiceChat" node_modules/@capgo/capacitor-speech-recognition/ios/Sources/SpeechRecognitionPlugin/SpeechRecognitionPlugin.swift
+          grep -R "setVoiceProcessingEnabled(true)" node_modules/@capgo/capacitor-speech-recognition/ios/Sources/SpeechRecognitionPlugin/SpeechRecognitionPlugin.swift
+          grep -R "@capgo/capacitor-speech-recognition" package.json
+      - name: Build iPhone and iPad Simulator app
+        working-directory: native-ios
+        run: |
+          set -euo pipefail
+          rm -rf ios/build
+          if [ -d ios/App/App.xcworkspace ]; then
+            xcodebuild -workspace ios/App/App.xcworkspace -scheme App -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath ios/build CODE_SIGNING_ALLOWED=NO build
+          else
+            xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' -derivedDataPath ios/build CODE_SIGNING_ALLOWED=NO build
+          fi
+          test -d ios/build/Build/Products/Debug-iphonesimulator/App.app
+      - name: Archive compiled app
+        uses: actions/upload-artifact@v4
+        with:
+          name: hobah-release80-simulator-app
+          path: native-ios/ios/build/Build/Products/Debug-iphonesimulator/App.app
+          if-no-files-found: error
