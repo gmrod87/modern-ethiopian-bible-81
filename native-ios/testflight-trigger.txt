@@ -1,15 +1,17 @@
 Hobah TestFlight upload trigger
-Requested: 2026-08-21 10:46 AEST
+Requested: 2026-08-21 11:31 AEST
 Version: 1.0.0
 Bundle ID: com.hobah.bible
 Apple signing mode: Manual App Store profile
 Validation fixes: multitasking plist + opaque app icons
 Upload fix: absolute signed IPA path
 Brand update: HD cream gold Hobah H app icon
-Release 79 stability recovery: restored the proven Release 77 native AVAudioEngine / Speech recognizer lifecycle
-Release 79 stability recovery: restored the Release 77 native bridge and native audio bridge
-Release 79 stability recovery: removed the obsolete Release 78 native command patch and compiler trigger from main
-Release 79 voice commands: safer JavaScript-only transcript-tail matching for stop, play, explain that, save that, next and previous
-Release 79 narrator selector: Female / Deep Male retained without adding new native recognition machinery
-Release 79 final compiler validation: success on source commit d5ee165de3f45ca71c3abaf09b7d4b73c5955119 (Xcode 26.6)
-Final TestFlight trigger: Release 79 cleaned stability recovery
+Release 80: replaced the custom Hobah SFSpeechRecognizer lifecycle with @capgo/capacitor-speech-recognition 8.1.0
+Release 80: stale iOS recognition sessions are explicitly settled before a new recognition session starts
+Release 80: live partial transcripts, listening state, native error events and forceStop are wired into the existing Hobah Voice Commands interface
+Release 80: simultaneous Scripture playback + microphone capture uses playAndRecord / voiceChat
+Release 80: voice processing is enabled on both input and output audio nodes for acoustic echo cancellation while Hobah narrates
+Release 80: existing Study AI explain-read-resume flow and Female / Deep Male narrator controls are preserved
+Release 80 isolated validation: success
+Release 80 production compiler validation: success on source commit a897af5701efc87ffff958df08a3881ebf86b74b (Xcode 26.6)
+Final TestFlight trigger: Release 80 maintained speech engine
