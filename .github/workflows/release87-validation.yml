@@ -18,10 +18,15 @@ jobs:
       - run: npm run build
       - name: Verify web Settings opener
         run: |
-          grep -F "const V='87';" dist/app.js
-          grep -F "document.querySelectorAll('.bottomNav button').forEach" dist/app.js
-          grep -F "d.setAttribute('open','')" dist/app.js
-          ! grep -F "$('.bottomNav button').forEach" dist/app.js
+          python3 - <<'PY'
+          s=open('dist/app.js').read()
+          assert "const V='87';" in s
+          assert "document.querySelectorAll('.bottomNav button').forEach" in s
+          assert "d.setAttribute('open','')" in s
+          assert '$document.querySelectorAll' not in s
+          import re
+          assert not re.search(r'(^|[^$])\$\(\'\.bottomNav button\'\)\.forEach',s)
+          PY
       - working-directory: native-ios
         run: npm install
       - working-directory: native-ios
@@ -30,10 +35,15 @@ jobs:
         run: npm run build:bridge
       - name: Verify native Settings opener
         run: |
-          grep -F "const V='87';" native-ios/www/app.js
-          grep -F "document.querySelectorAll('.bottomNav button').forEach" native-ios/www/app.js
-          grep -F "d.setAttribute('open','')" native-ios/www/app.js
-          ! grep -F "$('.bottomNav button').forEach" native-ios/www/app.js
+          python3 - <<'PY'
+          s=open('native-ios/www/app.js').read()
+          assert "const V='87';" in s
+          assert "document.querySelectorAll('.bottomNav button').forEach" in s
+          assert "d.setAttribute('open','')" in s
+          assert '$document.querySelectorAll' not in s
+          import re
+          assert not re.search(r'(^|[^$])\$\(\'\.bottomNav button\'\)\.forEach',s)
+          PY
       - working-directory: native-ios
         run: npm run doctor
       - name: Publish status
