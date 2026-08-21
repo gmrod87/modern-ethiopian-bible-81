@@ -1,13 +1,16 @@
 Hobah TestFlight upload trigger
-Requested: 2026-08-21 17:18 AEST
+Requested: 2026-08-21 17:57 AEST
 Version: 1.0.0
 Bundle ID: com.hobah.bible
 Apple signing mode: Manual App Store profile
-Release 89 Explain That automatic read-aloud fix
-Release 88 duplicate command lock remains included
-Release 89: waits for native voice recognition to stop before Study AI playback
-Release 89: forces the Study AI explanation onto the iOS spoken-audio playback route
-Release 89: normal Scripture still preserves the live Voice Commands audio session
-Release 89: web/PWA primes the Study AI audio element so voice-triggered playback is not blocked by iOS autoplay rules
-Release 89: explanation is spoken first, Scripture then resumes from the paused position, and Voice Commands reconnect
-Final TestFlight trigger: Release 89 Explain That audible playback fix
+Release 90 complete voice software rebuild
+Release 90: keeps the Voice Commands toggle in Settings and preserves the existing UI exactly
+Release 90: replaces accumulated voice patches with one clean voice-command state machine
+Release 90: Scripture and Study AI now use separate native AVAudioPlayer channels
+Release 90: “explain that” pauses Scripture without destroying its player or position
+Release 90: Study AI generates the answer, reads the full explanation aloud, then Scripture resumes from the exact paused position
+Release 90: Voice Commands reconnect only after the explanation and Scripture handoff complete
+Release 90: voice-issued Stop/Pause still remembers to resume after “explain that”
+Release 90: native Study events are isolated from the Scripture queue
+Release 90: Xcode 26 iPhone/iPad simulator compile passed on commit 12fb6c29aff66bd08b3d4ef17512b92ce25a6e49
+Final TestFlight trigger: Release 90 rebuilt voice engine
