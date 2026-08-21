@@ -48,8 +48,19 @@ const newAudio="  let sa=ensureStudyNarrationAudio();";
 if(!app.includes(oldAudio))throw new Error('Release89: Study narration audio creation block not found');
 app=app.replace(oldAudio,newAudio);
 
-// If iOS still rejects the natural-voice media play, fail the chunk immediately so the
-// existing system-voice fallback takes over instead of leaving Explain That silent.
+// On native iOS, finish tearing down speech recognition before Study AI takes the output
+// route, then force AVAudioSession into playback/spokenAudio for the explanation only.
+const nativeReady="    await Promise.resolve(window.HobahNativeAudioReady);\n    const prepared=parts.map(part=>window.HobahNativeAudio.prepare({text:part,mode:'normal'}).catch(()=>{}));";
+const nativeReadyFixed="    await Promise.resolve(window.HobahNativeAudioReady);\n    if(window.HobahNativeVoice)await window.HobahNativeVoice.stop().catch(()=>{});\n    const prepared=parts.map(part=>window.HobahNativeAudio.prepare({text:part,mode:'normal'}).catch(()=>{}));";
+if(!app.includes(nativeReady))throw new Error('Release89: native Study readiness block not found');
+app=app.replace(nativeReady,nativeReadyFixed);
+const nativePlay="        await window.HobahNativeAudio.play({text:part,mode:'normal',title:'Study AI',subtitle:'Explanation',rate:1});";
+const nativePlayFixed="        await window.HobahNativeAudio.play({text:part,mode:'normal',title:'Study AI',subtitle:'Explanation',rate:1,forcePlayback:true});";
+if(!app.includes(nativePlay))throw new Error('Release89: native Study play call not found');
+app=app.replace(nativePlay,nativePlayFixed);
+
+// If browser media playback is rejected, fail the chunk immediately so the existing
+// system-voice fallback takes over instead of leaving Explain That silent.
 const oldPlay="          sa.onended=()=>finish();sa.onerror=()=>finish(new Error('Study audio chunk failed'));claimVoiceChannel(sa);setStudyPhase('speaking');sa.play().catch(finish);";
 const newPlay="          sa.onended=()=>finish();sa.onerror=()=>finish(new Error('Study audio chunk failed'));claimVoiceChannel(sa);setStudyPhase('speaking');\n          const playPromise=sa.play();if(playPromise&&typeof playPromise.catch==='function')playPromise.catch(err=>finish(err));";
 if(!app.includes(oldPlay))throw new Error('Release89: Study audio play block not found');
@@ -60,7 +71,7 @@ let html=fs.readFileSync(p('index.html'),'utf8');
 html=html.replace('/app.js?v=88','/app.js?v=89').replace('/manifest.webmanifest?v=88','/manifest.webmanifest?v=89').replace('/release85-settings.css?v=88','/release85-settings.css?v=89');
 fs.writeFileSync(p('index.html'),html);
 if(fs.existsSync(p('manifest.webmanifest'))){const m=JSON.parse(fs.readFileSync(p('manifest.webmanifest'),'utf8'));m.start_url='/?v=89#home';fs.writeFileSync(p('manifest.webmanifest'),JSON.stringify(m))}
-for(const required of ["const V='89';",'primeStudyNarration','studyPlaybackUnlocked','ensureStudyNarrationAudio'])if(!app.includes(required))throw new Error('Release89 integration missing '+required);
+for(const required of ["const V='89';",'primeStudyNarration','studyPlaybackUnlocked','ensureStudyNarrationAudio','forcePlayback:true'])if(!app.includes(required))throw new Error('Release89 integration missing '+required);
 if(!html.includes('/app.js?v=89'))throw new Error('Release89: HTML cache-bust missing');
 execFileSync(process.execPath,['--check',p('app.js')],{stdio:'inherit'});
-console.log('Hobah Release 89: Explain That primes iOS/PWA Study audio so AI responses read automatically before Scripture resumes');
+console.log('Hobah Release 89: Explain That forces audible native Study playback, primes PWA audio, then resumes Scripture');
