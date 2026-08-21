@@ -24,7 +24,6 @@ async function initAudio(){
 }
 async function initVoice(){
   await HobahVoice.addListener('transcript',e=>document.dispatchEvent(new CustomEvent('hobah:native-voice-transcript',{detail:e})));
-  await HobahVoice.addListener('command',e=>document.dispatchEvent(new CustomEvent('hobah:native-voice-command',{detail:e})));
   await HobahVoice.addListener('stateChange',e=>document.dispatchEvent(new CustomEvent('hobah:native-voice-state',{detail:e})));
 }
 
