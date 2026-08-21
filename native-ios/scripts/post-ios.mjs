@@ -66,12 +66,16 @@ if(existsSync(path.dirname(splashDir))){
   // remove only that canvas so the raised Hobah mark sits directly on the launch
   // background instead of looking like a pale square with a white border.
   const splashMarkSvg=Buffer.from(iconSvg.toString('utf8').replace(/\s*<rect width="1024" height="1024" fill="url\(#page\)"\/>\s*/,'\n'));
-  const logo=await sharp(splashMarkSvg).resize(820,820,{fit:'contain'}).png({palette:false}).toBuffer();
-  const caption=Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="2732" height="2732"><text x="1366" y="2485" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="60" font-weight="600" letter-spacing="5" fill="#B08A4F">The Ancient Canon</text></svg>`);
+  const logoSize=820;
+  const canvasSize=2732;
+  const logoLeft=Math.round((canvasSize-logoSize)/2);
+  const logoTop=855;
+  const logo=await sharp(splashMarkSvg).resize(logoSize,logoSize,{fit:'contain'}).png({palette:false}).toBuffer();
+  const caption=Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="2732" height="2732"><text x="1366" y="2350" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="60" font-weight="600" letter-spacing="5" fill="#B08A4F">The Ancient Canon</text></svg>`);
   const filenames=['splash-2732x2732.png','splash-2732x2732-1.png','splash-2732x2732-2.png'];
   for(const filename of filenames){
     await sharp({create:{width:2732,height:2732,channels:3,background:'#F3EFE5'}})
-      .composite([{input:logo,gravity:'centre'},{input:caption,left:0,top:0}])
+      .composite([{input:logo,left:logoLeft,top:logoTop},{input:caption,left:0,top:0}])
       .removeAlpha()
       .png({palette:false})
       .toFile(path.join(splashDir,filename));
