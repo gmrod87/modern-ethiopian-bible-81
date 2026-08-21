@@ -1,0 +1,51 @@
+name: Release 86 Native Doctor
+
+on:
+  push:
+    branches: [release86-settings-haptics]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  doctor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install
+      - run: npm run build
+      - working-directory: native-ios
+        run: npm install
+      - working-directory: native-ios
+        run: npm run prepare:web
+      - working-directory: native-ios
+        run: npm run build:bridge
+      - working-directory: native-ios
+        run: npm run doctor
+      - name: Publish status
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          JOB_STATUS: ${{ job.status }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          BRANCH=ci-release86-doctor
+          FILE="$RUNNER_TEMP/release86-doctor.md"
+          {
+            echo '# Hobah Release 86 Native Doctor'
+            echo
+            echo "- status: ${JOB_STATUS}"
+            echo "- source_commit: ${GITHUB_SHA}"
+            echo "- run_id: ${GITHUB_RUN_ID}"
+            echo "- checked_at_utc: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          } > "$FILE"
+          if ! gh api "repos/${GITHUB_REPOSITORY}/git/ref/heads/${BRANCH}" >/dev/null 2>&1; then gh api -X POST "repos/${GITHUB_REPOSITORY}/git/refs" -f ref="refs/heads/${BRANCH}" -f sha="${GITHUB_SHA}" >/dev/null; fi
+          OLD="$(gh api "repos/${GITHUB_REPOSITORY}/contents/release86-doctor.md?ref=${BRANCH}" --jq '.sha' 2>/dev/null || true)"
+          ENC="$(base64 < "$FILE")"
+          if [ -n "$OLD" ]; then gh api -X PUT "repos/${GITHUB_REPOSITORY}/contents/release86-doctor.md" -f message='Update Release 86 doctor' -f content="$ENC" -f branch="$BRANCH" -f sha="$OLD" >/dev/null; else gh api -X PUT "repos/${GITHUB_REPOSITORY}/contents/release86-doctor.md" -f message='Publish Release 86 doctor' -f content="$ENC" -f branch="$BRANCH" >/dev/null; fi
