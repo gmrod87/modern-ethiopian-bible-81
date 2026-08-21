@@ -35,3 +35,4 @@ for(const required of ['function suspendRecognitionForStudy(){','function resume
 fs.writeFileSync(p('app.js'),app);
 execFileSync(process.execPath,['--check',p('app.js')],{stdio:'inherit'});
 console.log('Hobah Release 81 finalized: Study AI voice handoff preserved; Listen visuals untouched');
+// validation trigger: Release 81 Listen rebuild source frozen after behavior split
