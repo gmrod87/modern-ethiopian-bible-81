@@ -40,7 +40,7 @@ async function voice90StartRecognition({requestPermission=false}={}){
     }
     const s=await window.HobahNativeVoice.getState().catch(()=>({available:true,listening:false}));
     if(s?.available===false)throw Error('Speech recognition is temporarily unavailable');
-    if(s?.listening)await window.HobahNativeVoice.stop().catch(()=>{});
+    if(s?.listening){state.listening=true;state.audio.suppressRecognition=false;VOICE90.phase='listening';syncAudioUI();voice90Status(voiceReadyStatus());return true}
     await voice90NativeStopped();
     if(generation!==VOICE90.generation||!state.audio.voiceWanted||state.audio.studyBusy)return false;
     await window.HobahNativeVoice.start({locale:'en-AU'});
@@ -68,10 +68,10 @@ async function voice90StartRecognition({requestPermission=false}={}){
 }
 function voice90ScheduleRestart(){
   clearTimeout(VOICE90.restartTimer);
-  if(!voice90Enabled()||!state.audio.voiceWanted||state.audio.studyBusy||state.audio.suppressRecognition)return;
+  if(!voice90Enabled()||!state.audio.voiceWanted||state.audio.studyBusy||state.audio.suppressRecognition||state.listening)return;
   const generation=VOICE90.generation;
   VOICE90.restartTimer=setTimeout(async()=>{
-    if(generation!==VOICE90.generation||state.audio.studyBusy||state.audio.suppressRecognition||!state.audio.voiceWanted)return;
+    if(generation!==VOICE90.generation||state.audio.studyBusy||state.audio.suppressRecognition||!state.audio.voiceWanted||state.listening)return;
     try{await voice90StartRecognition({requestPermission:false})}catch(e){console.warn('Voice90 restart',e);state.listening=false;syncAudioUI();voice90Status('Voice Commands • reconnecting…')}
   },180);
 }
