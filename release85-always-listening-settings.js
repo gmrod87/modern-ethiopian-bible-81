@@ -111,7 +111,7 @@ function openSettingsExternal(path){
 }
 function openSettings(){
   $$('.bottomNav button').forEach(b=>b.classList.remove('active'));$('#bottomSettings')?.classList.add('active');
-  const body=openSheet('Settings',`<div class="settingsPanel">
+  const body=openSheet('Settings',\`<div class="settingsPanel">
     <section class="settingsGroup"><span class="settingsGroupTitle">Voice & listening</span>
       <label class="settingsRow"><span class="settingsText"><b>Voice Commands</b><small id="settingsVoiceStatus">Always listening while Hobah is open</small></span><span class="settingsStatus"><i id="settingsVoiceDot" class="settingsDot"></i><span class="settingsSwitch"><input id="settingsVoiceEnabled" type="checkbox"><span></span></span></span></label>
     </section>
@@ -123,7 +123,7 @@ function openSettings(){
       <button class="settingsRow" id="settingsSupport"><span class="settingsText"><b>Support</b><small>Help and support information.</small></span><span class="settingsChevron">›</span></button>
       <div class="settingsAbout"><h3>About Hobah</h3><p>Hobah — The Ancient Canon. An 81-book Ethiopian Bible reading, listening, search and Study AI edition for iPhone, iPad and the web.</p></div>
     </section>
-  </div>`);
+  </div>\`);
   const voice=$('#settingsVoiceEnabled',body),night=$('#settingsNightMode',body);
   voice.checked=voicePreferenceEnabled();night.checked=nightModeEnabled();syncSettingsVoiceUI();
   voice.onchange=()=>setPersistentVoiceEnabled(voice.checked).catch(e=>{console.warn('Voice setting',e);syncSettingsVoiceUI()});
