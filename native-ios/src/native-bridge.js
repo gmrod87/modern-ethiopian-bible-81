@@ -12,6 +12,8 @@ import { TextZoom } from '@capacitor/text-zoom';
 const API_BASE='https://modern-ethiopian-bible-81.vercel.app';
 const PUBLIC_BASE='https://modern-ethiopian-bible-81.vercel.app';
 const PREFERENCE_KEYS=['hobah:user','hobah:last','hobah:readerSize','hobah:audioMode','hobah:audioRate','hobah:ambient','hobah:audioProgress','hobah:nativePosition','hobah:voiceCommands','hobah:nightMode'];
+const SPLASH_MIN_DURATION=2000;
+const splashStartedAt=performance.now();
 window.HOBAH_API_BASE=API_BASE;window.HOBAH_NATIVE=true;window.HOBAH_NETWORK_CONNECTED=true;
 
 function webURL(url=''){
@@ -62,7 +64,9 @@ async function boot(){
   App.addListener('appStateChange',async({isActive})=>{document.dispatchEvent(new CustomEvent('hobah:native-app-state',{detail:{isActive}}));if(!isActive){saveReadingPosition();await savePreferences()}});
   App.addListener('appUrlOpen',({url})=>{const target=mapDeepLink(url);if(!target)return;location.hash=target.hash;if(target.study)setTimeout(()=>document.getElementById('studyAiHeaderBtn')?.click(),350)});
   addEventListener('scroll',saveReadingPosition,{passive:true});addEventListener('pagehide',()=>{saveReadingPosition();savePreferences()},{passive:true});document.addEventListener('hobah:chapter',()=>setTimeout(restoreReadingPosition,80));
-  bindNativeUI();bindMediaSession();setTimeout(()=>SplashScreen.hide().catch(()=>{}),180);
+  bindNativeUI();bindMediaSession();
+  const splashRemaining=Math.max(0,SPLASH_MIN_DURATION-(performance.now()-splashStartedAt));
+  setTimeout(()=>SplashScreen.hide().catch(()=>{}),splashRemaining);
 }
 window.HobahNative={isNative:()=>Capacitor.isNativePlatform(),share:nativeShare,haptic:(strength='light')=>Haptics.impact({style:strength==='medium'?ImpactStyle.Medium:ImpactStyle.Light}),openExternal:url=>Browser.open({url:webURL(url)}),openAbout,openSettings:openSettingsFromNative,savePreferences,setNightMode:applyNativeNightMode,applyPreferredTextZoom,isOnline:()=>window.HOBAH_NETWORK_CONNECTED!==false,apiBase:API_BASE};
 window.HobahNativeReady=boot();
