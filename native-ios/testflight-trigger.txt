@@ -1,13 +1,14 @@
 Hobah TestFlight upload trigger
-Requested: 2026-08-22 09:24 AEST
+Requested: 2026-08-22 09:46 AEST
 Version: 1.0.0
 Bundle ID: com.hobah.bible
 Apple signing mode: Manual App Store profile
-Release 92 iPhone splash placement polish
-Release 92: preserves the complete Release 91 loading-screen design and 2-second duration
-Release 92: moves the Hobah logo upward on the native iPhone/iPad splash
-Release 92: moves “The Ancient Canon” upward so it sits clear of the iPhone home indicator area
-Release 92: keeps the cream #F3EFE5 background, borderless splash mark, and no spinner
-Release 92: does not change Study AI, voice, navigation, reading, or App Store icon behavior
-Release 92: Xcode 26 iPhone/iPad simulator compile passed on commit cdbbb1d473679ba8026b3a836e89beaeb0b2a156
-Final TestFlight trigger: Release 92 splash placement polish
+Release 93 native close-button polish
+Release 93: preserves the complete Release 92 loading-screen placement and all existing app behavior
+Release 93: makes the Study AI, Saved Library and Settings close buttons exact 44×44 circles in the native iOS build
+Release 93: removes inherited padding/min-size distortion that made the close control appear oval
+Release 93: optically centers the × glyph in all three close buttons
+Release 93: keeps the native focus-visible treatment circular and accessible
+Release 93: does not change Study AI behavior, voice, navigation, reading, splash screen, or App Store icon behavior
+Release 93: Xcode 26 iPhone/iPad simulator compile passed on commit ba586d2ac848bbbf8638d815114aba06088b5115
+Final TestFlight trigger: Release 93 circular close buttons
