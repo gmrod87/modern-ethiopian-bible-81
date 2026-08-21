@@ -18,11 +18,16 @@ public class HobahAudioPlugin: CAPPlugin, CAPBridgedPlugin, AVAudioPlayerDelegat
         CAPPluginMethod(name: "clearCache", returnType: CAPPluginReturnPromise)
     ]
 
-    private var player: AVAudioPlayer?
-    private var currentID = ""
+    // Release 90 deliberately keeps Scripture and Study AI on separate players.
+    // Study narration can no longer overwrite the paused Scripture player/position.
+    private var scripturePlayer: AVAudioPlayer?
+    private var studyPlayer: AVAudioPlayer?
+    private var scriptureID = ""
+    private var studyID = ""
     private var currentTitle = "Hobah"
     private var currentSubtitle = "The Ancient Canon"
-    private var currentRate: Float = 1.0
+    private var scriptureRate: Float = 1.0
+    private var studyRate: Float = 1.0
     private var cache: [String: Data] = [:]
     private var cacheOrder: [String] = []
     private let cacheQueue = DispatchQueue(label: "com.hobah.audio.cache")
@@ -33,14 +38,13 @@ public class HobahAudioPlugin: CAPPlugin, CAPBridgedPlugin, AVAudioPlayerDelegat
         configureRemoteCommands()
     }
 
+    private func normalizedChannel(_ value: String?) -> String {
+        return value == "study" ? "study" : "scripture"
+    }
+
     private func configureAudioSession(forcePlayback: Bool = false) {
         do {
             let session = AVAudioSession.sharedInstance()
-            // During normal Scripture playback, preserve the live Voice Commands
-            // playAndRecord/voiceChat session so recognition can hear barge-in commands.
-            // Study AI explicitly sets forcePlayback after recognition is suspended;
-            // this prevents a stale playAndRecord category from making the explanation
-            // effectively silent on iPhone.
             if !forcePlayback && session.category == .playAndRecord {
                 try session.setActive(true, options: [])
                 return
@@ -60,17 +64,18 @@ public class HobahAudioPlugin: CAPPlugin, CAPBridgedPlugin, AVAudioPlayerDelegat
         center.previousTrackCommand.isEnabled = true
 
         center.playCommand.addTarget { [weak self] _ in
-            guard let self, let player = self.player else { return .commandFailed }
+            guard let self, let player = self.scripturePlayer else { return .commandFailed }
+            self.configureAudioSession()
             player.play()
             self.updateNowPlaying(playing: true)
-            self.notifyListeners("stateChange", data: ["playing": true])
+            self.notifyListeners("stateChange", data: ["playing": true, "id": self.scriptureID, "channel": "scripture"])
             return .success
         }
         center.pauseCommand.addTarget { [weak self] _ in
-            guard let self, let player = self.player else { return .commandFailed }
+            guard let self, let player = self.scripturePlayer else { return .commandFailed }
             player.pause()
             self.updateNowPlaying(playing: false)
-            self.notifyListeners("stateChange", data: ["playing": false])
+            self.notifyListeners("stateChange", data: ["playing": false, "id": self.scriptureID, "channel": "scripture"])
             return .success
         }
         center.nextTrackCommand.addTarget { [weak self] _ in
@@ -174,7 +179,9 @@ public class HobahAudioPlugin: CAPPlugin, CAPBridgedPlugin, AVAudioPlayerDelegat
         let title = call.getString("title") ?? "Hobah"
         let subtitle = call.getString("subtitle") ?? "The Ancient Canon"
         let rate = normalizedRate(call.getDouble("rate") ?? 1.0)
-        let forcePlayback = call.getBool("forcePlayback") ?? false
+        let channel = normalizedChannel(call.getString("channel"))
+        let forcePlayback = channel == "study" || (call.getBool("forcePlayback") ?? false)
+
         fetchAudio(id: id, text: text, mode: mode, voice: voice) { [weak self] result in
             DispatchQueue.main.async {
                 guard let self else { return }
@@ -184,24 +191,32 @@ public class HobahAudioPlugin: CAPPlugin, CAPBridgedPlugin, AVAudioPlayerDelegat
                 case .success(let data):
                     do {
                         self.configureAudioSession(forcePlayback: forcePlayback)
-                        self.player?.stop()
+                        if channel == "study" { self.studyPlayer?.stop() } else { self.scripturePlayer?.stop() }
                         let player = try AVAudioPlayer(data: data)
                         player.delegate = self
                         player.enableRate = true
                         player.rate = rate
                         player.prepareToPlay()
-                        self.player = player
-                        self.currentID = id
-                        self.currentTitle = title
-                        self.currentSubtitle = subtitle
-                        self.currentRate = rate
+
+                        if channel == "study" {
+                            self.studyPlayer = player
+                            self.studyID = id
+                            self.studyRate = rate
+                        } else {
+                            self.scripturePlayer = player
+                            self.scriptureID = id
+                            self.scriptureRate = rate
+                            self.currentTitle = title
+                            self.currentSubtitle = subtitle
+                        }
+
                         guard player.play() else {
                             call.reject("Unable to start native audio")
                             return
                         }
-                        self.updateNowPlaying(playing: true)
-                        self.notifyListeners("stateChange", data: ["playing": true, "id": id])
-                        call.resolve(["duration": player.duration])
+                        if channel == "scripture" { self.updateNowPlaying(playing: true) }
+                        self.notifyListeners("stateChange", data: ["playing": true, "id": id, "channel": channel])
+                        call.resolve(["duration": player.duration, "channel": channel])
                     } catch {
                         call.reject(error.localizedDescription)
                     }
@@ -211,49 +226,79 @@ public class HobahAudioPlugin: CAPPlugin, CAPBridgedPlugin, AVAudioPlayerDelegat
     }
 
     @objc func pause(_ call: CAPPluginCall) {
-        player?.pause()
-        updateNowPlaying(playing: false)
-        notifyListeners("stateChange", data: ["playing": false, "id": currentID])
+        let channel = normalizedChannel(call.getString("channel"))
+        if channel == "study" {
+            studyPlayer?.pause()
+            notifyListeners("stateChange", data: ["playing": false, "id": studyID, "channel": "study"])
+        } else {
+            scripturePlayer?.pause()
+            updateNowPlaying(playing: false)
+            notifyListeners("stateChange", data: ["playing": false, "id": scriptureID, "channel": "scripture"])
+        }
         call.resolve()
     }
 
     @objc func resume(_ call: CAPPluginCall) {
+        let channel = normalizedChannel(call.getString("channel"))
+        let player = channel == "study" ? studyPlayer : scripturePlayer
         guard let player else {
             call.reject("No native audio is loaded")
             return
         }
-        configureAudioSession()
-        player.play()
-        updateNowPlaying(playing: true)
-        notifyListeners("stateChange", data: ["playing": true, "id": currentID])
+        configureAudioSession(forcePlayback: channel == "study")
+        guard player.play() else {
+            call.reject("Unable to resume native audio")
+            return
+        }
+        if channel == "scripture" { updateNowPlaying(playing: true) }
+        notifyListeners("stateChange", data: ["playing": true, "id": channel == "study" ? studyID : scriptureID, "channel": channel])
         call.resolve()
     }
 
     @objc func stop(_ call: CAPPluginCall) {
-        player?.stop()
-        player = nil
-        currentID = ""
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
-        notifyListeners("stateChange", data: ["playing": false])
+        let channel = normalizedChannel(call.getString("channel"))
+        if channel == "study" {
+            studyPlayer?.stop()
+            studyPlayer = nil
+            studyID = ""
+            notifyListeners("stateChange", data: ["playing": false, "channel": "study"])
+        } else {
+            scripturePlayer?.stop()
+            scripturePlayer = nil
+            scriptureID = ""
+            MPNowPlayingInfoCenter.default().nowPlayingInfo = nil
+            notifyListeners("stateChange", data: ["playing": false, "channel": "scripture"])
+        }
         call.resolve()
     }
 
     @objc func setRate(_ call: CAPPluginCall) {
-        currentRate = normalizedRate(call.getDouble("rate") ?? 1.0)
-        if let player {
-            player.enableRate = true
-            player.rate = currentRate
-            updateNowPlaying(playing: player.isPlaying)
+        let channel = normalizedChannel(call.getString("channel"))
+        let rate = normalizedRate(call.getDouble("rate") ?? 1.0)
+        if channel == "study" {
+            studyRate = rate
+            if let player = studyPlayer { player.enableRate = true; player.rate = rate }
+        } else {
+            scriptureRate = rate
+            if let player = scripturePlayer {
+                player.enableRate = true
+                player.rate = rate
+                updateNowPlaying(playing: player.isPlaying)
+            }
         }
         call.resolve()
     }
 
     @objc func getState(_ call: CAPPluginCall) {
+        let channel = normalizedChannel(call.getString("channel"))
+        let player = channel == "study" ? studyPlayer : scripturePlayer
+        let id = channel == "study" ? studyID : scriptureID
         call.resolve([
             "playing": player?.isPlaying ?? false,
             "currentTime": player?.currentTime ?? 0,
             "duration": player?.duration ?? 0,
-            "id": currentID
+            "id": id,
+            "channel": channel
         ])
     }
 
@@ -266,20 +311,31 @@ public class HobahAudioPlugin: CAPPlugin, CAPBridgedPlugin, AVAudioPlayerDelegat
     }
 
     private func updateNowPlaying(playing: Bool) {
-        guard let player else { return }
+        guard let player = scripturePlayer else { return }
         MPNowPlayingInfoCenter.default().nowPlayingInfo = [
             MPMediaItemPropertyTitle: currentTitle,
             MPMediaItemPropertyArtist: "Hobah",
             MPMediaItemPropertyAlbumTitle: currentSubtitle,
             MPMediaItemPropertyPlaybackDuration: player.duration,
             MPNowPlayingInfoPropertyElapsedPlaybackTime: player.currentTime,
-            MPNowPlayingInfoPropertyPlaybackRate: playing ? currentRate : 0.0
+            MPNowPlayingInfoPropertyPlaybackRate: playing ? scriptureRate : 0.0
         ]
     }
 
     public func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        updateNowPlaying(playing: false)
-        notifyListeners("stateChange", data: ["playing": false, "id": currentID])
-        notifyListeners("ended", data: ["id": currentID, "success": flag])
+        if let activeStudy = studyPlayer, player === activeStudy {
+            let id = studyID
+            studyPlayer = nil
+            studyID = ""
+            notifyListeners("stateChange", data: ["playing": false, "id": id, "channel": "study"])
+            notifyListeners("ended", data: ["id": id, "success": flag, "channel": "study"])
+            return
+        }
+        if let activeScripture = scripturePlayer, player === activeScripture {
+            let id = scriptureID
+            updateNowPlaying(playing: false)
+            notifyListeners("stateChange", data: ["playing": false, "id": id, "channel": "scripture"])
+            notifyListeners("ended", data: ["id": id, "success": flag, "channel": "scripture"])
+        }
     }
 }
