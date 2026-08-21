@@ -1,0 +1,7 @@
+Release 84
+- Explain That stops on response.completed instead of waiting for SSE socket closure.
+- 10s first-response and 22s total request recovery.
+- Play during generation cancels Study AI and immediately returns control to Scripture.
+- Play/Pause controls active Study AI native audio while it is speaking.
+- Native audio completion has ended-event plus getState polling fallback.
+- Exact <=300 word answer is stored in Study AI before narration.
