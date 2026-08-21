@@ -1,0 +1,85 @@
+name: Validate Hobah Release 85
+
+on:
+  push:
+    branches: [release85-always-listening-settings]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  validate-release85:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate API syntax
+        run: node --check api/explain.js
+      - name: Install web dependencies
+        run: npm install
+      - name: Build Release 85
+        run: npm run build
+      - name: Verify web Settings and persistent voice
+        run: |
+          grep -F "const V='85';" dist/app.js
+          grep -F "requestVoiceExplanationJSON" dist/app.js
+          grep -F "ensurePersistentVoice" dist/app.js
+          grep -F "bottomSettings" dist/index.html
+          grep -F "Privacy & Policies" dist/index.html
+          grep -F "Night Mode" dist/index.html
+          grep -F "Ready • press play" dist/app.js
+          ! grep -F 'id="audioVoiceToggle"' dist/index.html
+          grep -F "'/api/explain'" dist/app.js
+      - name: Install native dependencies
+        working-directory: native-ios
+        run: npm install
+      - name: Prepare native web bundle
+        working-directory: native-ios
+        run: npm run prepare:web
+      - name: Verify native package architecture
+        run: |
+          grep -F "const V='85';" native-ios/www/app.js
+          grep -F "bottomSettings" native-ios/www/index.html
+          ! grep -F '<button id="bottomAbout"' native-ios/www/index.html
+          ! grep -F 'id="audioVoiceToggle"' native-ios/www/index.html
+          grep -F "requestVoiceExplanationJSON" native-ios/www/app.js
+          grep -F "ensurePersistentVoice" native-ios/www/app.js
+          grep -F "HOBAH_API_BASE" native-ios/www/app.js
+      - name: Build native bridge
+        working-directory: native-ios
+        run: npm run build:bridge
+      - name: Validate native bundle
+        working-directory: native-ios
+        run: npm run doctor
+      - name: Publish validation status
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          JOB_STATUS: ${{ job.status }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          STATUS_BRANCH="ci-release85-status"
+          STATUS_FILE="$RUNNER_TEMP/release85-status.md"
+          {
+            echo '# Hobah Release 85 Validation'
+            echo
+            echo "- status: ${JOB_STATUS}"
+            echo "- source_commit: ${GITHUB_SHA}"
+            echo "- run_id: ${GITHUB_RUN_ID}"
+            echo "- checked_at_utc: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
+          } > "$STATUS_FILE"
+          if ! gh api "repos/${GITHUB_REPOSITORY}/git/ref/heads/${STATUS_BRANCH}" >/dev/null 2>&1; then
+            gh api -X POST "repos/${GITHUB_REPOSITORY}/git/refs" -f ref="refs/heads/${STATUS_BRANCH}" -f sha="${GITHUB_SHA}" >/dev/null
+          fi
+          OLD_SHA="$(gh api "repos/${GITHUB_REPOSITORY}/contents/release85-status.md?ref=${STATUS_BRANCH}" --jq '.sha' 2>/dev/null || true)"
+          ENCODED="$(base64 < "$STATUS_FILE")"
+          if [ -n "$OLD_SHA" ]; then
+            gh api -X PUT "repos/${GITHUB_REPOSITORY}/contents/release85-status.md" -f message="Update Release 85 validation status" -f content="$ENCODED" -f branch="$STATUS_BRANCH" -f sha="$OLD_SHA" >/dev/null
+          else
+            gh api -X PUT "repos/${GITHUB_REPOSITORY}/contents/release85-status.md" -f message="Publish Release 85 validation status" -f content="$ENCODED" -f branch="$STATUS_BRANCH" >/dev/null
+          fi
