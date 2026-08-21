@@ -1,0 +1,7 @@
+Hobah Release 85 final compiler trigger
+Persistent global Voice Commands
+Bottom-right Settings tab
+Listen playback-only
+Night Mode, policies, support and About in Settings
+Voice Explain That uses live production /api/study-chat
+Generated web/native validation passed before final Xcode compile
