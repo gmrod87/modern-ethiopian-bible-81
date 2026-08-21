@@ -1,0 +1,45 @@
+name: Validate Hobah Release 83
+
+on:
+  push:
+    branches: [release83-study-handoff]
+  workflow_dispatch:
+
+jobs:
+  validate-release83:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+      - name: Install web dependencies
+        run: npm install
+      - name: Build Release 83
+        run: npm run build
+      - name: Verify generated web handoff
+        run: |
+          grep -F "const V='83';" dist/app.js
+          grep -F "requestVoiceExplanation" dist/app.js
+          grep -F "window.HobahNativeAudio.play({text:part,mode:'normal',title:'Study AI'" dist/app.js
+          grep -F "state.studyHistory.push({role:'user',text:displayQuestion},{role:'assistant',text:ans})" dist/app.js
+          ! grep -F "try{ans=await realtimeStudyExplain(ref)" dist/app.js
+      - name: Install native dependencies
+        working-directory: native-ios
+        run: npm install
+      - name: Prepare native web bundle
+        working-directory: native-ios
+        run: npm run prepare:web
+      - name: Verify native Study isolation
+        run: |
+          grep -F "!state.audio.studyBusy)advanceNarration()" native-ios/www/app.js
+          grep -F "window.HobahNativeAudio||state.audio.studyBusy" native-ios/www/app.js
+          grep -F "window.HobahNativeAudio.play({text:part,mode:'normal',title:'Study AI'" native-ios/www/app.js
+      - name: Build native bridge
+        working-directory: native-ios
+        run: npm run build:bridge
+      - name: Validate native bundle
+        working-directory: native-ios
+        run: npm run doctor
