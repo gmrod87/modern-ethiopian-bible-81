@@ -1,17 +1,16 @@
 Hobah TestFlight upload trigger
-Requested: 2026-08-21 13:05 AEST
+Requested: 2026-08-21 13:27 AEST
 Version: 1.0.0
 Bundle ID: com.hobah.bible
 Apple signing mode: Manual App Store profile
-Release 83 Explain That handoff
-Release 83: speech recognition path from Release 82 unchanged
-Release 83: Explain That no longer uses Realtime/WebRTC audio
-Release 83: voice explanation uses Study AI quick text mode and hard caps the final answer at 300 words
-Release 83: exact capped answer is added to Study AI history before narration
-Release 83: exact answer is remembered for Study AI / save actions
-Release 83: TestFlight uses HobahNativeAudio AVFoundation playback for each Study explanation chunk
-Release 83: native Study completion/state events are isolated from Scripture queue advancement
-Release 83: after the full explanation finishes, Scripture resumes and Voice Commands restart
-Release 83 branch validation: success, run 32441850929
-Release 83 production compiler validation: success, run 32441956828, Xcode 26.6, iPhone/iPad
-Final TestFlight trigger: Release 83 Study AI voice handoff
+Release 84 non-locking Explain That state machine
+Release 84: speech recognition path remains unchanged
+Release 84: Explain That stops on response.completed instead of waiting for SSE socket closure
+Release 84: 10 second first-response and 22 second total Study request recovery
+Release 84: Play during Study generation cancels the explanation and returns control to Scripture
+Release 84: Play/Pause controls active Study AI audio while Study AI is speaking
+Release 84: native Study audio completion uses ended event plus getState polling fallback
+Release 84: exact final explanation remains hard capped at 300 words and is stored in Study AI before narration
+Release 84: generated web/native bundle validation success, run 32443110649
+Release 84: production compiler validation success, run 32443263759, Xcode 26.6, iPhone/iPad
+Final TestFlight trigger: Release 84 non-locking Study AI handoff
