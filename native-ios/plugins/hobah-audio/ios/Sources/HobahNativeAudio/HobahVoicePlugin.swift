@@ -22,29 +22,6 @@ public class HobahVoicePlugin: CAPPlugin, CAPBridgedPlugin {
     private var tapInstalled = false
     private var restartPending = false
     private var localeID = "en-AU"
-    private var lastTranscript = ""
-    private var transcriptRevision = 0
-    private var lastCommand = ""
-    private var commandRevision = 0
-    private var lastCommandAt = Date.distantPast
-
-    private let commandPhrases: [(kind: String, phrase: String)] = [
-        ("explain", "explain that in more detail"), ("explain", "explain this in more detail"),
-        ("explain", "what does that mean"), ("explain", "explain that more"),
-        ("explain", "explain this more"), ("explain", "explain that"),
-        ("explain", "explain this"), ("explain", "tell me more"), ("explain", "go deeper"),
-        ("save", "save that to my notes"), ("save", "save this to my notes"),
-        ("save", "save this in my notes"), ("save", "save that in my notes"),
-        ("save", "save this explanation"), ("save", "save that explanation"),
-        ("save", "save to my notes"), ("save", "save that"), ("save", "save this"), ("save", "save it"),
-        ("pause", "stop reading"), ("pause", "pause reading"), ("pause", "hold on"),
-        ("pause", "stop"), ("pause", "pause"),
-        ("play", "keep reading"), ("play", "continue reading"), ("play", "carry on"),
-        ("play", "continue"), ("play", "resume"), ("play", "play"),
-        ("next", "next verse"), ("next", "next section"), ("next", "go next"), ("next", "next"),
-        ("prev", "previous verse"), ("prev", "go previous"), ("prev", "go back"),
-        ("prev", "previous"), ("prev", "back")
-    ]
 
     override public func load() {
         recognizer = SFSpeechRecognizer(locale: Locale(identifier: localeID))
@@ -129,51 +106,6 @@ public class HobahVoicePlugin: CAPPlugin, CAPBridgedPlugin {
         if restorePlayback { restorePlaybackSession() }
     }
 
-    private func normalizedSpeech(_ text: String) -> String {
-        return text.lowercased()
-            .replacingOccurrences(of: "[^a-z\\s']", with: " ", options: .regularExpression)
-            .replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-    }
-
-    private func commandFromTranscript(_ text: String) -> (kind: String, phrase: String)? {
-        var value = normalizedSpeech(text)
-        guard !value.isEmpty else { return nil }
-        value = value
-            .replacingOccurrences(of: "\\b(?:hey\\s+)?(?:hobah|hoba|ho bah|oba)\\b", with: " ", options: .regularExpression)
-            .replacingOccurrences(of: "\\s+", with: " ", options: .regularExpression)
-            .trimmingCharacters(in: .whitespacesAndNewlines)
-        if value.hasPrefix("please ") { value = String(value.dropFirst(7)) }
-        if value.hasSuffix(" please") { value = String(value.dropLast(7)) }
-        for item in commandPhrases {
-            if value == item.phrase || value.hasSuffix(" " + item.phrase) { return item }
-        }
-        return nil
-    }
-
-    private func publishRecognition(text: String, tail: String, isFinal: Bool) {
-        lastTranscript = text
-        transcriptRevision += 1
-        notifyListeners("transcript", data: [
-            "text": text,
-            "tail": tail,
-            "final": isFinal,
-            "revision": transcriptRevision
-        ])
-
-        guard let command = commandFromTranscript(tail) ?? commandFromTranscript(text) else { return }
-        let now = Date()
-        if command.phrase == lastCommand && now.timeIntervalSince(lastCommandAt) < 0.65 { return }
-        lastCommand = command.phrase
-        lastCommandAt = now
-        commandRevision += 1
-        notifyListeners("command", data: [
-            "command": command.phrase,
-            "kind": command.kind,
-            "revision": commandRevision
-        ])
-    }
-
     private func restartIfNeeded() {
         guard wantsListening, !restartPending else { return }
         restartPending = true
@@ -201,7 +133,7 @@ public class HobahVoicePlugin: CAPPlugin, CAPBridgedPlugin {
         try configureListeningSession()
         let req = SFSpeechAudioBufferRecognitionRequest()
         req.shouldReportPartialResults = true
-        req.taskHint = .search
+        req.taskHint = .confirmation
         req.contextualStrings = [
             "Hobah", "Hey Hobah", "explain that", "explain this", "explain that in more detail",
             "what does that mean", "tell me more", "go deeper", "save that", "save this",
@@ -211,6 +143,7 @@ public class HobahVoicePlugin: CAPPlugin, CAPBridgedPlugin {
         request = req
 
         let input = engine.inputNode
+        // Keep the exact Release 77 audio-engine path that was stable in TestFlight.
         if #available(iOS 13.0, *) {
             try? input.setVoiceProcessingEnabled(true)
         }
@@ -223,12 +156,10 @@ public class HobahVoicePlugin: CAPPlugin, CAPBridgedPlugin {
         task = recognizer.recognitionTask(with: req) { [weak self] result, error in
             guard let self else { return }
             if let result {
-                let transcription = result.bestTranscription
-                let text = transcription.formattedString.trimmingCharacters(in: .whitespacesAndNewlines)
-                let tail = transcription.segments.suffix(8).map { $0.substring }.joined(separator: " ")
+                let text = result.bestTranscription.formattedString.trimmingCharacters(in: .whitespacesAndNewlines)
                 if !text.isEmpty {
                     DispatchQueue.main.async {
-                        self.publishRecognition(text: text, tail: tail, isFinal: result.isFinal)
+                        self.notifyListeners("transcript", data: ["text": text, "final": result.isFinal])
                     }
                 }
                 if result.isFinal {
@@ -282,11 +213,7 @@ public class HobahVoicePlugin: CAPPlugin, CAPBridgedPlugin {
             "listening": wantsListening && engine.isRunning,
             "available": recognizer?.isAvailable ?? false,
             "speechPermission": speechState(),
-            "microphonePermission": microphoneState(),
-            "transcript": lastTranscript,
-            "transcriptRevision": transcriptRevision,
-            "command": lastCommand,
-            "commandRevision": commandRevision
+            "microphonePermission": microphoneState()
         ])
     }
 }
