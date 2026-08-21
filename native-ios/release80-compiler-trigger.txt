@@ -1,0 +1,5 @@
+Hobah Release 80 production compiler validation
+Requested: 2026-08-21 11:29 AEST
+Base functional commit: d744da89456e1438633092d55cce149f60cef635
+Speech engine: @capgo/capacitor-speech-recognition 8.1.0
+Audio input/output: playAndRecord + voiceChat + voice processing
