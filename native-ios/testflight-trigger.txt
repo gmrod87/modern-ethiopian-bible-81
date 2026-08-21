@@ -1,17 +1,15 @@
 Hobah TestFlight upload trigger
-Requested: 2026-08-21 14:17 AEST
+Requested: 2026-08-21 14:44 AEST
 Version: 1.0.0
 Bundle ID: com.hobah.bible
 Apple signing mode: Manual App Store profile
-Release 85 persistent global Voice Commands
-Release 85: Voice Commands removed from Listen controls
-Release 85: Voice Commands live in bottom-right Settings and default on
-Release 85: Night Mode, Privacy & Policies, Support, and About moved into Settings
-Release 85: Listen remains playback-only and does not start narration automatically
-Release 85: voice recognition automatically reconnects while Hobah is active
-Release 85: Explain That starts the live production /api/study-chat request before microphone suspension
-Release 85: stops on response.completed and hard-caps final answer at 300 words
-Release 85: production Study health verified ready:true with OPENAI_API_KEY
-Release 85: generated web/native validation success run 32445941525
-Release 85: final iOS compiler success run 32446112421, Xcode 26.6, source 0c18ebe39db811210f94e69c6decbd8249c17674
-Final TestFlight trigger: Release 85 persistent voice + Settings architecture
+Release 86 Settings tab fix + haptics restoration
+Release 86: Settings uses a dedicated persistent sheet instead of the generic sheet helper
+Release 86: bottom-right Settings opens through both web runtime and native bridge fallback
+Release 86: Voice Commands, Night Mode, Privacy & Policies, Support, and About remain inside Settings
+Release 86: native haptics restored on pointer-down for immediate feedback
+Release 86: stronger haptics on bottom navigation, Play, Settings rows and save actions; light haptics elsewhere
+Release 86: Listen remains playback-only with no Voice Commands toggle
+Release 86: native doctor success run 32447727990
+Release 86: final iOS compiler success run 32447845170, Xcode 26.6, source b83145be8e8e6528878e3abf1beffd9c856e2e11
+Final TestFlight trigger: Release 86 Settings + haptics
