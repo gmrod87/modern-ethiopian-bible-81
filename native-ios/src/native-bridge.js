@@ -12,7 +12,7 @@ import { TextZoom } from '@capacitor/text-zoom';
 const API_BASE='https://modern-ethiopian-bible-81.vercel.app';
 const PUBLIC_BASE='https://modern-ethiopian-bible-81.vercel.app';
 const PREFERENCE_KEYS=[
-  'hobah:user','hobah:last','hobah:readerSize','hobah:audioMode','hobah:audioRate','hobah:ambient','hobah:audioProgress','hobah:nativePosition'
+  'hobah:user','hobah:last','hobah:readerSize','hobah:audioMode','hobah:audioRate','hobah:ambient','hobah:audioProgress','hobah:nativePosition','hobah:ttsVoice'
 ];
 
 window.HOBAH_API_BASE=API_BASE;
@@ -22,7 +22,7 @@ window.HOBAH_NETWORK_CONNECTED=true;
 function webURL(url=''){
   if(!url)return PUBLIC_BASE;
   if(/^https?:/i.test(url))return url;
-  if(url.startsWith('#'))return `${PUBLIC_BASE}/?v=75${url}`;
+  if(url.startsWith('#'))return `${PUBLIC_BASE}/?v=78${url}`;
   try{
     const u=new URL(url,location.href);
     return `${PUBLIC_BASE}${u.pathname}${u.search}${u.hash}`;
