@@ -1,0 +1,6 @@
+Hobah Release 86 compiler trigger
+Settings tab dedicated native-safe sheet
+Native Settings fallback bridge
+Immediate pointer-down haptics restored
+Stronger haptics on bottom nav, Play, Settings rows and save actions
+Release 86 native doctor passed before merge
