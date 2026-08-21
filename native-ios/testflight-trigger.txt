@@ -1,15 +1,14 @@
 Hobah TestFlight upload trigger
-Requested: 2026-08-21 14:44 AEST
+Requested: 2026-08-21 15:39 AEST
 Version: 1.0.0
 Bundle ID: com.hobah.bible
 Apple signing mode: Manual App Store profile
-Release 86 Settings tab fix + haptics restoration
-Release 86: Settings uses a dedicated persistent sheet instead of the generic sheet helper
-Release 86: bottom-right Settings opens through both web runtime and native bridge fallback
-Release 86: Voice Commands, Night Mode, Privacy & Policies, Support, and About remain inside Settings
-Release 86: native haptics restored on pointer-down for immediate feedback
-Release 86: stronger haptics on bottom navigation, Play, Settings rows and save actions; light haptics elsewhere
-Release 86: Listen remains playback-only with no Voice Commands toggle
-Release 86: native doctor success run 32447727990
-Release 86: final iOS compiler success run 32447845170, Xcode 26.6, source b83145be8e8e6528878e3abf1beffd9c856e2e11
-Final TestFlight trigger: Release 86 Settings + haptics
+Release 87 Settings opener crash fix
+Release 87: fixes Build 22 Settings failure caused by calling .forEach() on the single-element $() helper
+Release 87: bottom nav active-state iteration now uses document.querySelectorAll('.bottomNav button')
+Release 87: Settings dialog is created before nav state updates
+Release 87: voice/night toggles are null-safe
+Release 87: showModal has an open-attribute fallback
+Release 87: haptics remain restored and unchanged from Release 86
+Release 87: Listen remains playback-only; Voice Commands stay in Settings
+Final TestFlight trigger: Release 87 Settings open fix
