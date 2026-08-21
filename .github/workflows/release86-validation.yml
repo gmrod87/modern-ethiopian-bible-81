@@ -43,7 +43,8 @@ jobs:
           grep -F "const V='86';" native-ios/www/app.js
           grep -F "window.HobahSettings" native-ios/www/app.js
           grep -F "pointerdown" native-ios/www/native-bridge.js
-          grep -F "openSettingsFromNative" native-ios/www/native-bridge.js
+          grep -F "hobah:open-settings" native-ios/www/native-bridge.js
+          grep -F "bottomSettings" native-ios/www/native-bridge.js
           grep -F "ImpactStyle.Medium" native-ios/src/native-bridge.js
           ! grep -F 'id="audioVoiceToggle"' native-ios/www/index.html
       - name: Validate native bundle
