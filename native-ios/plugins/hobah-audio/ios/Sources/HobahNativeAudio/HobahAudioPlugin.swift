@@ -33,18 +33,20 @@ public class HobahAudioPlugin: CAPPlugin, CAPBridgedPlugin, AVAudioPlayerDelegat
         configureRemoteCommands()
     }
 
-    private func configureAudioSession() {
+    private func configureAudioSession(forcePlayback: Bool = false) {
         do {
             let session = AVAudioSession.sharedInstance()
-            // Voice Commands own a playAndRecord/voiceChat session while the microphone
-            // is listening. Do not replace it with playback-only when a new Scripture
-            // chunk starts, otherwise iOS can stop the recognition engine mid-read.
-            if session.category == .playAndRecord {
+            // During normal Scripture playback, preserve the live Voice Commands
+            // playAndRecord/voiceChat session so recognition can hear barge-in commands.
+            // Study AI explicitly sets forcePlayback after recognition is suspended;
+            // this prevents a stale playAndRecord category from making the explanation
+            // effectively silent on iPhone.
+            if !forcePlayback && session.category == .playAndRecord {
                 try session.setActive(true, options: [])
                 return
             }
             try session.setCategory(.playback, mode: .spokenAudio, options: [])
-            try session.setActive(true)
+            try session.setActive(true, options: [])
         } catch {
             print("Hobah native audio session error: \(error)")
         }
@@ -172,6 +174,7 @@ public class HobahAudioPlugin: CAPPlugin, CAPBridgedPlugin, AVAudioPlayerDelegat
         let title = call.getString("title") ?? "Hobah"
         let subtitle = call.getString("subtitle") ?? "The Ancient Canon"
         let rate = normalizedRate(call.getDouble("rate") ?? 1.0)
+        let forcePlayback = call.getBool("forcePlayback") ?? false
         fetchAudio(id: id, text: text, mode: mode, voice: voice) { [weak self] result in
             DispatchQueue.main.async {
                 guard let self else { return }
@@ -180,7 +183,7 @@ public class HobahAudioPlugin: CAPPlugin, CAPBridgedPlugin, AVAudioPlayerDelegat
                     call.reject(error.localizedDescription)
                 case .success(let data):
                     do {
-                        self.configureAudioSession()
+                        self.configureAudioSession(forcePlayback: forcePlayback)
                         self.player?.stop()
                         let player = try AVAudioPlayer(data: data)
                         player.delegate = self
