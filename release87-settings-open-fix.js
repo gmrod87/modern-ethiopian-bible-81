@@ -8,6 +8,9 @@ const broken="function openSettings(){\n  $('.bottomNav button').forEach(b=>b.cl
 const fixed="function openSettings(){\n  const d=ensureSettingsDialog();\n  document.querySelectorAll('.bottomNav button').forEach(b=>b.classList.remove('active'));\n  const nav=document.getElementById('bottomSettings');if(nav)nav.classList.add('active');\n  const voice=document.getElementById('settingsVoiceEnabled'),night=document.getElementById('settingsNightMode');\n  if(voice)voice.checked=voicePreferenceEnabled();if(night)night.checked=nightModeEnabled();syncSettingsVoiceUI();\n  if(!d.open){try{d.showModal()}catch(e){console.warn('Settings modal fallback',e);d.setAttribute('open','')}}\n}";
 if(!app.includes(broken))throw new Error('Release87: exact broken Settings opener not found');
 app=app.replace(broken,fixed);
+// Release 86 injected the same invalid single-element iteration in more than one generated path.
+// Remove every remaining copy in the final runtime so native/web fallbacks cannot hit it.
+app=app.replaceAll("$('.bottomNav button').forEach","document.querySelectorAll('.bottomNav button').forEach");
 if(app.includes("$('.bottomNav button').forEach"))throw new Error('Release87: broken single-element forEach still present');
 if(!app.includes("document.querySelectorAll('.bottomNav button').forEach"))throw new Error('Release87: safe nav iteration missing');
 fs.writeFileSync(p('app.js'),app);
