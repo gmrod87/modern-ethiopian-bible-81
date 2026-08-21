@@ -12,7 +12,7 @@ import { TextZoom } from '@capacitor/text-zoom';
 const API_BASE='https://modern-ethiopian-bible-81.vercel.app';
 const PUBLIC_BASE='https://modern-ethiopian-bible-81.vercel.app';
 const PREFERENCE_KEYS=[
-  'hobah:user','hobah:last','hobah:readerSize','hobah:audioMode','hobah:audioRate','hobah:ambient','hobah:audioProgress','hobah:nativePosition'
+  'hobah:user','hobah:last','hobah:readerSize','hobah:audioMode','hobah:audioRate','hobah:ambient','hobah:audioProgress','hobah:nativePosition','hobah:voiceCommands','hobah:nightMode'
 ];
 
 window.HOBAH_API_BASE=API_BASE;
@@ -22,7 +22,7 @@ window.HOBAH_NETWORK_CONNECTED=true;
 function webURL(url=''){
   if(!url)return PUBLIC_BASE;
   if(/^https?:/i.test(url))return url;
-  if(url.startsWith('#'))return `${PUBLIC_BASE}/?v=75${url}`;
+  if(url.startsWith('#'))return `${PUBLIC_BASE}/?v=85${url}`;
   try{
     const u=new URL(url,location.href);
     return `${PUBLIC_BASE}${u.pathname}${u.search}${u.hash}`;
@@ -66,6 +66,12 @@ async function applyPreferredTextZoom(){
     const {value}=await TextZoom.getPreferred();
     if(Number.isFinite(value))await TextZoom.set({value:Math.min(1.6,Math.max(.85,value))});
   }catch{}
+}
+
+async function applyNativeNightMode(on){
+  try{await StatusBar.setStyle({style:on?Style.Light:Style.Dark})}catch{}
+  try{await StatusBar.setBackgroundColor({color:on?'#0C1411':'#F3EFE5'})}catch{}
+  try{await StatusBar.setOverlaysWebView({overlay:false})}catch{}
 }
 
 let scrollTimer=0;
@@ -115,12 +121,7 @@ function bindMediaSession(){
     try{
       const ref=document.getElementById('audioRef')?.textContent?.trim()||'Hobah';
       const status=document.getElementById('audioState')?.textContent?.trim()||'The Ancient Canon';
-      navigator.mediaSession.metadata=new MediaMetadata({
-        title:ref,
-        artist:'Hobah',
-        album:status,
-        artwork:[{src:`${PUBLIC_BASE}/hobah-icon-180-v52.png`,sizes:'180x180',type:'image/png'}]
-      });
+      navigator.mediaSession.metadata=new MediaMetadata({title:ref,artist:'Hobah',album:status,artwork:[{src:`${PUBLIC_BASE}/hobah-icon-180-v52.png`,sizes:'180x180',type:'image/png'}]});
     }catch{}
   };
   document.addEventListener('play',()=>{try{navigator.mediaSession.playbackState='playing'}catch{}update()},{capture:true});
@@ -130,39 +131,25 @@ function bindMediaSession(){
 
 function mapDeepLink(url){
   try{
-    const u=new URL(url);
-    if(u.protocol!=='hobah:')return null;
-    const host=(u.host||'').toLowerCase();
-    const path=u.pathname.replace(/^\/+|\/+$/g,'');
-    if(host==='home')return {hash:'#home'};
-    if(host==='study')return {hash:'#home',study:true};
-    if(host==='read')return {hash:'#read/'+path};
-    if(host==='search')return {hash:'#search/'+encodeURIComponent(path||u.searchParams.get('q')||'')};
-    return {hash:'#home'};
+    const u=new URL(url);if(u.protocol!=='hobah:')return null;
+    const host=(u.host||'').toLowerCase(),path=u.pathname.replace(/^\/+|\/+$/g,'');
+    if(host==='home')return {hash:'#home'};if(host==='study')return {hash:'#home',study:true};if(host==='read')return {hash:'#read/'+path};if(host==='search')return {hash:'#search/'+encodeURIComponent(path||u.searchParams.get('q')||'')};return {hash:'#home'};
   }catch{return null}
 }
 
 function openAbout(){
   let d=document.getElementById('nativeAbout');
   if(!d){
-    d=document.createElement('dialog');
-    d.id='nativeAbout';
-    d.className='nativeAbout';
+    d=document.createElement('dialog');d.id='nativeAbout';d.className='nativeAbout';
     d.innerHTML=`<div class="nativeAboutCard"><button class="nativeAboutClose" aria-label="Close">×</button><span>HOBAH • 81 BOOKS</span><h2>The Ancient Canon</h2><p>Offline Bible reading and search, Study AI, natural Read Aloud, hands-free Voice Study and a private on-device Library.</p><button data-native-link="${PUBLIC_BASE}/privacy.html">Privacy Policy</button><button data-native-link="${PUBLIC_BASE}/support.html">Support</button><small>Native iPhone/iPad edition</small></div>`;
-    document.body.appendChild(d);
-    d.querySelector('.nativeAboutClose').onclick=()=>d.close();
-    d.addEventListener('click',e=>{if(e.target===d)d.close()});
-    d.querySelectorAll('[data-native-link]').forEach(b=>b.onclick=()=>Browser.open({url:b.dataset.nativeLink}));
+    document.body.appendChild(d);d.querySelector('.nativeAboutClose').onclick=()=>d.close();d.addEventListener('click',e=>{if(e.target===d)d.close()});d.querySelectorAll('[data-native-link]').forEach(b=>b.onclick=()=>Browser.open({url:b.dataset.nativeLink}));
   }
   d.showModal();
 }
 
 function bindNativeUI(){
-  document.getElementById('bottomAbout')?.addEventListener('click',()=>{Haptics.impact({style:ImpactStyle.Light}).catch(()=>{});openAbout()});
   document.addEventListener('click',e=>{
-    const button=e.target.closest('button,a');
-    if(!button)return;
-    if(button.id==='bottomAbout')return;
+    const button=e.target.closest('button,a');if(!button)return;
     const stronger=button.matches('[data-study-save],#savedBtn,#saveChapter,#savePersonalNote');
     Haptics.impact({style:stronger?ImpactStyle.Medium:ImpactStyle.Light}).catch(()=>{});
   },{capture:true,passive:true});
@@ -172,24 +159,18 @@ async function boot(){
   if(!Capacitor.isNativePlatform())return;
   await restorePreferences();
   await applyPreferredTextZoom();
-  try{await StatusBar.setStyle({style:Style.Dark})}catch{}
-  try{await StatusBar.setBackgroundColor({color:'#F3EFE5'})}catch{}
-  try{await StatusBar.setOverlaysWebView({overlay:false})}catch{}
-  const network=await Network.getStatus().catch(()=>({connected:true}));
-  setOfflineUI(network.connected);
+  await applyNativeNightMode(localStorage.getItem('hobah:nightMode')==='1');
+  const network=await Network.getStatus().catch(()=>({connected:true}));setOfflineUI(network.connected);
   Network.addListener('networkStatusChange',s=>setOfflineUI(s.connected));
-  App.addListener('appStateChange',async({isActive})=>{if(!isActive){saveReadingPosition();await savePreferences()}});
-  App.addListener('appUrlOpen',({url})=>{
-    const target=mapDeepLink(url);if(!target)return;
-    location.hash=target.hash;
-    if(target.study)setTimeout(()=>document.getElementById('studyAiHeaderBtn')?.click(),350);
+  App.addListener('appStateChange',async({isActive})=>{
+    document.dispatchEvent(new CustomEvent('hobah:native-app-state',{detail:{isActive}}));
+    if(!isActive){saveReadingPosition();await savePreferences()}
   });
+  App.addListener('appUrlOpen',({url})=>{const target=mapDeepLink(url);if(!target)return;location.hash=target.hash;if(target.study)setTimeout(()=>document.getElementById('studyAiHeaderBtn')?.click(),350)});
   addEventListener('scroll',saveReadingPosition,{passive:true});
   addEventListener('pagehide',()=>{saveReadingPosition();savePreferences()},{passive:true});
   document.addEventListener('hobah:chapter',()=>setTimeout(restoreReadingPosition,80));
-  bindNativeUI();
-  bindMediaSession();
-  setTimeout(()=>SplashScreen.hide().catch(()=>{}),180);
+  bindNativeUI();bindMediaSession();setTimeout(()=>SplashScreen.hide().catch(()=>{}),180);
 }
 
 window.HobahNative={
@@ -199,6 +180,7 @@ window.HobahNative={
   openExternal:url=>Browser.open({url:webURL(url)}),
   openAbout,
   savePreferences,
+  setNightMode:applyNativeNightMode,
   applyPreferredTextZoom,
   isOnline:()=>window.HOBAH_NETWORK_CONNECTED!==false,
   apiBase:API_BASE

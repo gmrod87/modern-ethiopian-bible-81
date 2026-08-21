@@ -1,0 +1,22 @@
+/* Hobah Release 85 — global Settings + persistent voice */
+.bottomNav{grid-template-columns:repeat(5,1fr)!important}
+.settingsPanel{display:flex;flex-direction:column;gap:20px;padding:2px 0 8px}
+.settingsGroup{border:1px solid var(--line);border-radius:22px;background:rgba(255,255,255,.38);overflow:hidden}
+.settingsGroupTitle{display:block;padding:15px 17px 8px;font-size:10px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:var(--brown)}
+.settingsRow{width:100%;min-height:66px;padding:13px 16px;border:0;border-top:1px solid var(--line);background:transparent;display:flex;align-items:center;gap:14px;text-align:left}
+.settingsGroupTitle+.settingsRow{border-top:0}.settingsText{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}.settingsText b{font-size:15px}.settingsText small{font-size:12px;line-height:1.35;color:var(--muted)}
+.settingsChevron{font-size:22px;color:var(--muted)}
+.settingsSwitch{position:relative;width:52px;height:31px;flex:0 0 52px}.settingsSwitch input{position:absolute;opacity:0;pointer-events:none}.settingsSwitch span{position:absolute;inset:0;border-radius:999px;background:rgba(111,120,113,.28);border:1px solid var(--line);transition:.18s}.settingsSwitch span:after{content:"";position:absolute;width:25px;height:25px;left:2px;top:2px;border-radius:50%;background:#fff;box-shadow:0 2px 7px rgba(0,0,0,.18);transition:.18s}.settingsSwitch input:checked+span{background:var(--green);border-color:var(--green)}.settingsSwitch input:checked+span:after{transform:translateX(21px)}
+.settingsStatus{display:flex;align-items:center;gap:7px}.settingsDot{width:8px;height:8px;border-radius:50%;background:#9aa19d}.settingsDot.live{background:#2b8f66;box-shadow:0 0 0 4px rgba(43,143,102,.12)}
+.settingsAbout{padding:16px 17px 18px;border-top:1px solid var(--line)}.settingsAbout h3{font-family:Georgia,serif;font-size:23px;font-weight:500;margin:0 0 8px}.settingsAbout p{margin:0;color:var(--muted);line-height:1.55;font-size:13px}
+html.nightMode{background:#0c1411;color-scheme:dark}body.nightMode{--cream:#0c1411;--paper:#131e1a;--paper2:rgba(22,31,27,.88);--green:#d6b56f;--green2:#e1c17c;--brown:#d0a75c;--gold:#d6b56f;--ink:#edf0eb;--muted:#a9b0aa;--line:rgba(238,233,219,.13);--shadow:0 18px 50px rgba(0,0,0,.26);background:radial-gradient(circle at 90% 10%,rgba(74,91,82,.18),transparent 32%),linear-gradient(180deg,#111b17 0,#09100e 100%);color:var(--ink)}
+body.nightMode .topbar,body.nightMode .searchbar,body.nightMode .bottomNav{background:rgba(12,20,17,.91)}
+body.nightMode .searchbar form,body.nightMode .readerTools select,body.nightMode .readerTools button,body.nightMode .audioTransport button,body.nightMode .audioModes button,body.nightMode .audioModes select,body.nightMode .settingsGroup{background:rgba(29,41,35,.78);color:var(--ink)}
+body.nightMode .homeHero,body.nightMode .continueCard,body.nightMode .feelingCard,body.nightMode .canonCard,body.nightMode .studyHomeCard,body.nightMode .bookStrip a{background:rgba(24,35,30,.72)}
+body.nightMode .homeHero h1,body.nightMode .verse,body.nightMode .sheetCard,body.nightMode .sheetHead,body.nightMode .studyForm{color:var(--ink)}
+body.nightMode .verse{color:#e7ebe6}
+body.nightMode .sheetCard{background:#121c18;border-color:var(--line)}body.nightMode .sheetHead,body.nightMode .studyForm{background:rgba(18,28,24,.96)}body.nightMode .sheetClose{background:#1b2923;color:var(--ink)}
+body.nightMode .drawer{background:#101a16;color:var(--ink)}body.nightMode .audioDock{background:rgba(17,27,23,.96);color:var(--ink)}
+body.nightMode .studyMsg.assistant p{background:rgba(34,47,40,.85)}body.nightMode .noteBox textarea,body.nightMode .studyForm textarea{background:rgba(28,40,34,.88);color:var(--ink)}
+body.nightMode .primaryBtn,body.nightMode #audioPlay,body.nightMode .searchbar button{color:#102018}
+@media(max-width:430px){.bottomNav{padding-left:5px!important;padding-right:5px!important}.bottomNav button{font-size:9px!important}.bottomNav button i{font-size:20px!important}.settingsRow{min-height:64px}}
