@@ -6,7 +6,7 @@ const swap=(from,to,label)=>{if(!app.includes(from))throw new Error('Release85 p
 
 swap("const V='84';","const V='85';",'runtime version');
 
-// Listen is now playback-only. Voice Commands is a global app setting and must not be
+// Listen is playback-only. Voice Commands is a global app setting and must not be
 // stopped/restarted just because the Listen dock opens.
 app=app.replaceAll("  stopVoiceCommands({silent:true}).catch(()=>{});\n",'');
 app=app.replaceAll('Ready • press play or turn on Voice Commands','Ready • press play');
@@ -19,8 +19,9 @@ if(!requestRe.test(app))throw new Error('Release85 patch missing: old voice expl
 app=app.replace(requestRe,()=>`async function requestVoiceExplanationJSON(question,reference){
   const ctl=new AbortController(),timer=setTimeout(()=>ctl.abort(),16000);
   state.audio.studyRequestAbort=ctl;state.audio.studyCancelReason='';
+  const explainURL=(window.HOBAH_API_BASE?window.HOBAH_API_BASE.replace(/\\/$/,''):'')+'/api/explain';
   try{
-    const r=await fetch('/api/explain',{method:'POST',headers:{'content-type':'application/json'},signal:ctl.signal,body:JSON.stringify({question,reference,context:quickStudyContext()})});
+    const r=await fetch(explainURL,{method:'POST',headers:{'content-type':'application/json'},signal:ctl.signal,body:JSON.stringify({question,reference,context:quickStudyContext()})});
     if(!r.ok){const j=await r.json().catch(()=>({}));throw Error(j.error||'Study AI unavailable')}
     const j=await r.json(),answer=compactStudyAnswer(clean(j.answer),300);
     if(!answer)throw Error('Study AI returned no explanation');
@@ -40,14 +41,15 @@ app=app.replace(explainRe,()=>`async function explainCurrent(){
   if(!state.currentBook||!state.currentChapter){toast('Open a chapter first');return}
   if(state.audio.studyBusy){abortStudyRequest('recover');state.audio.studyBusy=false;setStudyPhase('idle');if(window.HobahNativeAudio)await window.HobahNativeAudio.stop().catch(()=>{})}
   const wasPlaying=!!state.audio.playing;
-  state.audio.studyBusy=true;setStudyPhase('generating');state.audio.resumeAfterStudy=wasPlaying;
-  if(wasPlaying)pauseNarration();
+  state.audio.studyBusy=true;setStudyPhase('generating');
   const v=currentAudioVerse(),ref=\`${'${state.currentBook.title}'} ${'${state.currentChapter.n}'}:${'${v}'}\`;
   const displayQuestion=\`Explain ${'${ref}'}\`;
   const requestQuestion=\`Explain ${'${ref}'} in more detail. Focus on what is happening in this verse, its immediate literary context, and why it matters. Give a complete spoken explanation with no preamble. Aim for 220 to 270 words and never exceed 300 words. End with a complete sentence.\`;
   setAudioStatus(\`Explaining ${'${ref}'}…\`);state.studyMode='study';
+  // Start the network request before touching the microphone/audio session.
   const answerPromise=requestVoiceExplanationJSON(requestQuestion,ref);
-  // The network request is already in flight before the microphone/audio handoff begins.
+  const a=ensureScriptureAudio();if(!a.paused)a.pause();claimVoiceChannel(null);state.audio.resumeAfterStudy=true;
+  state.audio.resumeAfterStudy=wasPlaying;
   suspendRecognitionForStudy();closeStudyRealtime();
   try{
     const ans=await answerPromise;
@@ -75,7 +77,7 @@ const settingsBlock=`function voicePreferenceEnabled(){return localGet('hobah:vo
 function nightModeEnabled(){return localGet('hobah:nightMode','0')==='1'}
 function applyNightMode(on=nightModeEnabled()){
   on=!!on;document.documentElement.classList.toggle('nightMode',on);document.body.classList.toggle('nightMode',on);
-  localSet('hobah:nightMode',on?'1':'0');window.HobahNative?.setNightMode?.(on).catch?.(()=>{});window.HobahNative?.savePreferences?.().catch?.(()=>{});
+  localSet('hobah:nightMode',on?'1':'0');Promise.resolve(window.HobahNative?.setNightMode?.(on)).catch(()=>{});Promise.resolve(window.HobahNative?.savePreferences?.()).catch(()=>{});
 }
 function syncSettingsVoiceUI(){
   const enabled=voicePreferenceEnabled(),live=!!state.listening;
@@ -84,7 +86,7 @@ function syncSettingsVoiceUI(){
   const dot=$('#settingsVoiceDot');if(dot)dot.classList.toggle('live',enabled&&live);
 }
 async function setPersistentVoiceEnabled(on){
-  localSet('hobah:voiceCommands',on?'1':'0');window.HobahNative?.savePreferences?.().catch?.(()=>{});
+  localSet('hobah:voiceCommands',on?'1':'0');Promise.resolve(window.HobahNative?.savePreferences?.()).catch(()=>{});
   if(on){await ensurePersistentVoice()}else{await stopVoiceCommands({silent:true});state.audio.voiceWanted=false;state.listening=false;syncAudioUI()}
   syncSettingsVoiceUI();
 }
@@ -104,7 +106,7 @@ async function ensurePersistentVoice(){
   syncSettingsVoiceUI();
 }
 function openSettingsExternal(path){
-  if(window.HobahNative?.openExternal){window.HobahNative.openExternal(path);return}
+  if(window.HobahNative?.openExternal){Promise.resolve(window.HobahNative.openExternal(path)).catch(()=>{});return}
   try{window.open(path,'_blank','noopener,noreferrer')}catch{location.href=path}
 }
 function openSettings(){
@@ -150,6 +152,9 @@ fs.writeFileSync(p('app.js'),app);
 let html=fs.readFileSync(p('index.html'),'utf8');
 html=html.replace(/<button id="audioVoiceToggle"[^>]*>[\s\S]*?<\/button>/,'');
 if(!html.includes('id="bottomSettings"'))html=html.replace('</nav>','<button id="bottomSettings"><i>⚙</i><span>Settings</span></button>\n</nav>');
+// Native packaging previously injected a fifth About button. A hidden legacy anchor keeps
+// that packaging step inert; visible About/Policies now live only inside Settings.
+if(!html.includes('id="bottomAbout"'))html=html.replace('</body>','<span id="bottomAbout" hidden aria-hidden="true"></span>\n</body>');
 html=html.replace('/styles.css?v=84','/styles.css?v=85').replace('/app.js?v=84','/app.js?v=85').replace('/manifest.webmanifest?v=84','/manifest.webmanifest?v=85');
 if(!html.includes('/release85-settings.css'))html=html.replace('</head>',`<link rel="stylesheet" href="/release85-settings.css?v=85">\n<script>try{if(localStorage.getItem('hobah:nightMode')==='1')document.documentElement.classList.add('nightMode')}catch{}</script>\n</head>`);
 fs.writeFileSync(p('index.html'),html);
