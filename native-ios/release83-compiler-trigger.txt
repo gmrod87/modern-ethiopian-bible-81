@@ -1,0 +1,4 @@
+Hobah Release 83 compiler validation trigger
+Requested: 2026-08-21 13:03 AEST
+Release: 83
+Purpose: validate Explain That -> <=300 word Study AI -> native AVFoundation TTS -> Scripture resume
