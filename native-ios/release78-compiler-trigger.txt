@@ -1,3 +1,0 @@
-Hobah Release 78 compiler validation trigger
-Requested: 2026-08-21 10:13 AEST
-Purpose: validate command-tail recognition, native command event/poll fallback, and synchronous narrator controls before TestFlight upload.
