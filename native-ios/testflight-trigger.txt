@@ -1,5 +1,5 @@
 Hobah TestFlight upload trigger
-Requested: 2026-08-21 10:42 AEST
+Requested: 2026-08-21 10:46 AEST
 Version: 1.0.0
 Bundle ID: com.hobah.bible
 Apple signing mode: Manual App Store profile
@@ -7,8 +7,9 @@ Validation fixes: multitasking plist + opaque app icons
 Upload fix: absolute signed IPA path
 Brand update: HD cream gold Hobah H app icon
 Release 79 stability recovery: restored the proven Release 77 native AVAudioEngine / Speech recognizer lifecycle
-Release 79 stability recovery: removed Release 78 native command event layer, transcript state, and polling fallback
+Release 79 stability recovery: restored the Release 77 native bridge and native audio bridge
+Release 79 stability recovery: removed the obsolete Release 78 native command patch and compiler trigger from main
 Release 79 voice commands: safer JavaScript-only transcript-tail matching for stop, play, explain that, save that, next and previous
-Release 79 narrator selector: Female / Deep Male retained on the stable Release 77 path
-Release 79 compiler validation: success on source commit 29ffc5cb56bcd8fc1be43ba1186d37a2c78fd8c7 (Xcode 26.6)
-Final TestFlight trigger: Release 79 stability recovery
+Release 79 narrator selector: Female / Deep Male retained without adding new native recognition machinery
+Release 79 final compiler validation: success on source commit d5ee165de3f45ca71c3abaf09b7d4b73c5955119 (Xcode 26.6)
+Final TestFlight trigger: Release 79 cleaned stability recovery
