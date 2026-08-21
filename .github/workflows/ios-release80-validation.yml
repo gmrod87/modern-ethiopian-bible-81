@@ -8,6 +8,13 @@ on:
       - '.github/workflows/ios-release80-validation.yml'
       - 'package.json'
       - 'release*.js'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'native-ios/**'
+      - '.github/workflows/ios-release80-validation.yml'
+      - 'package.json'
+      - 'release*.js'
 
 permissions:
   contents: write
@@ -72,7 +79,7 @@ jobs:
           path: native-ios/ios/build/Build/Products/Debug-iphonesimulator/App.app
           if-no-files-found: error
       - name: Publish Release 80 validation status
-        if: always()
+        if: always() && github.event_name == 'push'
         env:
           GH_TOKEN: ${{ github.token }}
           JOB_STATUS: ${{ job.status }}
