@@ -1,16 +1,17 @@
 Hobah TestFlight upload trigger
-Requested: 2026-08-21 13:27 AEST
+Requested: 2026-08-21 14:17 AEST
 Version: 1.0.0
 Bundle ID: com.hobah.bible
 Apple signing mode: Manual App Store profile
-Release 84 non-locking Explain That state machine
-Release 84: speech recognition path remains unchanged
-Release 84: Explain That stops on response.completed instead of waiting for SSE socket closure
-Release 84: 10 second first-response and 22 second total Study request recovery
-Release 84: Play during Study generation cancels the explanation and returns control to Scripture
-Release 84: Play/Pause controls active Study AI audio while Study AI is speaking
-Release 84: native Study audio completion uses ended event plus getState polling fallback
-Release 84: exact final explanation remains hard capped at 300 words and is stored in Study AI before narration
-Release 84: generated web/native bundle validation success, run 32443110649
-Release 84: production compiler validation success, run 32443263759, Xcode 26.6, iPhone/iPad
-Final TestFlight trigger: Release 84 non-locking Study AI handoff
+Release 85 persistent global Voice Commands
+Release 85: Voice Commands removed from Listen controls
+Release 85: Voice Commands live in bottom-right Settings and default on
+Release 85: Night Mode, Privacy & Policies, Support, and About moved into Settings
+Release 85: Listen remains playback-only and does not start narration automatically
+Release 85: voice recognition automatically reconnects while Hobah is active
+Release 85: Explain That starts the live production /api/study-chat request before microphone suspension
+Release 85: stops on response.completed and hard-caps final answer at 300 words
+Release 85: production Study health verified ready:true with OPENAI_API_KEY
+Release 85: generated web/native validation success run 32445941525
+Release 85: final iOS compiler success run 32446112421, Xcode 26.6, source 0c18ebe39db811210f94e69c6decbd8249c17674
+Final TestFlight trigger: Release 85 persistent voice + Settings architecture
