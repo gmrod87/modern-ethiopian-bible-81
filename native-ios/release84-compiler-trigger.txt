@@ -1,0 +1,3 @@
+Release 84 compiler validation trigger
+Merged source: 28d9f5a44a611c21b318a8fa2ea8b14a19636839
+Validate iPhone/iPad Xcode build before TestFlight upload.
