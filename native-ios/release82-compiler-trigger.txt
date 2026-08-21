@@ -1,0 +1,6 @@
+Hobah Release 82 production compiler trigger
+Standard Capgo speech lifecycle
+No continuousPTT
+No custom Capgo iOS audio-engine patch
+Transcript event + getLastPartialResult polling fallback
+Listen visuals unchanged
