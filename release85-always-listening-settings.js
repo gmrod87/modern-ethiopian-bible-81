@@ -162,7 +162,7 @@ fs.copyFileSync('release85-settings.css',p('release85-settings.css'));
 if(fs.existsSync(p('manifest.webmanifest'))){const m=JSON.parse(fs.readFileSync(p('manifest.webmanifest'),'utf8'));m.start_url='/?v=85#home';fs.writeFileSync(p('manifest.webmanifest'),JSON.stringify(m))}
 
 for(const required of ["const V='85';",'/api/explain','requestVoiceExplanationJSON','id="bottomSettings"','Voice Commands','Night Mode','Privacy & Policies','About Hobah','ensurePersistentVoice','Ready • press play']){
-  const target=required.startsWith('id=')||required==='Voice Commands'||required==='Night Mode'||required==='Privacy & Policies'||required==='About Hobah'?html:app;
+  const target=required.startsWith('id=')?html:app;
   if(!target.includes(required))throw new Error('Release85 integration missing '+required);
 }
 if(html.includes('id="audioVoiceToggle"'))throw new Error('Release85 still contains Listen voice toggle');
