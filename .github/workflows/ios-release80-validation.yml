@@ -9,6 +9,9 @@ on:
       - 'package.json'
       - 'release*.js'
 
+permissions:
+  contents: write
+
 jobs:
   ios-release80:
     runs-on: macos-latest
@@ -68,3 +71,36 @@ jobs:
           name: hobah-release80-simulator-app
           path: native-ios/ios/build/Build/Products/Debug-iphonesimulator/App.app
           if-no-files-found: error
+      - name: Publish Release 80 validation status
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          JOB_STATUS: ${{ job.status }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          XCODE_VERSION="$(xcodebuild -version 2>/dev/null | tr '\n' ' ' || true)"
+          BODY=$(cat <<EOF
+          # Hobah Release 80 Validation
+
+          - status: ${JOB_STATUS}
+          - source_commit: ${GITHUB_SHA}
+          - run_id: ${GITHUB_RUN_ID}
+          - xcode: ${XCODE_VERSION:-unavailable}
+          - checked_at_utc: $(date -u +'%Y-%m-%dT%H:%M:%SZ')
+          - speech_engine: @capgo/capacitor-speech-recognition 8.1.0
+          - aec: playAndRecord + voiceChat + input/output voice processing
+          EOF
+          )
+          ENCODED="$(printf '%s' "$BODY" | base64)"
+          REPO="${GITHUB_REPOSITORY}"
+          STATUS_BRANCH="ci-release80-status"
+          if ! gh api "repos/${REPO}/git/ref/heads/${STATUS_BRANCH}" >/dev/null 2>&1; then
+            gh api -X POST "repos/${REPO}/git/refs" -f ref="refs/heads/${STATUS_BRANCH}" -f sha="${GITHUB_SHA}" >/dev/null
+          fi
+          OLD_SHA="$(gh api "repos/${REPO}/contents/release80-status.md?ref=${STATUS_BRANCH}" --jq '.sha' 2>/dev/null || true)"
+          if [ -n "$OLD_SHA" ]; then
+            gh api -X PUT "repos/${REPO}/contents/release80-status.md" -f message="Update Release 80 validation status" -f content="$ENCODED" -f branch="$STATUS_BRANCH" -f sha="$OLD_SHA" >/dev/null
+          else
+            gh api -X PUT "repos/${REPO}/contents/release80-status.md" -f message="Publish Release 80 validation status" -f content="$ENCODED" -f branch="$STATUS_BRANCH" >/dev/null
+          fi
