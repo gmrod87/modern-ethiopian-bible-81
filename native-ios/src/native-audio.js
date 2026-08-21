@@ -31,23 +31,40 @@ async function initAudio(){
   await HobahAudio.addListener('stateChange',e=>document.dispatchEvent(new CustomEvent('hobah:native-audio-state',{detail:e})));
 }
 
-let lastVoiceError='';
+let lastVoiceError='',voiceSessionSerial=0;
+const readyWaiters=new Set();
 function voiceText(event={}){
   const matches=Array.isArray(event.matches)?event.matches:[];
   return String(event.accumulatedText||event.accumulated||matches[0]||event.text||'').trim();
 }
+function resolveVoiceReady(event={}){
+  for(const fn of [...readyWaiters]){try{fn(event)}catch{}}
+  readyWaiters.clear();
+}
+function waitForVoiceReady(timeout=1200){
+  return new Promise(resolve=>{
+    let settled=false;
+    const done=event=>{if(settled)return;settled=true;clearTimeout(timer);readyWaiters.delete(done);resolve(event||null)};
+    const timer=setTimeout(()=>done(null),timeout);
+    readyWaiters.add(done);
+  });
+}
 async function initVoice(){
   await SpeechRecognition.addListener('partialResults',event=>{
     const text=voiceText(event);if(!text)return;
-    document.dispatchEvent(new CustomEvent('hobah:native-voice-transcript',{detail:{text,final:false,engine:'capgo'}}));
+    document.dispatchEvent(new CustomEvent('hobah:native-voice-transcript',{detail:{text,final:false,forced:!!event?.forced,restarting:!!event?.isRestarting,engine:'capgo'}}));
   });
   await SpeechRecognition.addListener('listeningState',event=>{
     const listening=event?.state==='started'||event?.status==='started';
-    document.dispatchEvent(new CustomEvent('hobah:native-voice-state',{detail:{listening,state:event?.state||event?.status||'',reason:event?.reason||'',errorCode:event?.errorCode||'',engine:'capgo'}}));
+    document.dispatchEvent(new CustomEvent('hobah:native-voice-state',{detail:{listening,state:event?.state||event?.status||'',reason:event?.reason||'',errorCode:event?.errorCode||'',sessionId:event?.sessionId||0,engine:'capgo'}}));
+  });
+  await SpeechRecognition.addListener('readyForNextSession',event=>{
+    resolveVoiceReady(event);
+    document.dispatchEvent(new CustomEvent('hobah:native-voice-ready',{detail:{sessionId:event?.sessionId||0,engine:'capgo'}}));
   });
   await SpeechRecognition.addListener('error',event=>{
     lastVoiceError=String(event?.message||event?.code||'Speech recognition error');
-    document.dispatchEvent(new CustomEvent('hobah:native-voice-state',{detail:{listening:false,error:lastVoiceError,errorCode:event?.code||'',engine:'capgo'}}));
+    document.dispatchEvent(new CustomEvent('hobah:native-voice-state',{detail:{listening:false,error:lastVoiceError,errorCode:event?.code||'',sessionId:event?.sessionId||0,engine:'capgo'}}));
   });
 }
 
@@ -56,27 +73,41 @@ async function requestVoicePermissions(){
   const status=result?.speechRecognition||'prompt';
   return {speech:status,microphone:status,engine:'capgo'};
 }
+async function settleExistingVoiceSession(){
+  const existing=await SpeechRecognition.isListening().catch(()=>({listening:false}));
+  if(!existing?.listening)return;
+  await SpeechRecognition.setPTTState({held:false}).catch(()=>{});
+  const ready=waitForVoiceReady();
+  await SpeechRecognition.forceStop().catch(()=>SpeechRecognition.stop().catch(()=>{}));
+  await ready;
+}
 async function startVoice(options={locale:'en-AU'}){
   await Promise.resolve(window.HobahNativeVoiceReady);
-  const language=options.locale||options.language||'en-AU';
+  const serial=++voiceSessionSerial,language=options.locale||options.language||'en-AU';
   const availability=await SpeechRecognition.available({language}).catch(()=>({available:false}));
   if(!availability?.available)throw new Error('Speech recognition is temporarily unavailable');
-  const existing=await SpeechRecognition.isListening().catch(()=>({listening:false}));
-  if(existing?.listening)await SpeechRecognition.forceStop().catch(()=>SpeechRecognition.stop().catch(()=>{}));
+  await settleExistingVoiceSession();
+  if(serial!==voiceSessionSerial)return;
   lastVoiceError='';
+  await SpeechRecognition.setPTTState({held:true}).catch(()=>{});
   await SpeechRecognition.start({
     language,
     maxResults:1,
     partialResults:true,
     addPunctuation:false,
     contextualStrings:VOICE_CONTEXT,
-    useOnDeviceRecognition:false
+    useOnDeviceRecognition:false,
+    continuousPTT:true
   });
 }
 async function stopVoice(){
+  ++voiceSessionSerial;
+  await SpeechRecognition.setPTTState({held:false}).catch(()=>{});
   const existing=await SpeechRecognition.isListening().catch(()=>({listening:false}));
   if(!existing?.listening)return;
+  const ready=waitForVoiceReady();
   await SpeechRecognition.forceStop().catch(()=>SpeechRecognition.stop().catch(()=>{}));
+  await ready;
 }
 async function getVoiceState(){
   const [listening,available,permissions,last,version]=await Promise.all([
@@ -94,7 +125,7 @@ async function getVoiceState(){
     microphonePermission:permission,
     lastTranscript:String(last?.text||last?.matches?.[0]||''),
     lastError:lastVoiceError,
-    engine:'capgo',
+    engine:'capgo-continuous',
     engineVersion:version?.version||'8.1.0'
   };
 }
