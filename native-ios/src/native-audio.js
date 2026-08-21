@@ -20,9 +20,9 @@ function requireOnline(){if(window.HOBAH_NETWORK_CONNECTED===false)throw new Err
 async function prepare({text,mode='normal',voice=selectedVoice()}){
   requireOnline();const id=keyFor(text,mode,voice);await HobahAudio.prepare({id,text,mode,voice});return id;
 }
-async function play({text,mode='normal',voice=selectedVoice(),title='Hobah',subtitle='The Ancient Canon',rate=1}){
+async function play({text,mode='normal',voice=selectedVoice(),title='Hobah',subtitle='The Ancient Canon',rate=1,forcePlayback=false}){
   requireOnline();const id=keyFor(text,mode,voice);
-  await HobahAudio.play({id,text,mode,voice,title,subtitle,rate});return id;
+  await HobahAudio.play({id,text,mode,voice,title,subtitle,rate,forcePlayback:!!forcePlayback});return id;
 }
 async function initAudio(){
   await HobahAudio.addListener('ended',e=>document.dispatchEvent(new CustomEvent('hobah:native-audio-ended',{detail:e})));
