@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "prepare:web": "node scripts/prepare-web.mjs && node scripts/patch-native-voice.mjs",
+    "prepare:web": "node scripts/prepare-web.mjs && node scripts/patch-native-voice.mjs && node scripts/patch-capgo-speech.mjs",
     "build:bridge": "node scripts/build-bridge.mjs",
     "ios:init": "npm run prepare:web && npm run build:bridge && node scripts/init-ios.mjs && node scripts/post-ios.mjs",
     "ios:sync": "npm run prepare:web && npm run build:bridge && node scripts/init-ios.mjs && npx cap sync ios && node scripts/post-ios.mjs && npm run doctor",
