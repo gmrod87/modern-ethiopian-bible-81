@@ -1,5 +1,0 @@
-Release 81 Listen rebuild visual contract
-- Do not change Listen HTML structure.
-- Do not change Listen CSS.
-- Preserve existing audioDock, audioTop, audioTransport and audioModes controls.
-- Behavior only: Listen opens controls without playback; Voice Commands is opt-in; Play/Pause remains ready.
