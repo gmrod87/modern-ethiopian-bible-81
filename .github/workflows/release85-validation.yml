@@ -29,8 +29,9 @@ jobs:
           grep -F "requestVoiceExplanationJSON" dist/app.js
           grep -F "ensurePersistentVoice" dist/app.js
           grep -F "bottomSettings" dist/index.html
-          grep -F "Privacy & Policies" dist/index.html
-          grep -F "Night Mode" dist/index.html
+          grep -F "Privacy & Policies" dist/app.js
+          grep -F "Night Mode" dist/app.js
+          grep -F "Voice Commands" dist/app.js
           grep -F "Ready • press play" dist/app.js
           ! grep -F 'id="audioVoiceToggle"' dist/index.html
           grep -F "'/api/explain'" dist/app.js
@@ -49,6 +50,7 @@ jobs:
           grep -F "requestVoiceExplanationJSON" native-ios/www/app.js
           grep -F "ensurePersistentVoice" native-ios/www/app.js
           grep -F "HOBAH_API_BASE" native-ios/www/app.js
+          grep -F "Privacy & Policies" native-ios/www/app.js
       - name: Build native bridge
         working-directory: native-ios
         run: npm run build:bridge
