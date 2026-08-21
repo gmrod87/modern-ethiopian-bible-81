@@ -1,0 +1,4 @@
+Hobah Release 81 production compiler validation
+Listen behavior: open controls only, no autoplay
+Voice Commands: explicit opt-in, continuous native session
+Visual changes: none
