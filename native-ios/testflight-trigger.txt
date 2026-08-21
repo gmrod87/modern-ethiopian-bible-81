@@ -1,14 +1,13 @@
 Hobah TestFlight upload trigger
-Requested: 2026-08-21 15:39 AEST
+Requested: 2026-08-21 16:30 AEST
 Version: 1.0.0
 Bundle ID: com.hobah.bible
 Apple signing mode: Manual App Store profile
-Release 87 Settings opener crash fix
-Release 87: fixes Build 22 Settings failure caused by calling .forEach() on the single-element $() helper
-Release 87: bottom nav active-state iteration now uses document.querySelectorAll('.bottomNav button')
-Release 87: Settings dialog is created before nav state updates
-Release 87: voice/night toggles are null-safe
-Release 87: showModal has an open-attribute fallback
-Release 87: haptics remain restored and unchanged from Release 86
-Release 87: Listen remains playback-only; Voice Commands stay in Settings
-Final TestFlight trigger: Release 87 Settings open fix
+Release 88 Explain That voice handoff fix
+Release 87 Settings opener fix remains included
+Release 88: duplicate interim “explain” transcripts are ignored while Study AI is already processing
+Release 88: stale recognition transcripts are blocked briefly after Study AI finishes
+Release 88: native Study narration waits for HobahNativeAudioReady before playback
+Release 88: Study AI explanation is spoken through the native iOS audio path and Scripture resumes afterward
+Release 88: Stop/cancel behavior remains available during an active explanation
+Final TestFlight trigger: Release 88 Explain That native audio fix
