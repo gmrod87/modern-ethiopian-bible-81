@@ -1,17 +1,17 @@
 Hobah TestFlight upload trigger
-Requested: 2026-08-21 11:31 AEST
+Requested: 2026-08-21 12:15 AEST
 Version: 1.0.0
 Bundle ID: com.hobah.bible
 Apple signing mode: Manual App Store profile
-Validation fixes: multitasking plist + opaque app icons
-Upload fix: absolute signed IPA path
-Brand update: HD cream gold Hobah H app icon
-Release 80: replaced the custom Hobah SFSpeechRecognizer lifecycle with @capgo/capacitor-speech-recognition 8.1.0
-Release 80: stale iOS recognition sessions are explicitly settled before a new recognition session starts
-Release 80: live partial transcripts, listening state, native error events and forceStop are wired into the existing Hobah Voice Commands interface
-Release 80: simultaneous Scripture playback + microphone capture uses playAndRecord / voiceChat
-Release 80: voice processing is enabled on both input and output audio nodes for acoustic echo cancellation while Hobah narrates
-Release 80: existing Study AI explain-read-resume flow and Female / Deep Male narrator controls are preserved
-Release 80 isolated validation: success
-Release 80 production compiler validation: success on source commit a897af5701efc87ffff958df08a3881ebf86b74b (Xcode 26.6)
-Final TestFlight trigger: Release 80 maintained speech engine
+Release 81 Listen rebuild: visuals unchanged
+Release 81 Listen rebuild: tapping Listen opens the existing control dock only and does not start Scripture automatically
+Release 81 Listen rebuild: Voice Commands is off by default and must be turned on from the control dock
+Release 81 Listen rebuild: Play/Pause remains ready and independent from microphone state
+Release 81 Listen rebuild: playback, Voice Commands, and Study AI handoff now use separate explicit state
+Release 81 Voice Commands: maintained Capgo speech engine runs as continuous PTT while enabled
+Release 81 Voice Commands: deterministic force-stop / readyForNextSession teardown prevents stale recognition sessions
+Release 81 Voice Commands: Study AI temporarily suspends the microphone and restores it without losing the user's Voice Commands toggle
+Release 81 native packaging: no longer rewrites the Listen state machine after the web build
+Release 81 production compiler validation: success on merge source commit 4e5766491274f3b36ed0ea891605dbd5c7b8172b (Xcode 26.6)
+Release 81 compiled simulator artifact verified: V=81, open-only Listen handler present, old autoplay handler absent, continuous native speech bridge present
+Final TestFlight trigger: Release 81 Listen rebuild
