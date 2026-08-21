@@ -1,14 +1,13 @@
 Hobah TestFlight upload trigger
-Requested: 2026-08-22 09:02 AEST
+Requested: 2026-08-22 09:24 AEST
 Version: 1.0.0
 Bundle ID: com.hobah.bible
 Apple signing mode: Manual App Store profile
-Release 91 App Store loading screen polish
-Release 91: preserves the complete Release 90 voice and Study AI rebuild
-Release 91: native splash remains visible for approximately 2 seconds instead of hiding after 180 ms
-Release 91: removes the opaque square canvas from the splash-only Hobah mark so there is no pale/white box around the logo
-Release 91: keeps the App Store icon itself unchanged and fully opaque for Apple validation
-Release 91: adds small centered “The Ancient Canon” text near the bottom in warm gold/tan
-Release 91: keeps the cream #F3EFE5 native launch background and removes the spinner
-Release 91: Xcode 26 iPhone/iPad simulator compile passed on commit 785140df80fddcf10516619a6277ab58e44ad2ce
-Final TestFlight trigger: Release 91 polished loading screen
+Release 92 iPhone splash placement polish
+Release 92: preserves the complete Release 91 loading-screen design and 2-second duration
+Release 92: moves the Hobah logo upward on the native iPhone/iPad splash
+Release 92: moves “The Ancient Canon” upward so it sits clear of the iPhone home indicator area
+Release 92: keeps the cream #F3EFE5 background, borderless splash mark, and no spinner
+Release 92: does not change Study AI, voice, navigation, reading, or App Store icon behavior
+Release 92: Xcode 26 iPhone/iPad simulator compile passed on commit cdbbb1d473679ba8026b3a836e89beaeb0b2a156
+Final TestFlight trigger: Release 92 splash placement polish
