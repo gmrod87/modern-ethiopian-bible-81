@@ -1,16 +1,13 @@
 Hobah TestFlight upload trigger
-Requested: 2026-08-21 17:57 AEST
+Requested: 2026-08-22 08:55 AEST
 Version: 1.0.0
 Bundle ID: com.hobah.bible
 Apple signing mode: Manual App Store profile
-Release 90 complete voice software rebuild
-Release 90: keeps the Voice Commands toggle in Settings and preserves the existing UI exactly
-Release 90: replaces accumulated voice patches with one clean voice-command state machine
-Release 90: Scripture and Study AI now use separate native AVAudioPlayer channels
-Release 90: “explain that” pauses Scripture without destroying its player or position
-Release 90: Study AI generates the answer, reads the full explanation aloud, then Scripture resumes from the exact paused position
-Release 90: Voice Commands reconnect only after the explanation and Scripture handoff complete
-Release 90: voice-issued Stop/Pause still remembers to resume after “explain that”
-Release 90: native Study events are isolated from the Scripture queue
-Release 90: Xcode 26 iPhone/iPad simulator compile passed on commit 12fb6c29aff66bd08b3d4ef17512b92ce25a6e49
-Final TestFlight trigger: Release 90 rebuilt voice engine
+Release 91 App Store loading screen polish
+Release 91: preserves the complete Release 90 voice and Study AI rebuild
+Release 91: native splash remains visible for approximately 2 seconds instead of hiding after 180 ms
+Release 91: removes the opaque square canvas from the splash-only Hobah mark so there is no pale/white box around the logo
+Release 91: keeps the App Store icon itself unchanged and fully opaque for Apple validation
+Release 91: adds small centered “The Ancient Canon” text near the bottom in warm gold/tan
+Release 91: keeps the cream #F3EFE5 native launch background and removes the spinner
+Final TestFlight trigger: Release 91 polished loading screen
