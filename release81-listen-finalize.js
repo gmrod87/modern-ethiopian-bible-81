@@ -30,9 +30,16 @@ app=app.replace(
   "      const s=await window.HobahNativeVoice?.getState?.().catch(()=>null);",
   "      const s=window.HobahNativeVoice?await window.HobahNativeVoice.getState().catch(()=>null):null;"
 );
+app=app.replace(
+  "  await stopVoiceCommands({silent:true}).catch(()=>{});\n  const items=await listenItemsForChapter(b,c);",
+  "  stopVoiceCommands({silent:true}).catch(()=>{});\n  const items=await listenItemsForChapter(b,c);"
+);
+app=app.replace(
+  "  await stopVoiceCommands({silent:true}).catch(()=>{});\n  prepareListenQueue(b,c,buildVerseItems([v]),0);",
+  "  stopVoiceCommands({silent:true}).catch(()=>{});\n  prepareListenQueue(b,c,buildVerseItems([v]),0);"
+);
 
 for(const required of ['function suspendRecognitionForStudy(){','function resumeRecognitionAfterStudy(){','Ready • press play or turn on Voice Commands'])if(!app.includes(required))throw new Error('Release81 finalize missing '+required);
 fs.writeFileSync(p('app.js'),app);
 execFileSync(process.execPath,['--check',p('app.js')],{stdio:'inherit'});
 console.log('Hobah Release 81 finalized: Study AI voice handoff preserved; Listen visuals untouched');
-// validation trigger: Release 81 Listen rebuild source frozen after behavior split
