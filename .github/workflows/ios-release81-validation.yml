@@ -9,6 +9,9 @@ on:
       - 'native-ios/**'
       - '.github/workflows/ios-release81-validation.yml'
 
+permissions:
+  contents: write
+
 jobs:
   listen-release81:
     runs-on: macos-latest
@@ -74,8 +77,43 @@ jobs:
           fi
           test -d ios/build/Build/Products/Debug-iphonesimulator/App.app
       - name: Archive compiled app
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: hobah-release81-listen-simulator
           path: native-ios/ios/build/Build/Products/Debug-iphonesimulator/App.app
           if-no-files-found: error
+      - name: Publish Release 81 validation status
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          JOB_STATUS: ${{ job.status }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          BODY=$(cat <<EOF
+          # Hobah Release 81 Listen Validation
+
+          - status: ${JOB_STATUS}
+          - source_commit: ${GITHUB_SHA}
+          - run_id: ${GITHUB_RUN_ID}
+          - checked_at_utc: $(date -u +'%Y-%m-%dT%H:%M:%SZ')
+          - listen_open_only: enabled
+          - voice_commands_opt_in: enabled
+          - visual_changes: none
+          - speech_engine: capgo continuous PTT
+          - simulator_target: iPhone/iPad
+          EOF
+          )
+          ENCODED="$(printf '%s' "$BODY" | base64)"
+          REPO="${GITHUB_REPOSITORY}"
+          STATUS_BRANCH="ci-release81-status"
+          if ! gh api "repos/${REPO}/git/ref/heads/${STATUS_BRANCH}" >/dev/null 2>&1; then
+            gh api -X POST "repos/${REPO}/git/refs" -f ref="refs/heads/${STATUS_BRANCH}" -f sha="${GITHUB_SHA}" >/dev/null
+          fi
+          OLD_SHA="$(gh api "repos/${REPO}/contents/release81-status.md?ref=${STATUS_BRANCH}" --jq '.sha' 2>/dev/null || true)"
+          if [ -n "$OLD_SHA" ]; then
+            gh api -X PUT "repos/${REPO}/contents/release81-status.md" -f message="Update Release 81 validation status" -f content="$ENCODED" -f branch="$STATUS_BRANCH" -f sha="$OLD_SHA" >/dev/null
+          else
+            gh api -X PUT "repos/${REPO}/contents/release81-status.md" -f message="Publish Release 81 validation status" -f content="$ENCODED" -f branch="$STATUS_BRANCH" >/dev/null
+          fi
