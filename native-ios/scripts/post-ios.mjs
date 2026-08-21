@@ -61,10 +61,20 @@ await writeFile(path.join(iconDir,'Contents.json'),JSON.stringify({images,info:{
 const splashDir=path.join(appRoot,'Assets.xcassets','Splash.imageset');
 if(existsSync(path.dirname(splashDir))){
   await mkdir(splashDir,{recursive:true});
-  const logo=await sharp(iconSvg).resize(760,760).flatten({background:'#F3EFE5'}).removeAlpha().png({palette:false}).toBuffer();
+
+  // The App Store icon intentionally has a full opaque canvas. For the splash,
+  // remove only that canvas so the raised Hobah mark sits directly on the launch
+  // background instead of looking like a pale square with a white border.
+  const splashMarkSvg=Buffer.from(iconSvg.toString('utf8').replace(/\s*<rect width="1024" height="1024" fill="url\(#page\)"\/>\s*/,'\n'));
+  const logo=await sharp(splashMarkSvg).resize(820,820,{fit:'contain'}).png({palette:false}).toBuffer();
+  const caption=Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="2732" height="2732"><text x="1366" y="2485" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="60" font-weight="600" letter-spacing="5" fill="#B08A4F">The Ancient Canon</text></svg>`);
   const filenames=['splash-2732x2732.png','splash-2732x2732-1.png','splash-2732x2732-2.png'];
   for(const filename of filenames){
-    await sharp({create:{width:2732,height:2732,channels:3,background:'#F3EFE5'}}).composite([{input:logo,gravity:'centre'}]).removeAlpha().png({palette:false}).toFile(path.join(splashDir,filename));
+    await sharp({create:{width:2732,height:2732,channels:3,background:'#F3EFE5'}})
+      .composite([{input:logo,gravity:'centre'},{input:caption,left:0,top:0}])
+      .removeAlpha()
+      .png({palette:false})
+      .toFile(path.join(splashDir,filename));
   }
   const splashContents={images:[
     {idiom:'universal',filename:filenames[0],scale:'1x'},
@@ -74,4 +84,4 @@ if(existsSync(path.dirname(splashDir))){
   await writeFile(path.join(splashDir,'Contents.json'),JSON.stringify(splashContents,null,2));
 }
 
-console.log('Hobah iOS native settings, permissions, background audio, status bar, opaque icons and splash applied');
+console.log('Hobah iOS native settings, permissions, background audio, status bar, opaque icons and polished 2-second splash applied');
