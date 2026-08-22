@@ -1,0 +1,23 @@
+Ancient Library v2 diagnostic build
+UTC: 2026-08-22T22:25:42Z
+Commit: 253fc8c50484903fd958a928de68e20704c5b27d
+
++ git clone --depth 1 https://github.com/HistoricalChristianFaith/Writings-Database.git /home/runner/work/modern-ethiopian-bible-81/modern-ethiopian-bible-81/ancient-library/_sources-v2/Writings-Database
+Cloning into '/home/runner/work/modern-ethiopian-bible-81/modern-ethiopian-bible-81/ancient-library/_sources-v2/Writings-Database'...
+Updating files:  71% (4233/5898)Updating files:  72% (4247/5898)Updating files:  73% (4306/5898)Updating files:  74% (4365/5898)Updating files:  75% (4424/5898)Updating files:  76% (4483/5898)Updating files:  77% (4542/5898)Updating files:  78% (4601/5898)Updating files:  79% (4660/5898)Updating files:  80% (4719/5898)Updating files:  81% (4778/5898)Updating files:  82% (4837/5898)Updating files:  83% (4896/5898)Updating files:  84% (4955/5898)Updating files:  85% (5014/5898)Updating files:  86% (5073/5898)Updating files:  87% (5132/5898)Updating files:  88% (5191/5898)Updating files:  89% (5250/5898)Updating files:  90% (5309/5898)Updating files:  91% (5368/5898)Updating files:  92% (5427/5898)Updating files:  93% (5486/5898)Updating files:  94% (5545/5898)Updating files:  95% (5604/5898)Updating files:  96% (5663/5898)Updating files:  97% (5722/5898)Updating files:  98% (5781/5898)Updating files:  99% (5840/5898)Updating files: 100% (5898/5898)Updating files: 100% (5898/5898), done.
++ git clone --depth 1 https://github.com/beaudamore/biblical.git /home/runner/work/modern-ethiopian-bible-81/modern-ethiopian-bible-81/ancient-library/_sources-v2/biblical
+Cloning into '/home/runner/work/modern-ethiopian-bible-81/modern-ethiopian-bible-81/ancient-library/_sources-v2/biblical'...
+BUILT /home/runner/work/modern-ethiopian-bible-81/modern-ethiopian-bible-81/ancient-library/output-v2/The_Ancient_Library_Complete_Reading_Edition.pdf with 202 sections; missing core markers=['origen']
+
+EXIT_CODE=0
+PDF_EXISTS True
+MANIFEST_EXISTS True
+PDF_SIZE 16746073
+PAGES 3898
+SECTIONS 202
+CHARS 12838526
+MISSING ['origen']
+Traceback (most recent call last):
+  File "<stdin>", line 22, in <module>
+AssertionError: ['origen']
+VERIFY_EXIT_CODE=1
