@@ -1,5 +1,6 @@
 name: Build Complete Ancient Library V2
 
+# Final manual build trigger: 2026-08-23
 on:
   push:
     branches: [ancient-library-complete-book]
