@@ -1,5 +1,6 @@
 name: Build Complete Ancient Library PDF
 
+# Research build trigger: fixed builder 2026-08-22
 on:
   push:
     branches: [main, ancient-library-complete-book]
