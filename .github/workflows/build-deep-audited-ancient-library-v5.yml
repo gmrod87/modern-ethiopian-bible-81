@@ -1,0 +1,105 @@
+name: Build Deep Audited Ancient Library V5
+
+on:
+  push:
+    branches: [ancient-library-complete-book]
+    paths:
+      - 'ancient-library/build_complete_ancient_library_v5_deep_audit.py'
+      - '.github/workflows/build-deep-audited-ancient-library-v5.yml'
+  pull_request:
+    branches: [ancient-library-complete-book]
+    paths:
+      - 'ancient-library/build_complete_ancient_library_v5_deep_audit.py'
+      - '.github/workflows/build-deep-audited-ancient-library-v5.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-deep-audited:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout Ancient Library research branch
+        uses: actions/checkout@v4
+        with:
+          ref: ancient-library-complete-book
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install PDF dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fonts-dejavu-core fonts-liberation libpango-1.0-0 libpangoft2-1.0-0
+          python -m pip install --upgrade pip
+          pip install requests beautifulsoup4 lxml weasyprint pypdf
+
+      - name: Build deep audited Ancient Library v5
+        run: python ancient-library/build_complete_ancient_library_v5_deep_audit.py
+
+      - name: Verify deep audit
+        run: |
+          python - <<'PY'
+          from pypdf import PdfReader
+          import json, os, re
+          p='ancient-library/output-v2/The_Ancient_Library_Complete_Reading_Edition.pdf'
+          m='ancient-library/output-v2/ancient_library_complete_manifest.json'
+          a='ancient-library/output-v2/TEXTUAL_AUDIT.md'
+          data=json.load(open(m,encoding='utf-8'))
+          r=PdfReader(p)
+          print('PAGES',len(r.pages),'SIZE',os.path.getsize(p))
+          print('SECTIONS',data['section_count'],'CHARS',data['character_count'])
+          print('TIERS',data.get('audit_tier_counts'))
+          print('CLEANUP',data.get('content_cleanup'))
+          print('AI_EXCLUDED',data.get('excluded_ai_marked_sources'))
+          print('TRUE_MISSING',data.get('required_core_missing'))
+          assert data.get('audit_version') == '5.0'
+          assert data['section_count'] > 100
+          assert len(r.pages) > 500
+          assert os.path.getsize(p) > 1_000_000
+          assert os.path.getsize(a) > 500
+          assert not data['required_core_missing'], data['required_core_missing']
+          cleanup=data.get('content_cleanup',{})
+          assert 'The Testaments of the Twelve Patriarchs' in cleanup.get('editorial_sections_excluded', [])
+          assert len(cleanup.get('wdb_frontmatter_sections_cleaned', [])) > 50
+          aristides=[s for s in data['sections'] if 'Aristides' in s.get('title','')]
+          assert len(aristides) == 1 and 'Syriac witness' in aristides[0]['title']
+          c1=next(s for s in data['sections'] if s.get('title')=='1 Clement')
+          assert c1['text'].startswith('Chapter I.-The Salutation')
+          didache=next(s for s in data['sections'] if s.get('title')=='Didache')
+          assert didache['text'].count("The Lord's Teaching Through the Twelve Apostles to the Nations") <= 1
+          for s in data['sections']:
+              t=s.get('text','')
+              if 'beaudamore/biblical' in s.get('source','').lower():
+                  assert 'Sacred Texts\nBible\nApocrypha' not in t
+                  assert 'by Rutherford H. Platt, Jr.' not in t
+                  assert not re.search(r'(?m)^Next:\s+', t)
+              hay=(t+' '+s.get('provenance','')+' '+s.get('notes','')).lower()
+              markers=('translated into english via chatgpt','translated by chatgpt','translation by chatgpt','chatgpt translation','translated using chatgpt')
+              assert not any(x in hay for x in markers), s.get('source')
+          PY
+
+      - name: Upload deep audited edition
+        uses: actions/upload-artifact@v4
+        with:
+          name: ancient-library-deep-audit-v5
+          path: |
+            ancient-library/output-v2/The_Ancient_Library_Complete_Reading_Edition.pdf
+            ancient-library/output-v2/SOURCE_COVERAGE.md
+            ancient-library/output-v2/TEXTUAL_AUDIT.md
+            ancient-library/output-v2/ancient_library_complete_manifest.json
+          retention-days: 30
+
+      - name: Commit deep audited edition to research branch
+        if: github.event_name != 'pull_request'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add ancient-library/output-v2
+          git commit -m 'Build deep audited Ancient Library v5 edition' || exit 0
+          git push origin HEAD:ancient-library-complete-book
