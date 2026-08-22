@@ -6,6 +6,7 @@ on:
     branches: [ancient-library-complete-book]
     paths:
       - 'ancient-library/build_complete_ancient_library_v2.py'
+      - 'ancient-library/FINAL_BUILD_TRIGGER'
       - '.github/workflows/build-complete-ancient-library-v2.yml'
   pull_request:
     branches: [main]
