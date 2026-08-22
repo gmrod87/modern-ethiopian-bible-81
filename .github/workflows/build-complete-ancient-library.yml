@@ -1,8 +1,14 @@
 name: Build Complete Ancient Library PDF
 
+# Fixed-build trigger: 2026-08-22
 on:
   push:
     branches: [main, ancient-library-complete-book]
+    paths:
+      - 'ancient-library/build_complete_ancient_library.py'
+      - '.github/workflows/build-complete-ancient-library.yml'
+  pull_request:
+    branches: [main]
     paths:
       - 'ancient-library/build_complete_ancient_library.py'
       - '.github/workflows/build-complete-ancient-library.yml'
@@ -61,6 +67,7 @@ jobs:
           retention-days: 30
 
       - name: Commit generated sources and PDF to research branch
+        if: github.event_name != 'pull_request'
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
