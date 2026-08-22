@@ -2,7 +2,7 @@ name: Build Complete Ancient Library PDF
 
 on:
   push:
-    branches: [ancient-library-complete-book]
+    branches: [main, ancient-library-complete-book]
     paths:
       - 'ancient-library/build_complete_ancient_library.py'
       - '.github/workflows/build-complete-ancient-library.yml'
@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 45
     steps:
-      - name: Checkout
+      - name: Checkout research build branch
         uses: actions/checkout@v4
         with:
           ref: ancient-library-complete-book
@@ -42,10 +42,11 @@ jobs:
           test -s ancient-library/output/The_Ancient_Canon_Complete_Ancient_Library.pdf
           python - <<'PY'
           from pypdf import PdfReader
+          import os
           p='ancient-library/output/The_Ancient_Canon_Complete_Ancient_Library.pdf'
           r=PdfReader(p)
           print('PAGES',len(r.pages))
-          print('SIZE',__import__('os').path.getsize(p))
+          print('SIZE',os.path.getsize(p))
           assert len(r.pages) > 100, 'Anthology unexpectedly short'
           PY
 
