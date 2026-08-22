@@ -5,11 +5,13 @@ on:
     branches: [main, ancient-library-complete-book]
     paths:
       - 'ancient-library/build_complete_ancient_library.py'
+      - 'ancient-library/build_complete_ancient_library_v2.py'
       - '.github/workflows/build-complete-ancient-library.yml'
   pull_request:
     branches: [main]
     paths:
       - 'ancient-library/build_complete_ancient_library.py'
+      - 'ancient-library/build_complete_ancient_library_v2.py'
       - '.github/workflows/build-complete-ancient-library.yml'
   workflow_dispatch:
 
@@ -19,9 +21,9 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 60
     steps:
-      - name: Checkout research build branch
+      - name: Checkout Ancient Library research branch
         uses: actions/checkout@v4
         with:
           ref: ancient-library-complete-book
@@ -39,37 +41,41 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests beautifulsoup4 lxml weasyprint pypdf
 
-      - name: Build anthology
-        run: python ancient-library/build_complete_ancient_library.py
+      - name: Build complete Ancient Library v2
+        run: python ancient-library/build_complete_ancient_library_v2.py
 
-      - name: Verify PDF
+      - name: Verify PDF and corpus
         run: |
-          test -s ancient-library/output/The_Ancient_Canon_Complete_Ancient_Library.pdf
           python - <<'PY'
           from pypdf import PdfReader
-          import os
-          p='ancient-library/output/The_Ancient_Canon_Complete_Ancient_Library.pdf'
+          import json, os
+          p='ancient-library/output-v2/The_Ancient_Library_Complete_Reading_Edition.pdf'
+          m='ancient-library/output-v2/ancient_library_complete_manifest.json'
+          assert os.path.getsize(p) > 1_000_000, 'PDF unexpectedly small'
           r=PdfReader(p)
-          print('PAGES',len(r.pages))
-          print('SIZE',os.path.getsize(p))
-          assert len(r.pages) > 100, 'Anthology unexpectedly short'
+          print('PAGES',len(r.pages),'SIZE',os.path.getsize(p))
+          assert len(r.pages) > 500, 'Anthology unexpectedly short'
+          data=json.load(open(m,encoding='utf-8'))
+          print('SECTIONS',data['section_count'],'CHARS',data['character_count'])
+          assert data['section_count'] > 100
+          assert not data['required_core_missing'], data['required_core_missing']
           PY
 
       - name: Upload build artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ancient-library-complete-book
+          name: ancient-library-complete-v2
           path: |
-            ancient-library/output/The_Ancient_Canon_Complete_Ancient_Library.pdf
-            ancient-library/output/SOURCE_COVERAGE.md
-            ancient-library/output/ancient_library_complete_manifest.json
+            ancient-library/output-v2/The_Ancient_Library_Complete_Reading_Edition.pdf
+            ancient-library/output-v2/SOURCE_COVERAGE.md
+            ancient-library/output-v2/ancient_library_complete_manifest.json
           retention-days: 30
 
-      - name: Commit generated sources and PDF to research branch
+      - name: Commit generated edition to research branch
         if: github.event_name != 'pull_request'
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add ancient-library/output
-          git commit -m 'Build complete Ancient Library reading edition' || exit 0
+          git add ancient-library/output-v2
+          git commit -m 'Build complete Ancient Library v2 reading edition' || exit 0
           git push origin HEAD:ancient-library-complete-book
