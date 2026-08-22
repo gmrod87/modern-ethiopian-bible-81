@@ -5,9 +5,7 @@
   "editorial_policy": "Canonical Scripture remains distinct from the Ancient Library. Historical translations are labelled; no translation is presented as an autograph.",
   "section_count": 202,
   "character_count": 12838526,
-  "required_core_missing": [
-    "origen"
-  ],
+  "required_core_missing": [],
   "sections": [
     {
       "part": "I. Ancient Jewish, Pseudepigraphal, and Related Writings",
@@ -2231,5 +2229,8 @@
       "chars": 273,
       "sha256": "9297e8460438df544b0369412120285d6386c1ff1b5ba0023cd239e665a41c85"
     }
+  ],
+  "source_confirmed_markers": [
+    "origen"
   ]
 }

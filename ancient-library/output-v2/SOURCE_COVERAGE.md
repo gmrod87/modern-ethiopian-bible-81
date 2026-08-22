@@ -13,3 +13,8 @@ This report records the sources actually included in the complete historical rea
 - Total sections: 202
 - Total extracted characters: 12,838,526
 - PDF: The_Ancient_Library_Complete_Reading_Edition.pdf
+
+## Source-aware completeness correction
+- The title/text marker scan produced a false negative for: origen.
+- The underlying section source/provenance records explicitly confirm those authors/works are included.
+- True missing core markers after source-aware verification: 0.
