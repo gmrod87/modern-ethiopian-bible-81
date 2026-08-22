@@ -1,17 +1,12 @@
 name: Build Complete Ancient Library V2
 
-# Final manual build trigger: 2026-08-23
+# Final diagnostic build: 2026-08-23
 on:
   push:
     branches: [ancient-library-complete-book]
     paths:
       - 'ancient-library/build_complete_ancient_library_v2.py'
       - 'ancient-library/FINAL_BUILD_TRIGGER'
-      - '.github/workflows/build-complete-ancient-library-v2.yml'
-  pull_request:
-    branches: [main]
-    paths:
-      - 'ancient-library/build_complete_ancient_library_v2.py'
       - '.github/workflows/build-complete-ancient-library-v2.yml'
   workflow_dispatch:
 
@@ -41,41 +36,84 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests beautifulsoup4 lxml weasyprint pypdf
 
-      - name: Build The Ancient Library
-        run: python ancient-library/build_complete_ancient_library_v2.py
+      - name: Build The Ancient Library and capture diagnostics
+        id: build
+        shell: bash
+        run: |
+          set +e
+          mkdir -p ancient-library/output-v2
+          {
+            echo "Ancient Library v2 diagnostic build"
+            echo "UTC: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "Commit: $GITHUB_SHA"
+            echo
+            python ancient-library/build_complete_ancient_library_v2.py
+            code=$?
+            echo
+            echo "EXIT_CODE=$code"
+            exit $code
+          } > ancient-library/BUILD_STATUS.txt 2>&1
+        continue-on-error: true
 
       - name: Verify PDF and core corpus
+        id: verify
+        shell: bash
         run: |
-          python - <<'PY'
+          set +e
+          {
+            python - <<'PY'
           from pypdf import PdfReader
           import json, os
           p='ancient-library/output-v2/The_Ancient_Library_Complete_Reading_Edition.pdf'
           m='ancient-library/output-v2/ancient_library_complete_manifest.json'
-          assert os.path.getsize(p) > 1_000_000
+          print('PDF_EXISTS', os.path.exists(p))
+          print('MANIFEST_EXISTS', os.path.exists(m))
+          if os.path.exists(p):
+              print('PDF_SIZE', os.path.getsize(p))
+              r=PdfReader(p)
+              print('PAGES', len(r.pages))
+          if os.path.exists(m):
+              data=json.load(open(m,encoding='utf-8'))
+              print('SECTIONS', data.get('section_count'))
+              print('CHARS', data.get('character_count'))
+              print('MISSING', data.get('required_core_missing'))
+          assert os.path.exists(p), 'PDF missing'
+          assert os.path.getsize(p) > 1_000_000, 'PDF unexpectedly small'
           r=PdfReader(p)
-          print('PAGES',len(r.pages),'SIZE',os.path.getsize(p))
-          assert len(r.pages) > 500
+          assert len(r.pages) > 500, 'Anthology unexpectedly short'
           data=json.load(open(m,encoding='utf-8'))
-          print('SECTIONS',data['section_count'],'CHARS',data['character_count'])
           assert data['section_count'] > 100
           assert not data['required_core_missing'], data['required_core_missing']
           PY
+            code=$?
+            echo "VERIFY_EXIT_CODE=$code"
+            exit $code
+          } >> ancient-library/BUILD_STATUS.txt 2>&1
+        continue-on-error: true
 
-      - name: Upload artifact
+      - name: Commit diagnostics and generated edition
+        if: always()
+        shell: bash
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add ancient-library/BUILD_STATUS.txt ancient-library/output-v2 || true
+          git commit -m 'Ancient Library v2 build result' || exit 0
+          git push origin HEAD:ancient-library-complete-book
+
+      - name: Upload artifact when present
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ancient-library-complete-v2
+          if-no-files-found: ignore
           path: |
+            ancient-library/BUILD_STATUS.txt
             ancient-library/output-v2/The_Ancient_Library_Complete_Reading_Edition.pdf
             ancient-library/output-v2/SOURCE_COVERAGE.md
             ancient-library/output-v2/ancient_library_complete_manifest.json
           retention-days: 30
 
-      - name: Commit generated edition to research branch
-        if: github.event_name != 'pull_request'
-        run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git add ancient-library/output-v2
-          git commit -m 'Build complete Ancient Library v2 reading edition' || exit 0
-          git push origin HEAD:ancient-library-complete-book
+      - name: Fail if build or verification failed
+        if: steps.build.outcome != 'success' || steps.verify.outcome != 'success'
+        run: exit 1
