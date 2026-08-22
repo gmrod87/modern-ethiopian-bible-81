@@ -6,6 +6,11 @@ on:
     paths:
       - 'ancient-library/build_complete_ancient_library_v4_critical_audit.py'
       - '.github/workflows/build-critical-audited-ancient-library-v4.yml'
+  pull_request:
+    branches: [ancient-library-complete-book]
+    paths:
+      - 'ancient-library/build_complete_ancient_library_v4_critical_audit.py'
+      - '.github/workflows/build-critical-audited-ancient-library-v4.yml'
   workflow_dispatch:
 
 permissions:
@@ -61,12 +66,10 @@ jobs:
           assert os.path.getsize(a) > 500
           cleanup=data.get('content_cleanup',{})
           assert 'The Testaments of the Twelve Patriarchs' in cleanup.get('editorial_sections_excluded', [])
-          # Only one Aristides reading section should remain.
           aristides=[s for s in data['sections'] if 'Aristides' in s.get('title','')]
           print('ARISTIDES_SECTIONS', [s['title'] for s in aristides])
           assert len(aristides) == 1
           assert 'Syriac witness' in aristides[0]['title']
-          # Sacred-Texts navigation and the most obvious Platt boilerplate must be gone from FBE reading bodies.
           for s in data['sections']:
               if 'beaudamore/biblical' in s.get('source','').lower():
                   t=s.get('text','')
@@ -87,6 +90,7 @@ jobs:
           retention-days: 30
 
       - name: Commit critical audited edition to research branch
+        if: github.event_name != 'pull_request'
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
