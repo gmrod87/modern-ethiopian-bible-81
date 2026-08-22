@@ -1,5 +1,6 @@
 name: Build Critical Audited Ancient Library V4
 
+# Inspectable verification trigger: 2026-08-23
 on:
   push:
     branches: [ancient-library-complete-book]
