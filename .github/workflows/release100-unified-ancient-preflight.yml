@@ -1,0 +1,61 @@
+name: Release 100 Unified Ancient Books Preflight
+
+on:
+  push:
+    branches: [release100-unified-ancient-books]
+  pull_request:
+    branches: [main]
+    paths:
+      - 'release100-unified-ancient-books-postbuild.js'
+      - 'package.json'
+  workflow_dispatch:
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install web dependencies
+        run: npm install
+      - name: Build production Hobah
+        run: npm run build
+      - name: Verify Release 100 catalogue and reader
+        run: |
+          node --check release100-unified-ancient-books-postbuild.js
+          node --check dist/release94-ancient-library.js
+          node --check dist/app.js
+          node - <<'NODE'
+          const fs=require('fs');
+          const lib=fs.readFileSync('dist/release94-ancient-library.js','utf8');
+          const css=fs.readFileSync('dist/release97-ancient-library.css','utf8');
+          const app=fs.readFileSync('dist/app.js','utf8');
+          const html=fs.readFileSync('dist/index.html','utf8');
+          const checks=[
+            [lib.includes("const LIB_VERSION='100'"),'Release 100 runtime'],
+            [lib.includes('canonicalAncientTitle'),'canonical title grouping'],
+            [lib.includes("'The First Book of Adam and Eve'"),'clean Adam and Eve title'],
+            [lib.includes('chapterFingerprint'),'duplicate chapter removal'],
+            [lib.includes('chapterIndexHTML'),'bottom chapter index'],
+            [lib.includes('data-ancient-chapter-jump'),'chapter jump controls'],
+            [css.includes('.ancientChapterGrid'),'chapter grid styling'],
+            [app.includes("const V='100';"),'app cache version'],
+            [html.includes('v=100'),'asset cache bust']
+          ];
+          for(const [ok,name] of checks){if(!ok)throw new Error('Missing '+name);console.log('OK',name)}
+          NODE
+      - name: Install native dependencies
+        working-directory: native-ios
+        run: npm install
+      - name: Prepare native offline bundle
+        working-directory: native-ios
+        run: npm run prepare:web
+      - name: Bundle native bridge
+        working-directory: native-ios
+        run: npm run build:bridge
+      - name: Verify native bundle and doctor
+        working-directory: native-ios
+        run: npm run doctor
