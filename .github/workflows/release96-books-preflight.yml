@@ -3,6 +3,8 @@ name: Release 96 Books Navigation Preflight
 on:
   push:
     branches: [release96-books-sidebar-rebuild]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
