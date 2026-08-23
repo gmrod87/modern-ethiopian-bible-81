@@ -1,16 +1,17 @@
 Hobah TestFlight upload trigger
 Marketing Version: 1.0.0
-Expected Build Number: 32
+Expected Build Number: 33
 Bundle ID: com.hobah.bible
 Apple signing mode: Manual App Store profile
-Release 95 Books navigation and Ancient reader polish
-Build 32: fixes the Books drawer to a fixed-width vertical sidebar with no horizontal swipe drift
-Build 32: keeps Scripture and Ancient Library tabs, search and filter chips fully inside the sidebar
-Build 32: opens Ancient Library readings on the same main reader surface and typography system as Scripture
-Build 32: removes public-domain labels, provenance/source clutter and purchase references from the Ancient Library UI
-Build 32: strips Sacred Texts navigation, Amazon purchase lines, source URLs and imported page boilerplate from displayed reading text
-Build 32: derives cleaner reading titles from chapter headings when source page titles are generic
-Build 32: keeps Find collapsed until requested and retains previous/next reading navigation
-Build 32: preserves the audited Ancient Library corpus for offline reading
-Build 32: does not modify Study AI, Listen, audio, voice commands, TTS, realtime study, or their native bridges
-Final TestFlight trigger: Release 95 corrected Books experience
+Release 96 Books navigation rebuild
+Build 33: rebuilds the Books navigation from scratch around a fixed shell and dedicated vertical iOS scroller
+Build 33: keeps the header, Scripture / Ancient Library shelf switch, and search fixed and legible
+Build 33: removes horizontal overflow, column drift, nested scrolling and overlapping controls
+Build 33: uses simple 2x2 Scripture filters and one Ancient Library collection selector
+Build 33: uses larger, cleaner book and historical-reading cards with clear tap targets
+Build 33: opens Ancient Library readings on Hobah's normal Scripture-style reader surface and typography
+Build 33: provides reading selection, Find, text sizing, and previous / next navigation for Ancient Library readings
+Build 33: strips Sacred Texts navigation, Amazon purchase references, public-domain labels, source URLs and imported page boilerplate from displayed readings
+Build 33: preserves the frozen audited Ancient Library corpus for offline reading
+Build 33: does not modify Study AI, Listen, audio, voice commands, TTS, realtime study, or their native bridges
+Final TestFlight trigger: Release 96 rebuilt Books navigation
