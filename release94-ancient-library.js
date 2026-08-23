@@ -1,16 +1,17 @@
 (() => {
 'use strict';
 
-const LIB_VERSION='94';
+const LIB_VERSION='95';
 const LIB_URL=`/ancient-library.json?v=${LIB_VERSION}`;
-const state={manifest:null,loading:null,tab:'scripture',scriptureFilter:'all',ancientPart:'all',query:''};
+const state={manifest:null,loading:null,tab:'scripture',scriptureFilter:'all',ancientPart:'all',query:'',fontStep:1};
 const $=(s,r=document)=>r?.querySelector?.(s)||null;
 const $$=(s,r=document)=>r?.querySelectorAll?[...r.querySelectorAll(s)]:[];
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const clean=v=>String(v??'').replace(/\s+/g,' ').trim();
 const categoryLabel={ot:'Old Testament',eth:'Ethiopian Canon',nt:'New Testament'};
-const partShort=p=>String(p||'').replace(/^(?:I|II|III|IV|V)\.\s*/,'');
 const bookRoute=(slug,c=1)=>`#read/${slug}/${c}`;
+const chapterHeading=/^(?:CHAP(?:TER)?\.?\s+[IVXLCDM0-9]+\.?|BOOK(?:\s+[IVXLCDM0-9]+)?\.?|PART(?:\s+[IVXLCDM0-9]+)?\.?)/i;
+const genericTitle=/^(?:the\s+)?forgotten books of eden(?: collection)?$|^sacred texts?$|^apocrypha$|^index$|^ancient library$|^untitled$/i;
 
 async function loadManifest(){
   if(state.manifest)return state.manifest;
@@ -31,12 +32,74 @@ function closeDrawer(){
 function openDrawer(){
   $('#drawer')?.classList.add('open');$('#backdrop')?.classList.add('open');document.body.classList.add('locked');$('#bottomBooks')?.classList.add('active');
 }
+function closeSheet(){const sheet=$('#sheet');if(sheet?.open)sheet.close()}
+
+function partShort(p){
+  return clean(String(p||'').replace(/^(?:I|II|III|IV|V)\.\s*/,'').replace(/\s+collection$/i,''))||'Ancient Library';
+}
+
+function cleanAncientText(raw){
+  let lines=String(raw||'').replace(/\r/g,'').split('\n');
+  const trim=x=>clean(x);
+  const boilerplate=t=>{
+    if(!t)return false;
+    if(/^(?:sacred texts?|bible|apocrypha|index|previous|next|home)$/i.test(t))return true;
+    if(/buy\s+(?:this\s+)?book.*amazon|amazon\.com/i.test(t))return true;
+    if(/sacred[- ]texts\.com|www\.sacred[- ]texts/i.test(t))return true;
+    if(/^https?:\/\//i.test(t)||/^www\./i.test(t))return true;
+    if(/^public[- ]domain(?:\s+historical)?\s+translation\.?$/i.test(t))return true;
+    if(/^the forgotten books of eden\s*,?\s*by\b/i.test(t))return true;
+    if(/^rutherford h\.?\s*platt(?:,?\s*jr\.?)?.*(?:1926|sacred)/i.test(t))return true;
+    if(/^copyright\b/i.test(t))return true;
+    return false;
+  };
+
+  const firstHeading=lines.findIndex(line=>chapterHeading.test(trim(line)));
+  if(firstHeading>0){
+    const lead=lines.slice(0,firstHeading).map(trim).join(' ');
+    if(/sacred texts?|amazon|forgotten books of eden|rutherford h\.?\s*platt|apocrypha|\bindex\b/i.test(lead))lines=lines.slice(firstHeading);
+  }
+  lines=lines.filter(line=>!boilerplate(trim(line)));
+  return lines.join('\n').replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n').trim();
+}
+
+function ancientRecord(s){
+  const text=cleanAncientText(s?.text||'');
+  const lines=text.split('\n').map(v=>v.trim());
+  const nonEmpty=lines.map((v,i)=>[v,i]).filter(([v])=>v);
+  let rawTitle=clean(s?.title||'')
+    .replace(/\s*[-|:]\s*sacred[- ]texts?.*$/i,'')
+    .replace(/\s*[-|:]\s*internet sacred text archive.*$/i,'')
+    .replace(/\s*\(sacred[- ]texts?\).*$/i,'')
+    .trim();
+  let title=rawTitle||'Ancient text';
+  let bodyLines=[...lines];
+  const headingEntry=nonEmpty.find(([v])=>chapterHeading.test(v));
+  if(genericTitle.test(title)&&headingEntry){
+    const [heading,headingIndex]=headingEntry;
+    const next=lines.slice(headingIndex+1).find(v=>v&&v.length<=170&&!chapterHeading.test(v));
+    const prettyHeading=heading.replace(/^CHAP\.\s*/i,'Chapter ').replace(/^CHAPTER\s*/i,'Chapter ');
+    title=next?`${prettyHeading} — ${next}`:prettyHeading;
+    if(headingIndex===0){
+      bodyLines.shift();
+      while(bodyLines[0]==='')bodyLines.shift();
+      if(next&&bodyLines[0]?.trim()===next){bodyLines.shift();while(bodyLines[0]==='')bodyLines.shift()}
+    }
+  }else if(genericTitle.test(title)){
+    const first=nonEmpty.find(([v])=>v.length>2&&v.length<=150)?.[0];
+    if(first)title=first;
+  }
+  title=clean(title).replace(/^the forgotten books of eden\s*[-—:]\s*/i,'');
+  if(!title)title='Ancient text';
+  const body=bodyLines.join('\n').replace(/\n{3,}/g,'\n\n').trim()||text;
+  return {title,body,text,part:partShort(s?.part)};
+}
 
 function decorateDrawer(){
   const drawer=$('#drawer');if(!drawer||drawer.dataset.ancientLibrary==='1')return;
   drawer.dataset.ancientLibrary='1';drawer.classList.add('booksHubDrawer');
   drawer.innerHTML=`
-    <div class="drawerHead booksHubHead"><div><span class="eyebrow">HOBAH LIBRARY</span><h2>Books</h2><p>Scripture and historical texts, clearly separated.</p></div><button class="round" id="closeDrawer" type="button" aria-label="Close books">×</button></div>
+    <div class="drawerHead booksHubHead"><div><span class="eyebrow">HOBAH LIBRARY</span><h2>Books</h2></div><button class="round" id="closeDrawer" type="button" aria-label="Close books">×</button></div>
     <div class="booksHubTabs" role="tablist" aria-label="Library shelves"><button type="button" data-books-tab="scripture" class="active" role="tab" aria-selected="true"><b>Scripture</b><span>81 Books</span></button><button type="button" data-books-tab="ancient" role="tab" aria-selected="false"><b>Ancient Library</b><span id="ancientTabCount">Historical texts</span></button></div>
     <div class="booksHubSearch"><span>⌕</span><input id="booksHubSearchInput" type="search" autocomplete="off" spellcheck="false" placeholder="Search the 81 books…" aria-label="Search books"><button id="booksHubClear" type="button" aria-label="Clear search">×</button></div>
     <div id="booksHubChips" class="booksHubChips" aria-label="Book filters"></div><div id="booksHubStatus" class="booksHubStatus" aria-live="polite"></div><div id="booksHubContent" class="booksHubContent"></div>
@@ -64,7 +127,7 @@ function openBooksHub(tab='scripture',filter='all'){
 }
 function setTab(tab,focus=true){
   state.tab=tab;$$('[data-books-tab]').forEach(b=>{const on=b.dataset.booksTab===tab;b.classList.toggle('active',on);b.setAttribute('aria-selected',String(on))});
-  const input=$('#booksHubSearchInput');if(input){input.placeholder=tab==='ancient'?'Search titles, authors, sources or full text…':'Search the 81 books…';if(focus)setTimeout(()=>input.focus(),30)}
+  const input=$('#booksHubSearchInput');if(input){input.placeholder=tab==='ancient'?'Search Ancient Library…':'Search the 81 books…';if(focus)setTimeout(()=>input.focus(),30)}
   renderActiveShelf();
 }
 function renderActiveShelf(){state.tab==='ancient'?renderAncient():renderScripture()}
@@ -78,23 +141,24 @@ function renderScripture(){
 }
 
 function matchesAncient(s,q){
-  if(!q)return true;const n=q.toLowerCase();
-  return `${s.title||''} ${s.part||''} ${s.status||''} ${s.provenance||''} ${s.source||''} ${s.notes||''}`.toLowerCase().includes(n)||(n.length>=3&&String(s.text||'').toLowerCase().includes(n));
+  if(!q)return true;const n=q.toLowerCase(),r=ancientRecord(s);
+  return `${r.title} ${r.part} ${r.text}`.toLowerCase().includes(n);
 }
 function snippetFor(s,q){
-  if(!q)return clean(s.notes||s.provenance||s.text||'').slice(0,180);
-  const text=String(s.text||''),at=text.toLowerCase().indexOf(q.toLowerCase());if(at<0)return clean(s.notes||s.provenance||text).slice(0,180);
-  const start=Math.max(0,at-72),end=Math.min(text.length,at+q.length+128);return `${start?'…':''}${clean(text.slice(start,end))}${end<text.length?'…':''}`;
+  const r=ancientRecord(s),text=r.body||r.text;if(!text)return '';
+  if(!q)return clean(text).slice(0,175);
+  const at=text.toLowerCase().indexOf(q.toLowerCase());if(at<0)return clean(text).slice(0,175);
+  const start=Math.max(0,at-65),end=Math.min(text.length,at+q.length+115);return `${start?'…':''}${clean(text.slice(start,end))}${end<text.length?'…':''}`;
 }
 function paintAncient(m){
   if(!m||!Array.isArray(m.sections))return;
-  const parts=[...new Set(m.sections.map(s=>s.part).filter(Boolean))];
-  $('#ancientTabCount').textContent=`${m.section_count||m.sections.length} texts / sections`;
-  $('#booksHubChips').innerHTML=[`<button type="button" data-ancient-part="all" class="${state.ancientPart==='all'?'active':''}">All</button>`,...parts.map((p,i)=>`<button type="button" data-ancient-part="${i}" class="${state.ancientPart===String(i)?'active':''}">${esc(partShort(p))}</button>`)].join('');
+  const parts=[...new Set(m.sections.map(s=>partShort(s.part)).filter(Boolean))];
+  $('#ancientTabCount').textContent=`${m.section_count||m.sections.length} readings`;
+  $('#booksHubChips').innerHTML=[`<button type="button" data-ancient-part="all" class="${state.ancientPart==='all'?'active':''}">All</button>`,...parts.map((p,i)=>`<button type="button" data-ancient-part="${i}" class="${state.ancientPart===String(i)?'active':''}">${esc(p)}</button>`)].join('');
   const selected=state.ancientPart==='all'?null:parts[+state.ancientPart],q=state.query;
-  const matches=m.sections.filter(s=>(!selected||s.part===selected)&&matchesAncient(s,q)),shown=matches.slice(0,q?120:250);
-  $('#booksHubStatus').innerHTML=`<span>${matches.length} ${matches.length===1?'result':'texts / sections'}</span><small>${q?'Full-text search across the Ancient Library':'Historical reading witnesses · separate from Scripture'}</small>`;
-  $('#booksHubContent').innerHTML=shown.length?`<div class="ancientShelf">${shown.map(s=>`<button type="button" class="ancientTextCard" data-ancient-index="${s._i}"><span class="ancientCardTop"><em>${esc(partShort(s.part))}</em><i>›</i></span><b>${esc(clean(s.title)||`Ancient text ${s._i+1}`)}</b><small class="ancientStatus">${esc(s.status||'Historical text')}</small><p>${esc(snippetFor(s,q))}</p><span class="ancientSource">${esc(clean(s.provenance||s.source||''))}</span></button>`).join('')}</div>`:`<div class="booksEmpty"><b>No Ancient Library results</b><span>Try a title, writer, topic, or phrase from the text.</span></div>`;
+  const matches=m.sections.filter(s=>(!selected||partShort(s.part)===selected)&&matchesAncient(s,q)),shown=matches.slice(0,q?120:250);
+  $('#booksHubStatus').innerHTML=`<span>${matches.length} ${matches.length===1?'reading':'readings'}</span><small>${q?'Search across titles and text':'Historical texts · separate from Scripture'}</small>`;
+  $('#booksHubContent').innerHTML=shown.length?`<div class="ancientShelf">${shown.map(s=>{const r=ancientRecord(s);return `<button type="button" class="ancientTextCard" data-ancient-index="${s._i}"><span class="ancientCardTop"><em>${esc(r.part)}</em><i>›</i></span><b>${esc(r.title)}</b><p>${esc(snippetFor(s,q))}</p></button>`}).join('')}</div>`:`<div class="booksEmpty"><b>No Ancient Library results</b><span>Try another title, topic, or phrase from the text.</span></div>`;
 }
 async function renderAncient(){
   if(state.manifest){paintAncient(state.manifest);return}
@@ -106,9 +170,9 @@ async function renderAncient(){
 }
 
 function paragraphHTML(text,query=''){
-  const blocks=String(text||'').replace(/\r/g,'').trim().split(/\n\s*\n|\n(?=(?:CHAPTER|Chapter|BOOK|Book|[IVXLCDM]+\.?\s|\d+\.\s))/).filter(Boolean),q=query.trim();
+  const blocks=String(text||'').replace(/\r/g,'').trim().split(/\n\s*\n|\n(?=(?:CHAPTER|Chapter|CHAP\.|Book|BOOK|PART|Part|[IVXLCDM]+\.?\s|\d+\.\s))/).filter(Boolean),q=query.trim();
   return blocks.map(block=>{
-    const compact=block.trim(),isHead=compact.length<180&&/^(CHAPTER|Chapter|BOOK|Book|[IVXLCDM]+\.?\s|\d+\.\s)/.test(compact);let safe=esc(compact).replace(/\n/g,'<br>');
+    const compact=block.trim(),isHead=compact.length<180&&/^(?:CHAPTER|Chapter|CHAP\.|BOOK|Book|PART|Part|[IVXLCDM]+\.?\s|\d+\.\s)/.test(compact);let safe=esc(compact).replace(/\n/g,'<br>');
     if(q){const re=new RegExp(`(${q.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')})`,'gi');safe=safe.replace(re,'<mark>$1</mark>')}
     return isHead?`<h3>${safe}</h3>`:`<p>${safe}</p>`;
   }).join('');
@@ -116,25 +180,37 @@ function paragraphHTML(text,query=''){
 
 async function openAncientReader(index){
   try{
-    const m=await loadManifest(),s=m.sections[index];if(!s)return;closeDrawer();
-    const d=$('#sheet'),card=$('.sheetCard',d),body=$('#sheetBody',d),title=$('#sheetTitle',d);if(!d||!body||!title)return;
-    card?.classList.add('wide','ancientReaderSheet');title.textContent='Ancient Library';
-    body.innerHTML=`<article class="ancientReader"><header class="ancientReaderHero"><span class="eyebrow">${esc(partShort(s.part))}</span><h1>${esc(clean(s.title)||'Ancient text')}</h1><p>${esc(s.status||'Historical reading witness')}</p></header><section class="ancientAbout"><div><b>About this text</b><span>${esc(s.notes||'This historical reading witness is kept distinct from the primary 81-book Scripture collection.')}</span></div><dl><dt>Status</dt><dd>${esc(s.status||'Historical text')}</dd><dt>Provenance</dt><dd>${esc(s.provenance||'Source-controlled Ancient Library corpus')}</dd><dt>Source</dt><dd>${esc(s.source||'See corpus record')}</dd></dl></section><div class="ancientReaderFind"><span>⌕</span><input id="ancientReaderSearch" type="search" placeholder="Find in this text…" aria-label="Find in this text"><button type="button" id="ancientReaderFindBtn">Find</button><button type="button" id="ancientReaderClearBtn">Clear</button></div><div id="ancientReaderMatchStatus" class="ancientReaderMatchStatus"></div><section id="ancientReaderText" class="ancientReaderText">${paragraphHTML(s.text)}</section><footer class="ancientReaderNav"><button type="button" id="ancientPrev" ${index<=0?'disabled':''}>‹ Previous text</button><button type="button" id="ancientBackToShelf">Ancient Library</button><button type="button" id="ancientNext" ${index>=m.sections.length-1?'disabled':''}>Next text ›</button></footer></article>`;
-    if(!d.open)d.showModal();
-    if(d.dataset.ancientCleanup!=='1'){
-      d.dataset.ancientCleanup='1';
-      d.addEventListener('close',()=>{card?.classList.remove('ancientReaderSheet');d.dataset.ancientCleanup='0'},{once:true});
-    }
-    const find=()=>applyReaderSearch(s);
+    const m=await loadManifest(),s=m.sections[index];if(!s)return;
+    closeDrawer();closeSheet();
+    const app=$('#app');if(!app)return;
+    const r=ancientRecord(s),total=m.sections.length;
+    state.fontStep=1;
+    app.innerHTML=`<section class="reader glass ancientPageReader" data-ancient-font="1">
+      <header class="readerHead ancientPageHead">
+        <button class="round" id="ancientReaderMenu" type="button" aria-label="Open Ancient Library">☰</button>
+        <div><span class="eyebrow">ANCIENT LIBRARY · ${index+1} OF ${total}</span><h1>${esc(r.title)}</h1><p>${esc(r.part)}</p></div>
+        <button class="round" id="ancientFontBtn" type="button" aria-label="Change text size">Aa</button>
+      </header>
+      <div class="readerTools ancientReaderTools"><span class="reference">${esc(r.part)}</span><button id="ancientFindToggle" type="button">⌕ <b>Find</b></button><button id="ancientShelfBtn" type="button">☰ <b>Library</b></button></div>
+      <div id="ancientInlineFind" class="ancientInlineFind" hidden><span>⌕</span><input id="ancientReaderSearch" type="search" placeholder="Find in this text…" aria-label="Find in this text"><button id="ancientReaderFindBtn" type="button">Find</button><button id="ancientReaderClearBtn" type="button" aria-label="Close find">×</button></div>
+      <div id="ancientReaderMatchStatus" class="ancientReaderMatchStatus"></div>
+      <article id="ancientReaderText" class="chapterText ancientChapterText">${paragraphHTML(r.body)}</article>
+      <footer class="readerPager ancientReaderPager"><button id="ancientPrev" type="button" ${index<=0?'disabled':''}>← Previous</button><button id="ancientNext" type="button" ${index>=total-1?'disabled':''}>Next →</button></footer>
+    </section>`;
+    const showShelf=()=>openBooksHub('ancient');
+    $('#ancientReaderMenu')?.addEventListener('click',showShelf);$('#ancientShelfBtn')?.addEventListener('click',showShelf);
+    $('#ancientPrev')?.addEventListener('click',()=>openAncientReader(index-1));$('#ancientNext')?.addEventListener('click',()=>openAncientReader(index+1));
+    $('#ancientFontBtn')?.addEventListener('click',()=>{state.fontStep=(state.fontStep+1)%4;$('.ancientPageReader')?.setAttribute('data-ancient-font',String(state.fontStep))});
+    $('#ancientFindToggle')?.addEventListener('click',()=>{const bar=$('#ancientInlineFind');if(!bar)return;bar.hidden=!bar.hidden;if(!bar.hidden)setTimeout(()=>$('#ancientReaderSearch')?.focus(),20)});
+    const find=()=>applyReaderSearch(r.body);
     $('#ancientReaderFindBtn')?.addEventListener('click',find);$('#ancientReaderSearch')?.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();find()}});
-    $('#ancientReaderClearBtn')?.addEventListener('click',()=>{const i=$('#ancientReaderSearch');if(i)i.value='';$('#ancientReaderText').innerHTML=paragraphHTML(s.text);$('#ancientReaderMatchStatus').textContent=''});
-    $('#ancientPrev')?.addEventListener('click',()=>openAncientReader(index-1));$('#ancientNext')?.addEventListener('click',()=>openAncientReader(index+1));$('#ancientBackToShelf')?.addEventListener('click',()=>{d.close();openBooksHub('ancient')});
-    setTimeout(()=>$('.sheetWrap',d)?.scrollTo?.({top:0,behavior:'instant'}),0);
+    $('#ancientReaderClearBtn')?.addEventListener('click',()=>{const i=$('#ancientReaderSearch');if(i)i.value='';$('#ancientReaderText').innerHTML=paragraphHTML(r.body);$('#ancientReaderMatchStatus').textContent='';$('#ancientInlineFind').hidden=true});
+    window.scrollTo({top:0,left:0,behavior:'instant'});
   }catch(e){console.error(e);const t=$('#toast');if(t){t.textContent='Could not open that historical text';t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2200)}}
 }
-function applyReaderSearch(s){
+function applyReaderSearch(text){
   const q=clean($('#ancientReaderSearch')?.value),box=$('#ancientReaderText'),status=$('#ancientReaderMatchStatus');if(!box||!status)return;
-  box.innerHTML=paragraphHTML(s.text,q);if(!q){status.textContent='';return}const marks=$$('mark',box);status.textContent=marks.length?`${marks.length} match${marks.length===1?'':'es'} in this text`:'No matches in this text';marks[0]?.scrollIntoView({behavior:'smooth',block:'center'});
+  box.innerHTML=paragraphHTML(text,q);if(!q){status.textContent='';return}const marks=$$('mark',box);status.textContent=marks.length?`${marks.length} match${marks.length===1?'':'es'} in this text`:'No matches in this text';marks[0]?.scrollIntoView({behavior:'smooth',block:'center'});
 }
 
 function installCaptureNavigation(){
