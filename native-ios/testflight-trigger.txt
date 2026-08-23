@@ -1,18 +1,19 @@
 Hobah TestFlight upload trigger
 Marketing Version: 1.0.0
-Expected Build Number: 39
+Expected Build Number: 40
 Bundle ID: com.hobah.bible
 Apple signing mode: Manual App Store profile
-Release 103 Home navigation hotfix on Release 102 Ancient reader polish
-Build 39: preserves the Release 102 Ancient Library reader buffer below controls
-Build 39: preserves first-touch Scripture / Ancient Library shelf switching
-Build 39: preserves Ancient Library author and approximate date metadata
-Build 39: preserves primary ancient text in the visible reader while keeping source/editorial material in background data
-Build 39: preserves consolidated Ancient works, chapter grouping and bottom chapter grid
-Build 39: preserves the Release 101 full Ancient corpus web/iOS gate
-Build 39: makes the bottom Home control route to Home reliably on the first touch/click
-Build 39: makes the centered H header logo route to Home reliably on the first touch/click
-Build 39: closes the Books drawer/backdrop and clears locked state when navigating Home
-Build 39: re-renders Home even if the URL hash is already #home and resets scroll position
-Build 39: preserves Listen, native voice commands and Study AI engines unchanged
-Final TestFlight trigger: Release 103 reliable Home navigation plus Release 102 Ancient reader polish
+Release 104 verse actions and cleaner narration
+Build 40: makes every Scripture verse in every canonical book and letter a full tap target
+Build 40: tapping a verse opens the verse action sheet with Save and Highlight actions
+Build 40: adds persistent Highlight / Remove highlight state that survives reopening Hobah
+Build 40: restores saved highlights automatically whenever a chapter is rendered
+Build 40: keeps Copy, Share, Listen, Explain and personal notes in the verse action sheet
+Build 40: adds keyboard-accessible verse selection without changing the reading layout
+Build 40: normal chapter Listen announces the book, chapter and first verse once at the beginning
+Build 40: strips leading verse-number tokens from narration text before TTS
+Build 40: does not speak the number of each subsequent verse during continuous read aloud
+Build 40: preserves Release 103 bottom Home and centered H navigation
+Build 40: preserves Release 102 Ancient Library reader polish, metadata and source-text protections
+Build 40: preserves Study AI, native voice commands and existing Listen transport behavior
+Final TestFlight trigger: Release 104 persistent verse save/highlight interaction and number-free continuous narration
