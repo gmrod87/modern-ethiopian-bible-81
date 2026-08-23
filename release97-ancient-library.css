@@ -1,0 +1,45 @@
+/* Hobah Release 97 — clean Ancient Library reading edition */
+.books97AncientFilters{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;}
+.books97AncientFilters button{appearance:none;min-height:42px;padding:9px 10px;border:1px solid rgba(100,76,47,.14);border-radius:13px;background:rgba(255,255,255,.58);color:#625446;font:700 .72rem/1.15 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;text-align:center;}
+.books97AncientFilters button:first-child{grid-column:1/-1;}
+.books97AncientFilters button.active{background:#67492e;color:#fffaf2;border-color:#67492e;box-shadow:0 3px 10px rgba(68,48,29,.11);}
+.ancientWorkCard{min-height:76px!important;padding:15px!important;}
+.ancientWorkCard .ancientCardTop{margin-bottom:7px!important;}
+.ancientWorkCard>b{font-size:1.06rem!important;line-height:1.24!important;}
+.ancientWorkCard>small{display:block;margin-top:7px;color:#81766a;font:550 .69rem/1.25 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;}
+.ancientWorkCard p{display:none!important;}
+
+.ancientPageReader{padding-bottom:120px!important;}
+.ancientPageHead{padding-bottom:18px!important;}
+.ancientPageHead .eyebrow{letter-spacing:.16em!important;}
+.ancientPageHead h1{max-width:900px!important;margin:.38rem 0 .45rem!important;font-size:clamp(2rem,8vw,3.5rem)!important;line-height:1.02!important;letter-spacing:-.035em!important;text-wrap:balance;}
+.ancientPageHead p{margin:0!important;font-size:clamp(.95rem,3.7vw,1.14rem)!important;line-height:1.35!important;color:#777b73!important;}
+.ancientReaderTools{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:9px!important;padding:12px!important;align-items:stretch!important;}
+.ancientReaderTools select,.ancientReaderTools button{min-height:48px!important;height:48px!important;border-radius:14px!important;max-width:100%!important;}
+.ancientReaderTools select{grid-column:1/-1!important;width:100%!important;padding-left:12px!important;font-size:15px!important;font-weight:700!important;text-overflow:ellipsis!important;overflow:hidden!important;}
+.ancientReaderTools #ancientListen,.ancientReaderTools #ancientStudy{grid-column:auto!important;font-weight:800!important;font-size:.88rem!important;}
+.ancientReaderTools #ancientListen{background:#0d574c!important;color:#f8f4ea!important;border-color:#0d574c!important;}
+.ancientReaderTools #ancientStudy{background:#fffdf8!important;color:#0d574c!important;}
+.ancientReaderTools #ancientFindToggle,.ancientReaderTools #ancientFontBtn,.ancientReaderTools #ancientShelfBtn{grid-column:auto!important;min-width:0!important;font-size:.78rem!important;}
+.ancientReaderTools #ancientFindToggle{grid-column:1!important;}
+.ancientReaderTools #ancientFontBtn{grid-column:2!important;}
+.ancientReaderTools #ancientShelfBtn{grid-column:1/-1!important;width:100%!important;}
+.ancientChapterText{max-width:780px!important;margin-left:auto!important;margin-right:auto!important;font-size:1.06rem!important;line-height:1.72!important;}
+.ancientChapterText p{margin:0 0 1.15em!important;}
+.ancientChapterText h3{margin:1.65em 0 .65em!important;font-size:1.07em!important;}
+.ancientReaderPager{max-width:780px!important;margin-left:auto!important;margin-right:auto!important;}
+
+@media(min-width:720px){
+  .books97AncientFilters{grid-template-columns:repeat(3,1fr);}
+  .books97AncientFilters button:first-child{grid-column:auto;}
+  .ancientReaderTools{grid-template-columns:minmax(230px,1.5fr) minmax(150px,1fr) auto auto auto auto auto!important;align-items:center!important;}
+  .ancientReaderTools select{grid-column:auto!important;}
+  .ancientReaderTools #ancientFindToggle,.ancientReaderTools #ancientFontBtn,.ancientReaderTools #ancientShelfBtn{grid-column:auto!important;width:auto!important;}
+}
+@media(max-width:380px){
+  .books97AncientFilters{grid-template-columns:1fr;}
+  .books97AncientFilters button:first-child{grid-column:auto;}
+  .ancientPageHead h1{font-size:1.95rem!important;}
+  .ancientReaderTools{padding:9px!important;gap:7px!important;}
+  .ancientReaderTools select,.ancientReaderTools button{min-height:46px!important;height:46px!important;}
+}
