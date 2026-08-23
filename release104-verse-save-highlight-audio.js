@@ -35,8 +35,11 @@ const buildMarker='function buildVerseItems(verses){';
 if(!app.includes(buildMarker))throw new Error('Release104 buildVerseItems marker missing');
 app=app.replace(buildMarker,ttsHelpers+buildMarker);
 replaceRange('function buildVerseItems(verses){','\nfunction contextIntro(',segment=>{
-  if(!segment.includes('const t=clean(v.t);'))throw new Error('Release104 verse TTS text marker missing');
-  return segment.replace('const t=clean(v.t);','const t=speechVerseText(v);');
+  const current="const t=clean(v.t).replace(versePrefix,'');";
+  const older='const t=clean(v.t);';
+  if(segment.includes(current))return segment.replace(current,'const t=speechVerseText(v);');
+  if(segment.includes(older))return segment.replace(older,'const t=speechVerseText(v);');
+  throw new Error('Release104 verse TTS text marker missing');
 },'verse TTS sanitiser');
 replaceRange('async function listenItemsForChapter(b,c){','\nasync function openListenPanelForChapter',segment=>{
   const old="  const items=buildVerseItems(c.verses),intro=contextIntro(b,c);\n  if(intro)items.unshift({text:intro,startVerse:null,endVerse:null,context:true});\n  return items;\n}";
