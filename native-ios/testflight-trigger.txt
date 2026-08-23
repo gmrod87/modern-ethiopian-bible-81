@@ -1,20 +1,18 @@
 Hobah TestFlight upload trigger
 Marketing Version: 1.0.0
-Expected Build Number: 37
+Expected Build Number: 38
 Bundle ID: com.hobah.bible
 Apple signing mode: Manual App Store profile
-Release 100 unified Ancient Library books and chapters
-Build 37: collapses spread-out source pages into one canonical Ancient Library work wherever the identity is safely known
-Build 37: shows The First Book of Adam and Eve once instead of repeated anthology-prefixed cards
-Build 37: groups all available chapters of The First Book of Adam and Eve inside that one book
-Build 37: applies the same canonical work grouping to other spread-out Ancient Library books, letters and texts
-Build 37: strips Forgotten Books of Eden anthology prefixes from canonical user-facing work titles
-Build 37: removes duplicate chapter bodies created by repeated source pages
-Build 37: orders chapters by detected chapter number when available
-Build 37: keeps the chapter selector at the top of Ancient Library readers
-Build 37: adds a clean all-chapters grid at the bottom of Ancient Library readers for fast chapter jumping, matching the Scripture reading flow
-Build 37: preserves Release 99 Find in text cleanup
-Build 37: preserves green/cream Scripture and tan Ancient Library palettes
-Build 37: preserves primary-text-only filtering and removal of modern editorial material
-Build 37: preserves Ancient Library Listen, native voice commands and Study AI unchanged
-Final TestFlight trigger: Release 100 canonical Ancient works with unified chapters
+Release 102 Ancient Library reader polish
+Build 38: adds a clear 24–28px buffer between Ancient reader controls and the first line of text
+Build 38: makes Scripture / Ancient Library shelf switching respond on the first touch/pointer release
+Build 38: makes the whole shelf button a reliable touch target with touch-action manipulation
+Build 38: adds author and approximate creation date metadata to Ancient Library cards
+Build 38: adds author and approximate creation date beneath the Ancient reader title
+Build 38: uses Unknown author / Date uncertain when attribution or dating cannot be stated responsibly
+Build 38: removes appended modern editorial footnotes, manuscript commentary, page-note references and scholarly apparatus from the visible Ancient reader
+Build 38: keeps the frozen audited source corpus unchanged in the background database
+Build 38: preserves consolidated Ancient works and bottom chapter grid from Release 100
+Build 38: preserves the Release 101 full Ancient corpus web/iOS gate
+Build 38: preserves Listen, native voice commands and Study AI engines unchanged
+Final TestFlight trigger: Release 102 Ancient primary-text reader, metadata and first-tap navigation
