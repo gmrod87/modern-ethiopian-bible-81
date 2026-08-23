@@ -3,6 +3,8 @@ name: Release 95 Books Navigation Preflight
 on:
   push:
     branches: [release95-books-reader-polish]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
