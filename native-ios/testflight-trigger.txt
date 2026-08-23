@@ -1,19 +1,18 @@
 Hobah TestFlight upload trigger
 Marketing Version: 1.0.0
-Expected Build Number: 35
+Expected Build Number: 36
 Bundle ID: com.hobah.bible
 Apple signing mode: Manual App Store profile
-Release 98 primary ancient texts + classical shelf palettes
-Build 35: uses Hobah classical green and cream for the 81-book Scripture navigation
-Build 35: switches Ancient Library navigation to a distinct aged tan and brown palette
-Build 35: keeps shelf switching keyboard-free unless the search field itself is tapped
-Build 35: removes anthology title pages, prefaces, forewords, introductions, historical introductions, editorial notes, translator notes, contents, indexes and illustration pages from Ancient Library discovery
-Build 35: removes the Rutherford H. Platt and William N. Guthrie 1926-1927 Forgotten Books of Eden editorial framing while retaining the underlying ancient texts
-Build 35: removes modern Codex Sinaiticus and Codex Alexandrinus collection-profile summaries from the reading catalogue
-Build 35: strips page-number, publisher, editor and modern source lines from displayed ancient text
-Build 35: expands generic filenames such as Book 3 and Letter 39 into specific historical work titles using source provenance
-Build 35: includes titles such as Eusebius — Ecclesiastical History, Book 3 and Athanasius — Festal Letter 39
-Build 35: keeps ancient works, individual letters, chapters and sections discoverable without modern anthology framing
-Build 35: preserves the audited source corpus underneath the cleaned primary-text reading layer
-Build 35: preserves Ancient Library Listen, native voice commands and Study AI integration
-Final TestFlight trigger: Release 98 primary ancient texts and split classical shelf palette
+Release 99 Ancient Library title and Find-in-text cleanup
+Build 36: removes unexplained source abbreviations such as FBE, ANF and CCEL from user-facing Ancient Library titles
+Build 36: labels FBE Book 1 as First Book of Adam and Eve and FBE Book 2 as Second Book of Adam and Eve
+Build 36: identifies the generic Eusebius Book III passage as Eusebius — Ecclesiastical History, Book 3
+Build 36: uses useful source provenance for other numbered works and a clear collection label instead of raw acronyms when no more specific title is safely identifiable
+Build 36: replaces the old Find control with a single Find in text button
+Build 36: removes the separate brown Find submit bar
+Build 36: Find in text opens one compact search field and searches live as the user types
+Build 36: the search row stays completely hidden until requested and No matches is hidden when search is not active
+Build 36: preserves Release 98 green/cream Scripture and tan Ancient Library palettes
+Build 36: preserves primary-text-only filtering and removal of modern editorial material
+Build 36: preserves Ancient Library Listen, native voice commands and Study AI unchanged
+Final TestFlight trigger: Release 99 human-readable Ancient titles and clean Find in text
