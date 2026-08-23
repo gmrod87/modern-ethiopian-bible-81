@@ -6,7 +6,7 @@ for(const f of ['release94-ancient-library.js','release94-ancient-library.css'])
 const manifest=path.join('ancient-library','output','ancient_library_complete_manifest.json');
 const target=path.join(D,'ancient-library.json');
 const signedCI=process.env.GITHUB_ACTIONS==='true';
-const PINNED_MANIFEST_URL='https://raw.githubusercontent.com/gmrod87/modern-ethiopian-bible-81/268a94187fea66ca0f5b5aeefe066eea5e600430/ancient-library/output/ancient_library_complete_manifest.json';
+const PINNED_MANIFEST_URL='https://raw.githubusercontent.com/gmrod87/modern-ethiopian-bible-81/268a94b7c3a1197b7574415106fcd88107d5bc7c/ancient-library/output/ancient_library_complete_manifest.json';
 
 // Signed App Store builds consume the already-audited corpus from an immutable
 // Git commit. This keeps the native release reproducible and avoids rebuilding
