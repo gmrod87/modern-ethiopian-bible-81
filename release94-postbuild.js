@@ -21,7 +21,7 @@ if(fs.existsSync(manifest)){
   const parsed=JSON.parse(fs.readFileSync(manifest,'utf8'));
   const sections=Array.isArray(parsed.sections)?parsed.sections:[];
   const count=sections.length;
-  const chars=Number(parsed.total_characters||parsed.total_chars||sections.reduce((n,s)=>n+Number(s.chars||String(s.text||'').length,0));
+  const chars=Number(parsed.total_characters||parsed.total_chars||sections.reduce((n,s)=>n+Number(s.chars||String(s.text||'').length),0));
   if(count<25)throw new Error(`Release 101 Ancient Library manifest is unexpectedly small: ${count} sections`);
   if(productionBundle&&(count<180||chars<10000000))throw new Error(`Refusing production build with incomplete Ancient Library: ${count} sections / ${chars} characters`);
   fs.copyFileSync(manifest,target);
