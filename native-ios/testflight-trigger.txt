@@ -1,18 +1,18 @@
 Hobah TestFlight upload trigger
 Marketing Version: 1.0.0
-Expected Build Number: 38
+Expected Build Number: 39
 Bundle ID: com.hobah.bible
 Apple signing mode: Manual App Store profile
-Release 102 Ancient Library reader polish
-Build 38: adds a clear 24–28px buffer between Ancient reader controls and the first line of text
-Build 38: makes Scripture / Ancient Library shelf switching respond on the first touch/pointer release
-Build 38: makes the whole shelf button a reliable touch target with touch-action manipulation
-Build 38: adds author and approximate creation date metadata to Ancient Library cards
-Build 38: adds author and approximate creation date beneath the Ancient reader title
-Build 38: uses Unknown author / Date uncertain when attribution or dating cannot be stated responsibly
-Build 38: removes appended modern editorial footnotes, manuscript commentary, page-note references and scholarly apparatus from the visible Ancient reader
-Build 38: keeps the frozen audited source corpus unchanged in the background database
-Build 38: preserves consolidated Ancient works and bottom chapter grid from Release 100
-Build 38: preserves the Release 101 full Ancient corpus web/iOS gate
-Build 38: preserves Listen, native voice commands and Study AI engines unchanged
-Final TestFlight trigger: Release 102 Ancient primary-text reader, metadata and first-tap navigation
+Release 103 Home navigation hotfix on Release 102 Ancient reader polish
+Build 39: preserves the Release 102 Ancient Library reader buffer below controls
+Build 39: preserves first-touch Scripture / Ancient Library shelf switching
+Build 39: preserves Ancient Library author and approximate date metadata
+Build 39: preserves primary ancient text in the visible reader while keeping source/editorial material in background data
+Build 39: preserves consolidated Ancient works, chapter grouping and bottom chapter grid
+Build 39: preserves the Release 101 full Ancient corpus web/iOS gate
+Build 39: makes the bottom Home control route to Home reliably on the first touch/click
+Build 39: makes the centered H header logo route to Home reliably on the first touch/click
+Build 39: closes the Books drawer/backdrop and clears locked state when navigating Home
+Build 39: re-renders Home even if the URL hash is already #home and resets scroll position
+Build 39: preserves Listen, native voice commands and Study AI engines unchanged
+Final TestFlight trigger: Release 103 reliable Home navigation plus Release 102 Ancient reader polish
