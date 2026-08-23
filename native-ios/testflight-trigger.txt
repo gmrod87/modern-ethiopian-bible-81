@@ -1,18 +1,19 @@
 Hobah TestFlight upload trigger
 Marketing Version: 1.0.0
-Expected Build Number: 34
+Expected Build Number: 35
 Bundle ID: com.hobah.bible
 Apple signing mode: Manual App Store profile
-Release 97 clean Ancient Library reading edition
-Build 34: removes automatic keyboard focus when switching Scripture and Ancient Library shelves
-Build 34: reorganises the Ancient Library into discoverable books, letters, chapters and sections instead of raw source pages
-Build 34: groups multi-page works such as the First and Second Books of Adam and Eve into proper works
-Build 34: keeps individual letters and distinct early-Christian texts separately discoverable
-Build 34: removes source title pages, contents/index pages, standalone page-number lists and source-site navigation from the reading experience
-Build 34: strips editor, publisher, website, Amazon, public-domain, copyright and provenance boilerplate from displayed reading text
-Build 34: shows only essential book/work titles, chapter or section titles, and the primary text
-Build 34: adds Listen and Study AI controls directly to Ancient Library reader pages
-Build 34: reuses Hobah's existing Listen dock, native narration, voice commands and Study AI engine for Ancient Library text
-Build 34: supports voice commands such as explain that, stop, play, next and previous while listening to Ancient Library text
-Build 34: preserves the frozen audited Ancient Library source corpus unchanged underneath the cleaned app reading layer
-Final TestFlight trigger: Release 97 clean Ancient Library + shared Listen and Study AI
+Release 98 primary ancient texts + classical shelf palettes
+Build 35: uses Hobah classical green and cream for the 81-book Scripture navigation
+Build 35: switches Ancient Library navigation to a distinct aged tan and brown palette
+Build 35: keeps shelf switching keyboard-free unless the search field itself is tapped
+Build 35: removes anthology title pages, prefaces, forewords, introductions, historical introductions, editorial notes, translator notes, contents, indexes and illustration pages from Ancient Library discovery
+Build 35: removes the Rutherford H. Platt and William N. Guthrie 1926-1927 Forgotten Books of Eden editorial framing while retaining the underlying ancient texts
+Build 35: removes modern Codex Sinaiticus and Codex Alexandrinus collection-profile summaries from the reading catalogue
+Build 35: strips page-number, publisher, editor and modern source lines from displayed ancient text
+Build 35: expands generic filenames such as Book 3 and Letter 39 into specific historical work titles using source provenance
+Build 35: includes titles such as Eusebius — Ecclesiastical History, Book 3 and Athanasius — Festal Letter 39
+Build 35: keeps ancient works, individual letters, chapters and sections discoverable without modern anthology framing
+Build 35: preserves the audited source corpus underneath the cleaned primary-text reading layer
+Build 35: preserves Ancient Library Listen, native voice commands and Study AI integration
+Final TestFlight trigger: Release 98 primary ancient texts and split classical shelf palette
