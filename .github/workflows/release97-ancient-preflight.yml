@@ -1,0 +1,69 @@
+name: Release 97 Ancient Library Preflight
+
+on:
+  push:
+    branches: [release97-ancient-library-reading-edition]
+  pull_request:
+    branches: [main]
+    paths:
+      - 'release94-ancient-library.js'
+      - 'release94-postbuild.js'
+      - 'release97-ancient-library.css'
+      - 'release97-ancient-bridge-postbuild.js'
+      - 'package.json'
+  workflow_dispatch:
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install web dependencies
+        run: npm install
+      - name: Build production Hobah
+        run: npm run build
+      - name: Verify clean Ancient Library integration
+        run: |
+          node --check release94-ancient-library.js
+          node --check release97-ancient-bridge-postbuild.js
+          node - <<'NODE'
+          const fs=require('fs');
+          const js=fs.readFileSync('release94-ancient-library.js','utf8');
+          const app=fs.readFileSync('dist/app.js','utf8');
+          const html=fs.readFileSync('dist/index.html','utf8');
+          const tab=js.slice(js.indexOf('function setTab('),js.indexOf('function renderActiveShelf'));
+          const checks=[
+            [js.includes("LIB_VERSION='97'"),'Release 97 library runtime'],
+            [js.includes('function buildCatalog('),'work/chapter catalog'],
+            [js.includes('looksLikeContents'),'contents-page removal'],
+            [js.includes('First Book of Adam and Eve'),'Adam and Eve work grouping'],
+            [js.includes('data-ancient-work'),'work-level discovery cards'],
+            [js.includes('id="ancientListen"'),'Ancient Listen control'],
+            [js.includes('id="ancientStudy"'),'Ancient Study AI control'],
+            [!tab.includes('.focus('),'no automatic keyboard on shelf switch'],
+            [app.includes("const V='97';"),'final app cache version'],
+            [app.includes('window.HobahAncientBridge'),'shared Ancient Listen/Study bridge'],
+            [app.includes('prepareListenQueue(x.book,x.chapter'),'existing Listen engine reused'],
+            [app.includes("await openStudy('study')"),'existing Study AI reused'],
+            [app.includes('if(state.ancientContext)'),'Ancient Study context'],
+            [html.includes('release94-ancient-library.js?v=97'),'Release 97 library asset'],
+            [html.includes('release97-ancient-library.css?v=97'),'Release 97 clean reader CSS']
+          ];
+          for(const [ok,name] of checks){if(!ok)throw new Error('Missing '+name);console.log('OK',name)}
+          NODE
+      - name: Install native dependencies
+        working-directory: native-ios
+        run: npm install
+      - name: Prepare native offline bundle
+        working-directory: native-ios
+        run: npm run prepare:web
+      - name: Bundle native bridge
+        working-directory: native-ios
+        run: npm run build:bridge
+      - name: Verify native bundle and doctor
+        working-directory: native-ios
+        run: npm run doctor
