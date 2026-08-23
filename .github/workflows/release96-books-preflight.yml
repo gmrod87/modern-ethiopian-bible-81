@@ -1,0 +1,56 @@
+name: Release 96 Books Navigation Preflight
+
+on:
+  push:
+    branches: [release96-books-sidebar-rebuild]
+  workflow_dispatch:
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install web dependencies
+        run: npm install
+      - name: Build production Hobah
+        run: npm run build
+      - name: Verify Release 96 Books layer
+        run: |
+          node --check release94-ancient-library.js
+          node - <<'NODE'
+          const fs=require('fs');
+          const js=fs.readFileSync('release94-ancient-library.js','utf8');
+          const css=fs.readFileSync('release94-ancient-library.css','utf8');
+          const html=fs.readFileSync('dist/index.html','utf8');
+          const checks=[
+            [js.includes("LIB_VERSION='96'"),'Release 96 JS version'],
+            [js.includes('id="books96Scroll"'),'dedicated Books scroller'],
+            [js.includes('Ancient Library'),'Ancient Library shelf'],
+            [js.includes('cleanAncientText'),'Ancient text cleanup'],
+            [css.includes('overflow-y:auto!important'),'vertical scrolling'],
+            [css.includes('touch-action:pan-y'),'iOS vertical touch scrolling'],
+            [css.includes('flex:1 1 auto!important'),'scroll area flex sizing'],
+            [html.includes('release94-ancient-library.js?v=96'),'Release 96 JS bundled'],
+            [html.includes('release94-ancient-library.css?v=96'),'Release 96 CSS bundled']
+          ];
+          for(const [ok,name] of checks){if(!ok)throw new Error('Missing '+name);console.log('OK',name)}
+          for(const banned of ['study-chat','HobahNativeAudio','HobahNativeVoice','speechSynthesis']){
+            if(js.includes(banned))throw new Error('Books layer unexpectedly references '+banned);
+          }
+          NODE
+      - name: Install native dependencies
+        working-directory: native-ios
+        run: npm install
+      - name: Prepare native offline bundle
+        working-directory: native-ios
+        run: npm run prepare:web
+      - name: Bundle native bridge
+        working-directory: native-ios
+        run: npm run build:bridge
+      - name: Verify native bundle and doctor
+        working-directory: native-ios
+        run: npm run doctor
