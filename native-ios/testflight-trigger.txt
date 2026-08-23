@@ -1,15 +1,16 @@
 Hobah TestFlight upload trigger
-Requested: 2026-08-23 16:29 AEST
 Marketing Version: 1.0.0
-Build Number: 30
+Expected Build Number: 32
 Bundle ID: com.hobah.bible
 Apple signing mode: Manual App Store profile
-Release 94 Ancient Library Books hub
-Build 30: ships the audited Ancient Library inside the Books tab
-Build 30: preserves the primary 81-book Scripture collection as a distinct Scripture shelf
-Build 30: includes Ancient Library category filters, title/source metadata and full-text search
-Build 30: includes the in-app historical text reader, provenance/status details and find-in-text
-Build 30: bundles the Ancient Library corpus into the native iOS app for offline reading
-Build 30: lazy-loads the historical corpus so normal app startup remains fast
-Build 30: does not modify Study AI, Listen, audio, voice commands, TTS, realtime study, or their native bridges
-Final TestFlight trigger: App Store/TestFlight build 30
+Release 95 Books navigation and Ancient reader polish
+Build 32: fixes the Books drawer to a fixed-width vertical sidebar with no horizontal swipe drift
+Build 32: keeps Scripture and Ancient Library tabs, search and filter chips fully inside the sidebar
+Build 32: opens Ancient Library readings on the same main reader surface and typography system as Scripture
+Build 32: removes public-domain labels, provenance/source clutter and purchase references from the Ancient Library UI
+Build 32: strips Sacred Texts navigation, Amazon purchase lines, source URLs and imported page boilerplate from displayed reading text
+Build 32: derives cleaner reading titles from chapter headings when source page titles are generic
+Build 32: keeps Find collapsed until requested and retains previous/next reading navigation
+Build 32: preserves the audited Ancient Library corpus for offline reading
+Build 32: does not modify Study AI, Listen, audio, voice commands, TTS, realtime study, or their native bridges
+Final TestFlight trigger: Release 95 corrected Books experience
