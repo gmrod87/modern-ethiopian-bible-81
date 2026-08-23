@@ -3,6 +3,8 @@ name: Release 94 Ancient Library Preflight
 on:
   push:
     branches: [release94-ancient-library]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
 
 jobs:
