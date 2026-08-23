@@ -19,7 +19,7 @@ function speechVerseText(v){
   let text=clean(v?.t||'');
   const n=String(v?.v??'').trim();
   if(n){
-    const escaped=n.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    const escaped=n.replace(/[|\\{}()[\]^$+*?.-]/g,'\\$&');
     const prefix=new RegExp('^\\s*(?:verse\\s+)?'+escaped+'(?:\\s*[.\\-–—:)\\]]\\s*|\\s+)','i');
     text=text.replace(prefix,'');
   }
