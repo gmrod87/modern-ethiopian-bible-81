@@ -1,17 +1,18 @@
 Hobah TestFlight upload trigger
 Marketing Version: 1.0.0
-Expected Build Number: 33
+Expected Build Number: 34
 Bundle ID: com.hobah.bible
 Apple signing mode: Manual App Store profile
-Release 96 Books navigation rebuild
-Build 33: rebuilds the Books navigation from scratch around a fixed shell and dedicated vertical iOS scroller
-Build 33: keeps the header, Scripture / Ancient Library shelf switch, and search fixed and legible
-Build 33: removes horizontal overflow, column drift, nested scrolling and overlapping controls
-Build 33: uses simple 2x2 Scripture filters and one Ancient Library collection selector
-Build 33: uses larger, cleaner book and historical-reading cards with clear tap targets
-Build 33: opens Ancient Library readings on Hobah's normal Scripture-style reader surface and typography
-Build 33: provides reading selection, Find, text sizing, and previous / next navigation for Ancient Library readings
-Build 33: strips Sacred Texts navigation, Amazon purchase references, public-domain labels, source URLs and imported page boilerplate from displayed readings
-Build 33: preserves the frozen audited Ancient Library corpus for offline reading
-Build 33: does not modify Study AI, Listen, audio, voice commands, TTS, realtime study, or their native bridges
-Final TestFlight trigger: Release 96 rebuilt Books navigation
+Release 97 clean Ancient Library reading edition
+Build 34: removes automatic keyboard focus when switching Scripture and Ancient Library shelves
+Build 34: reorganises the Ancient Library into discoverable books, letters, chapters and sections instead of raw source pages
+Build 34: groups multi-page works such as the First and Second Books of Adam and Eve into proper works
+Build 34: keeps individual letters and distinct early-Christian texts separately discoverable
+Build 34: removes source title pages, contents/index pages, standalone page-number lists and source-site navigation from the reading experience
+Build 34: strips editor, publisher, website, Amazon, public-domain, copyright and provenance boilerplate from displayed reading text
+Build 34: shows only essential book/work titles, chapter or section titles, and the primary text
+Build 34: adds Listen and Study AI controls directly to Ancient Library reader pages
+Build 34: reuses Hobah's existing Listen dock, native narration, voice commands and Study AI engine for Ancient Library text
+Build 34: supports voice commands such as explain that, stop, play, next and previous while listening to Ancient Library text
+Build 34: preserves the frozen audited Ancient Library source corpus unchanged underneath the cleaned app reading layer
+Final TestFlight trigger: Release 97 clean Ancient Library + shared Listen and Study AI
