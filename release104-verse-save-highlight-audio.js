@@ -10,8 +10,8 @@ const replaceRange=(start,end,transform,label)=>{
 };
 const swap=(from,to,label)=>{if(!app.includes(from))throw new Error('Release104 patch missing: '+label);app=app.replace(from,()=>to)};
 
-if(!app.includes("const V='102';"))throw new Error('Release104 expected runtime v102 after Release103');
-app=app.replace("const V='102';","const V='104';");
+if(!app.includes("const V='103';"))throw new Error('Release104 expected runtime v103 after Release103');
+app=app.replace("const V='103';","const V='104';");
 
 // Never send verse-number prefixes to TTS. Announce book + chapter + the first verse once at chapter start.
 const ttsHelpers=String.raw`
@@ -108,7 +108,7 @@ const css=String.raw`
 `;
 fs.appendFileSync(styleFile,'\n'+css+'\n');
 
-let html=fs.readFileSync(p('index.html'),'utf8').replaceAll('v=102','v=104');
+let html=fs.readFileSync(p('index.html'),'utf8').replaceAll('v=103','v=104');
 fs.writeFileSync(p('index.html'),html);
 if(fs.existsSync(p('manifest.webmanifest'))){const m=JSON.parse(fs.readFileSync(p('manifest.webmanifest'),'utf8'));m.start_url='/?v=104#home';fs.writeFileSync(p('manifest.webmanifest'),JSON.stringify(m))}
 
