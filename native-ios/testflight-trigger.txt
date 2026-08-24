@@ -1,15 +1,15 @@
 Hobah TestFlight upload trigger
 Marketing Version: 1.0.0
-Expected Build Number: 45
+Expected Build Number: 46
 Bundle ID: com.hobah.bible
 Apple signing mode: Manual App Store profile
-Release 110 Ancient Library mobile layout cleanup
-Build 45: includes Release 110 in the bundled native iOS web app
-Build 45: replaces the old five-column Ancient chapter grid with responsive compact chapter navigation across all 178 Ancient Library works
-Build 45: makes Previous and Next equal-sized, aligned and legible on iPhone
-Build 45: shortens long chapter/section labels inside buttons while preserving the full label for accessibility
-Build 45: contains overflow and wrapping fixes for older Ancient Library cards and reader headings
-Build 45: preserves Release 109's 17 new ancient translations, provenance metadata and Dead Sea Scroll works
-Build 45: preserves direct local Ancient work files, fast opening, passage actions, Study AI, Listen, voice controls and settings
-Build 45: CI retry uses the robust Xcode 26 version check for current macOS runners
-Final TestFlight trigger: Release 110 Ancient Library mobile cleanup for App Store Connect upload
+Release 111 Ancient Library read aloud + Release 110 mobile cleanup
+Build 46: includes Release 111 in the bundled native iOS web app
+Build 46: Ancient Library Read aloud starts playback on one tap instead of only preparing the queue
+Build 46: all 178 Ancient Library works and 2,945 chapters are covered by a build-time audio smoke test
+Build 46: Ancient speech is split into narrator-safe chunks of no more than 430 characters before queueing
+Build 46: Ancient passage-level Listen also starts immediately from the passage action sheet
+Build 46: preserves Release 110 responsive chapter grid, equal Previous/Next controls and overflow fixes across older and new Ancient works
+Build 46: preserves Release 109's 17 new ancient translations, provenance metadata and Dead Sea Scroll works
+Build 46: preserves Study AI, voice commands, save/highlight/copy/share/note actions and native audio controls
+Final TestFlight trigger: Release 111 Ancient Library read aloud and mobile cleanup for App Store Connect upload
