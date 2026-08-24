@@ -1,0 +1,18 @@
+{
+  "id": "rule-congregation-1qsa",
+  "title": "Rule of the Congregation (1QSa) — Hobah Translation",
+  "group": "dead-sea-scrolls",
+  "about": "The Rule of the Congregation (1QSa), once copied together with the Community Rule, describes the congregation of Israel in the latter days. Its two columns address education, admission to communal responsibilities, rank, physical qualifications for certain offices, council procedure, and a future sacred meal at which the priest and the Messiah of Israel are present.",
+  "translation": {
+    "status": "Hobah provisional source-language reading translation of the substantially preserved two columns of 1QSa",
+    "base_text": "The Hebrew manuscript 1QSa from Qumran Cave 1, following its two-column arrangement",
+    "method": "Fresh modern-English rendering from the Hebrew sense. Damaged wording is bracketed or omitted rather than supplied with unwarranted certainty. No modern copyrighted English translation is copied.",
+    "confidence": "Medium-high for the broad sense; medium or lower in broken lines and disputed restorations",
+    "notes": "The messianic banquet passage preserves the priest's precedence before the Messiah of Israel in this witness. The wording is not harmonized to later Christian or Jewish expectations.",
+    "license_note": "The ancient Hebrew manuscript is public domain. Hobah English wording is newly prepared for this project."
+  },
+  "chapters": [
+    {"number":1,"label":"Column I — The congregation in the latter days","text":"This is the rule for all the congregation of Israel in the latter days, when they assemble to walk according to the judgment of the sons of Zadok, the priests, and the men of their covenant. From youth a child shall be instructed in the book and learn the statutes of the covenant. As he grows, he is advanced according to age, knowledge, and ability. At twenty years he may enter among those numbered for the congregation and take responsibility according to the rule. Marriage, testimony, office, and service are tied to maturity and standing. The chiefs, judges, officers, priests, and Levites shall sit according to rank when the whole congregation is summoned. Certain serious bodily impairments exclude a person from particular sacred or military functions described here, though the surviving lines are damaged and the exact scope of several rules is disputed. No one shall speak before a person of higher rank without permission, and counsel shall proceed in ordered sequence so that the congregation acts with knowledge rather than confusion."},
+    {"number":2,"label":"Column II — Council and the messianic meal","text":"When God brings forth the Messiah among them, the chief priest of all the congregation shall enter first, and with him his priestly brothers. After them the Messiah of Israel shall enter, and the chiefs of the thousands of Israel shall sit before him, each according to rank. When they gather at the common table and the wine is mixed for drinking, no one shall stretch out a hand toward the first portion of bread or wine before the priest. The priest shall bless the first portion, and afterward the Messiah of Israel shall stretch out his hands toward the bread. Then the whole congregation shall bless and eat according to rank. This order shall be followed whenever they assemble for the common meal in the time described by the rule. [The final lines are damaged.]"}
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "id": "joseph-and-aseneth",
+  "title": "Joseph and Aseneth — Hobah Translation",
+  "group": "ancient-writings",
+  "about": "An ancient Jewish romance expanding Genesis 41:45, 50–52. It tells of Aseneth's rejection of idols, penitence, transformation, marriage to Joseph, and a later conspiracy involving Pharaoh's son. The work survives in several recensions and languages, so no single surviving witness can simply be equated with an original text.",
+  "translation": {
+    "status": "Hobah complete modern-English rendering from public-domain historical translation",
+    "base_text": "E. W. Brooks, Joseph and Asenath: The Confession and Prayer of Asenath (1918), a public-domain edition drawing especially on the Syriac witness while discussing Greek and other versions",
+    "method": "The complete public-domain historical English witness is ingested at build time and conservatively modernized for Hobah. The content is retained rather than summarized. This is explicitly a modern Hobah rendering of Brooks's historical witness, not falsely claimed as a fresh critical translation of the Greek/Syriac archetype.",
+    "confidence": "High for preservation of Brooks's published witness; medium for reconstructing the ancient work because the recension history is complex",
+    "notes": "The 29-chapter narrative is retained as transmitted in the historical edition. Apparatus and modern editorial introduction are excluded from the reading text where the source permits reliable separation.",
+    "license_note": "Brooks's 1918 edition is public domain; Internet Archive marks the scan not in copyright. Hobah modernization is newly prepared for this project."
+  },
+  "derive_from_remote_public_domain": {
+    "url": "https://archive.org/stream/josephasenathcon00broo/josephasenathcon00broo_djvu.txt",
+    "source_title": "E. W. Brooks, Joseph and Asenath (1918)",
+    "start_regex": "JOSEPH\\s+AND\\s+ASENATH\\s+THE\\s+CONFESSION\\s+AND\\s+PRAYER\\s+OF\\s+ASENATH",
+    "start_occurrence": "last",
+    "end_regex": "APPENDIX\\s+OF\\s+PASSAGES",
+    "flags": "i",
+    "min_chars": 15000
+  }
+}

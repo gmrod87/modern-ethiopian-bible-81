@@ -1,0 +1,19 @@
+{
+  "id": "2-baruch",
+  "title": "2 Baruch (Syriac Apocalypse of Baruch) — Hobah Translation",
+  "group": "ancient-writings",
+  "about": "A Jewish apocalypse composed in the aftermath of Jerusalem's destruction, framed as revelations to Baruch after the Babylonian destruction of the first Temple. It wrestles with judgment, the fate of Zion, resurrection, the coming age, and Israel's relationship to Torah. Chapters 1–77 survive principally in Syriac; the concluding Letter of Baruch also has a wider transmission history.",
+  "translation": {
+    "status": "Hobah complete modern-English rendering from public-domain Syriac-based historical translation",
+    "base_text": "R. H. Charles, The Apocalypse of Baruch (1896), translated from the Syriac manuscript tradition, including the Letter of Baruch from Charles's public-domain critical work",
+    "method": "The complete public-domain Syriac-based historical translation is ingested from Internet Archive and conservatively modernized. Ancient content, chapter order, and apocalyptic imagery are retained. This is identified as a Hobah modern rendering of Charles's Syriac-based translation, not as a new collation of the Syriac manuscripts.",
+    "confidence": "High for preservation of Charles's published Syriac-based witness; medium-high for the ancient sense, with known textual difficulties and lacunae disclosed rather than silently harmonized",
+    "notes": "The work is not the same text as 1 Baruch. Chapter numbering and the separate epistolary conclusion are preserved as far as the historical source allows.",
+    "license_note": "Charles's 1896 edition is public domain; Internet Archive marks the scan not in copyright. Hobah modernization is newly prepared for this project."
+  },
+  "derive_from_remote_public_domain": {
+    "url": "https://archive.org/stream/theapocalypseofb00charuoft/theapocalypseofb00charuoft_djvu.txt",
+    "source_title": "R. H. Charles, The Apocalypse of Baruch (1896)",
+    "min_chars": 100000
+  }
+}
