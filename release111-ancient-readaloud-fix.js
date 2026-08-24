@@ -48,7 +48,7 @@ const listenNew=String.raw`  async openListen(ctx){
     const x=setAncientBridgeContext(ctx);if(!x||!x.chapter?.verses?.length){
       toast('This Ancient text has no readable audio content');return false;
     }
-    await stopVoiceCommands({silent:true}).catch(()=>{});
+    stopVoiceCommands({silent:true}).catch(()=>{});
     const items=buildVerseItems(x.chapter.verses).filter(i=>clean(i?.text));
     if(!items.length){toast('This Ancient text has no readable audio content');return false}
     prepareListenQueue(x.book,x.chapter,items,0);
@@ -60,10 +60,19 @@ if(!app.includes(listenOld))throw new Error('Release111 expected original Ancien
 app=app.replace(listenOld,listenNew);
 
 // When an Ancient passage action sheet uses Listen, start it immediately as well.
-const verseListenOld="async function openListenPanelForVerse(b,c,v){\n  await stopVoiceCommands({silent:true}).catch(()=>{});\n  prepareListenQueue(b,c,buildVerseItems([v]),0);\n}";
-const verseListenNew="async function openListenPanelForVerse(b,c,v){\n  await stopVoiceCommands({silent:true}).catch(()=>{});\n  prepareListenQueue(b,c,buildVerseItems([v]),0);\n  if(b?.category==='ancient'){try{await playNarrationItem()}catch(e){console.warn('Ancient passage read aloud',e);setAudioStatus('Read aloud ready • tap play to retry')}}\n}";
-if(!app.includes(verseListenOld))throw new Error('Release111 verse Listen function missing');
-app=app.replace(verseListenOld,verseListenNew);
+const verseStart='async function openListenPanelForVerse(b,c,v){';
+const verseEnd='\nasync function startNarrationFromChapter(b,c){';
+const va=app.indexOf(verseStart),vb=app.indexOf(verseEnd,va+verseStart.length);
+if(va<0||vb<0)throw new Error('Release111 verse Listen function range missing');
+const verseListenNew=String.raw`async function openListenPanelForVerse(b,c,v){
+  stopVoiceCommands({silent:true}).catch(()=>{});
+  prepareListenQueue(b,c,buildVerseItems([v]),0);
+  if(b?.category==='ancient'){
+    setAudioStatus('Ancient Library • starting…');
+    try{await playNarrationItem()}catch(e){console.warn('Ancient passage read aloud',e);setAudioPlay('▶');setAudioStatus('Read aloud ready • tap play to retry')}
+  }
+}`;
+app=app.slice(0,va)+verseListenNew+app.slice(vb);
 
 app=app.replace("const V='110';","const V='111';");
 fs.writeFileSync(p('app.js'),app);
