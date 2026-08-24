@@ -1,19 +1,18 @@
 Hobah TestFlight upload trigger
 Marketing Version: 1.0.0
-Expected Build Number: 40
+Expected Build Number: 41
 Bundle ID: com.hobah.bible
 Apple signing mode: Manual App Store profile
-Release 104 verse actions and cleaner narration
-Build 40: makes every Scripture verse in every canonical book and letter a full tap target
-Build 40: tapping a verse opens the verse action sheet with Save and Highlight actions
-Build 40: adds persistent Highlight / Remove highlight state that survives reopening Hobah
-Build 40: restores saved highlights automatically whenever a chapter is rendered
-Build 40: keeps Copy, Share, Listen, Explain and personal notes in the verse action sheet
-Build 40: adds keyboard-accessible verse selection without changing the reading layout
-Build 40: normal chapter Listen announces the book, chapter and first verse once at the beginning
-Build 40: strips leading verse-number tokens from narration text before TTS
-Build 40: does not speak the number of each subsequent verse during continuous read aloud
-Build 40: preserves Release 103 bottom Home and centered H navigation
-Build 40: preserves Release 102 Ancient Library reader polish, metadata and source-text protections
-Build 40: preserves Study AI, native voice commands and existing Listen transport behavior
-Final TestFlight trigger: Release 104 persistent verse save/highlight interaction and number-free continuous narration
+Release 106 Ancient Library clickable passage fix
+Build 41: includes Release 106 in the bundled native iOS web app
+Build 41: makes every numbered Ancient Library reading unit a full tap target
+Build 41: tapping an Ancient passage opens the same Save, Highlight, Copy, Share, Listen, Explain and Personal Note sheet as Scripture
+Build 41: adds a visible tap hint and right-edge affordance so clickable Ancient passages are obvious
+Build 41: uses a capture-level iOS/WKWebView tap handler so one tap reliably opens one action sheet
+Build 41: keeps Ancient passage highlighting persistent and restores it when reopening a chapter
+Build 41: preserves clickable passages after Find-in-text and clearing search
+Build 41: fixes the Ancient Library search-regex build corruption found in Release 105
+Build 41: keeps normalized spacing, punctuation, page-number cleanup and source-text preservation
+Build 41: cache-busts Ancient Library runtime/assets to v106
+Build 41: preserves Release 104 Scripture verse actions, narration cleanup, Study AI and native voice behavior
+Final TestFlight trigger: Release 106 Ancient Library clickable Save/Highlight/Note actions
