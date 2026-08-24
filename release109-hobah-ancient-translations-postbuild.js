@@ -49,7 +49,20 @@ function sourceNoise(line){
   return /^(?:digitized by|generated at|internet archive|google|public domain|copyright|all rights reserved|scan|ocr)\b/i.test(x)||/^\f?$/.test(x)||/^\d{1,4}$/.test(x);
 }
 function cleanRemote(s){return String(s||'').replace(/\r/g,'').split('\n').filter(x=>!sourceNoise(x)).join('\n').replace(/[ \t]+$/gm,'').replace(/\n{4,}/g,'\n\n').trim()}
-function rxFrom(spec,global=false){const flags=String(spec.flags||'i').replace(/g/g,'')+(global?'g':'');return new RegExp(spec.pattern||spec,flags)}
+function decodeEntities(s){return String(s||'').replace(/&nbsp;|&#160;/gi,' ').replace(/&amp;/gi,'&').replace(/&quot;/gi,'"').replace(/&#39;|&apos;/gi,"'").replace(/&lt;/gi,'<').replace(/&gt;/gi,'>').replace(/&#(\d+);/g,(_,n)=>String.fromCodePoint(Number(n)||32)).replace(/&#x([0-9a-f]+);/gi,(_,n)=>String.fromCodePoint(parseInt(n,16)||32))}
+function htmlToText(raw){
+  let s=String(raw||'').replace(/<script\b[\s\S]*?<\/script>/gi,'').replace(/<style\b[\s\S]*?<\/style>/gi,'');
+  s=s.replace(/<br\s*\/?\s*>/gi,'\n').replace(/<\/(?:p|div|h1|h2|h3|h4|li|blockquote|tr|td|section|article)>/gi,'\n').replace(/<[^>]+>/g,' ');
+  return decodeEntities(s).replace(/\r/g,'').replace(/[ \t]+/g,' ').replace(/ *\n */g,'\n').replace(/\n{3,}/g,'\n\n').trim();
+}
+function cleanSacredPage(raw){
+  let text=htmlToText(raw);
+  const startRe=/(?:^|\n)\s*(?:(?:THE\s+)?TESTAMENT\s+OF\s+[A-Z][A-Z ]+|PSALM\s+[IVXLCDM0-9]+|CHAP(?:TER)?\.?\s+[IVXLCDM0-9]+)\b/i;
+  const sm=startRe.exec(text);if(sm)text=text.slice(sm.index);
+  const tailRe=/\n\s*(?:Footnotes?|Previous:|Next:|Sacred Texts\s+Bible\s+Index|Buy this Book)\b/i,tm=tailRe.exec(text);if(tm&&tm.index>120)text=text.slice(0,tm.index);
+  const lines=text.split('\n').map(x=>x.trim()).filter(Boolean).filter(x=>!/(?:Sacred[- ]Texts|Internet Sacred Text Archive|Buy this Book|Forgotten Books of Eden, by Rutherford|Previous:|Next:|p\.\s*\d+\b)/i.test(x));
+  return cleanRemote(lines.join('\n'));
+}
 function locateMatches(text,re){const out=[];let m;const g=new RegExp(re.source,re.flags.includes('g')?re.flags:re.flags+'g');while((m=g.exec(text))){out.push(m);if(m[0]==='')g.lastIndex++}return out}
 function trimRemote(raw,spec){
   let text=cleanRemote(raw),start=0;
@@ -82,7 +95,7 @@ async function fetchText(url){
       const r=await fetch(url,{headers:{'user-agent':'HobahAncientLibrary/1.0'},signal:AbortSignal.timeout(45000)});if(!r.ok)throw Error(`HTTP ${r.status}`);return await r.text();
     }catch(e){last=e;if(attempt<3)await new Promise(r=>setTimeout(r,800*attempt));}
   }
-  throw last;
+  try{return execFileSync('curl',['-L','--fail','--retry','3','--retry-delay','1','--silent','--show-error',url],{encoding:'utf8',maxBuffer:80*1024*1024})}catch(e){throw last||e}
 }
 function deriveFromExisting(cfg){
   const spec=cfg.derive_from_manifest,re=new RegExp(spec.title_regex,(spec.flags||'i').replace(/g/g,''));
@@ -100,9 +113,22 @@ function deriveFromExisting(cfg){
   if(!chapters.length)throw new Error(`Release109 derived empty text for ${cfg.id}`);
   return chapters;
 }
+async function deriveFromRemotePages(cfg){
+  const spec=cfg.derive_from_remote_pages,urls=Array.isArray(spec.urls)?spec.urls:[],labels=Array.isArray(spec.labels)?spec.labels:[];
+  if(!urls.length)throw new Error(`Release109 ${cfg.id} has no public-domain page URLs`);
+  if(labels.length&&labels.length!==urls.length)throw new Error(`Release109 ${cfg.id} page labels do not match URL count`);
+  const chapters=[];
+  for(let i=0;i<urls.length;i++){
+    const raw=await fetchText(urls[i]),body=cleanSacredPage(raw),min=Number(spec.min_chars_each||120);
+    if(body.length<min)throw new Error(`Release109 ${cfg.id} page ${i+1} unexpectedly short: ${body.length} chars (${urls[i]})`);
+    chapters.push({label:String(labels[i]||`Section ${i+1}`),text:modernize(body),chapterNumber:i+1});
+  }
+  return chapters;
+}
 async function buildWork(cfg){
   let chapters=[];
   if(Array.isArray(cfg.chapters)&&cfg.chapters.length){chapters=cfg.chapters.map((c,i)=>({label:String(c.label||`Chapter ${i+1}`),text:cleanText(c.text),chapterNumber:Number(c.number)||i+1})).filter(c=>c.text.length>70)}
+  else if(cfg.derive_from_remote_pages)chapters=await deriveFromRemotePages(cfg);
   else if(cfg.derive_from_manifest)chapters=deriveFromExisting(cfg);
   else if(cfg.derive_from_remote_public_domain){
     const spec=cfg.derive_from_remote_public_domain,raw=await fetchText(spec.url);if(raw.length<Number(spec.min_chars||5000))throw new Error(`Release109 remote source too small for ${cfg.id}: ${raw.length}`);
