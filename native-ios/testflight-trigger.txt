@@ -1,18 +1,13 @@
 Hobah TestFlight upload trigger
 Marketing Version: 1.0.0
-Expected Build Number: 41
+Expected Build Number: 42
 Bundle ID: com.hobah.bible
 Apple signing mode: Manual App Store profile
-Release 106 Ancient Library clickable passage fix
-Build 41: includes Release 106 in the bundled native iOS web app
-Build 41: makes every numbered Ancient Library reading unit a full tap target
-Build 41: tapping an Ancient passage opens the same Save, Highlight, Copy, Share, Listen, Explain and Personal Note sheet as Scripture
-Build 41: adds a visible tap hint and right-edge affordance so clickable Ancient passages are obvious
-Build 41: uses a capture-level iOS/WKWebView tap handler so one tap reliably opens one action sheet
-Build 41: keeps Ancient passage highlighting persistent and restores it when reopening a chapter
-Build 41: preserves clickable passages after Find-in-text and clearing search
-Build 41: fixes the Ancient Library search-regex build corruption found in Release 105
-Build 41: keeps normalized spacing, punctuation, page-number cleanup and source-text preservation
-Build 41: cache-busts Ancient Library runtime/assets to v106
-Build 41: preserves Release 104 Scripture verse actions, narration cleanup, Study AI and native voice behavior
-Final TestFlight trigger: Release 106 Ancient Library clickable Save/Highlight/Note actions
+Release 107 Instant Ancient Library
+Build 42: includes Release 107 in the bundled native iOS web app
+Build 42: opens the Ancient Library shelf immediately when tapped, without the Opening/Loading spinner screen
+Build 42: prebuilds the lightweight Ancient Library shelf index during the app build instead of processing the full multi-megabyte corpus on first open
+Build 42: preserves the full Ancient text corpus and loads the requested text when a work is opened
+Build 42: preserves Release 106 Ancient passage Save, Highlight, Copy, Share, Listen, Explain and Personal Note actions
+Build 42: cache-busts Ancient Library runtime/assets to v107
+Final TestFlight trigger: Release 107 instant Ancient Library shelf
