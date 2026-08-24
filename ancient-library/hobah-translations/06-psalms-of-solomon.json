@@ -1,0 +1,18 @@
+{
+  "id": "psalms-of-solomon",
+  "title": "Psalms of Solomon — Hobah Translation",
+  "group": "ancient-writings",
+  "about": "A collection of eighteen Jewish psalms from the late Second Temple period, commonly connected with the upheavals surrounding Pompey's capture of Jerusalem. The collection is especially important for its language about righteousness, divine judgment, Jerusalem, and the expected Davidic Messiah.",
+  "translation": {
+    "status": "Hobah complete modern-English rendering from public-domain historical translation",
+    "base_text": "The complete public-domain Psalms of Solomon witness already preserved in the audited Hobah Ancient Library, representing the Greek tradition used by public-domain scholarly editions",
+    "method": "Complete conservative modernization of the audited public-domain historical English witness. Content and psalm order are retained; archaic English is normalized. This is a Hobah modern rendering rather than a falsely labeled fresh critical translation from a newly collated Greek text.",
+    "confidence": "High for preservation of the historical edition's content; medium-high for the underlying Greek sense, subject to normal textual variants",
+    "notes": "All eighteen psalms are retained. Messianic language in Psalms 17–18 is translated as it stands in the historical witness and is not harmonized to later Christian terminology.",
+    "license_note": "Ancient text and the historical English source in the audited Hobah corpus are public domain. Hobah modernization is newly prepared for this project."
+  },
+  "derive_from_manifest": {
+    "title_regex": "Psalms?\\s+of\\s+Solomon",
+    "flags": "i"
+  }
+}
