@@ -4,6 +4,7 @@ on:
   push:
     branches: [main]
     paths:
+      - '.github/workflows/native-ios-validate.yml'
       - 'native-ios/**'
       - 'api/**'
       - 'package.json'
@@ -21,7 +22,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'npm'
       - name: Install web build dependencies
         run: npm install
       - name: Build production Hobah
