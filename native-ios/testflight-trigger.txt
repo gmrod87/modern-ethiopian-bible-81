@@ -1,16 +1,13 @@
 Hobah TestFlight upload trigger
 Marketing Version: 1.0.0
-Expected Build Number: 43
+Expected Build Number: 44
 Bundle ID: com.hobah.bible
 Apple signing mode: Manual App Store profile
-Release 108 Ancient Library link and iOS scale fix
-Build 43: includes Release 108 in the bundled native iOS web app
-Build 43: every Ancient Library card opens its own direct local work file instead of loading and processing the entire Ancient corpus on tap
-Build 43: splits all 161 Ancient works into individual optimized files at build time so links open quickly and reliably
-Build 43: preloads the selected work on touch-down for faster opening
-Build 43: fixes the slight iPhone/WKWebView page zoom by keeping search fields and reader selectors at 16px, locking text-size adjustment to 100%, and resetting reader transforms/zoom
-Build 43: blurs the active search/control before navigating into an Ancient text so iOS does not retain focus zoom
-Build 43: preserves instant Ancient Library shelf loading from Release 107
-Build 43: preserves Ancient passage Save, Highlight, Copy, Share, Listen, Explain and Personal Note actions
-Build 43: cache-busts Ancient Library runtime/assets to v108
-Final TestFlight trigger: Release 108 reliable Ancient links and normal iOS reader scale
+Release 109 Ancient Library expansion and provenance update
+Build 44: includes Release 109 in the bundled native iOS web app
+Build 44: adds 17 Hobah Ancient Library works, including requested pseudepigraphal writings and Dead Sea Scroll texts
+Build 44: includes source/provenance metadata and public-domain source handling for the new Ancient Library works
+Build 44: preserves Release 108 direct local Ancient work files, fast opening, iOS reader scale fixes, and instant shelf loading
+Build 44: preserves Ancient passage Save, Highlight, Copy, Share, Listen, Explain and Personal Note actions
+Build 44: preserves the latest Study AI, voice controls, settings and audio fixes from the production build chain
+Final TestFlight trigger: Release 109 Ancient Library expansion for App Store Connect upload
