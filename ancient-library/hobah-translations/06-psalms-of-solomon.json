@@ -5,14 +5,34 @@
   "about": "A collection of eighteen Jewish psalms from the late Second Temple period, commonly connected with the upheavals surrounding Pompey's capture of Jerusalem. The collection is especially important for its language about righteousness, divine judgment, Jerusalem, and the expected Davidic Messiah.",
   "translation": {
     "status": "Hobah complete modern-English rendering from public-domain historical translation",
-    "base_text": "The complete public-domain Psalms of Solomon witness already preserved in the audited Hobah Ancient Library, representing the Greek tradition used by public-domain scholarly editions",
-    "method": "Complete conservative modernization of the audited public-domain historical English witness. Content and psalm order are retained; archaic English is normalized. This is a Hobah modern rendering rather than a falsely labeled fresh critical translation from a newly collated Greek text.",
-    "confidence": "High for preservation of the historical edition's content; medium-high for the underlying Greek sense, subject to normal textual variants",
-    "notes": "All eighteen psalms are retained. Messianic language in Psalms 17–18 is translated as it stands in the historical witness and is not harmonized to later Christian terminology.",
-    "license_note": "Ancient text and the historical English source in the audited Hobah corpus are public domain. Hobah modernization is newly prepared for this project."
+    "base_text": "The complete eighteen-psalm public-domain witness in Rutherford H. Platt Jr., The Forgotten Books of Eden (1926), chapter pages hosted by Sacred-Texts, representing the Greek tradition through earlier public-domain scholarly translation",
+    "method": "Complete conservative Hobah modernization of the public-domain historical English witness. Psalm order and content are retained while archaic English is normalized. This is original Hobah modern-English wording based on a public-domain witness rather than a falsely labelled freshly collated Greek critical edition.",
+    "confidence": "High for preservation of the historical witness's content; medium-high for the underlying Greek sense, subject to normal textual variants",
+    "notes": "All eighteen psalms are retained. Messianic language in Psalms 17–18 is not harmonized to later Christian terminology.",
+    "license_note": "The ancient text and the 1926 public-domain historical English witness are public domain. Hobah modernization is newly prepared for this project."
   },
-  "derive_from_manifest": {
-    "title_regex": "Psalms?\\s+of\\s+Solomon",
-    "flags": "i"
+  "derive_from_remote_pages": {
+    "urls": [
+      "https://www.sacred-texts.com/bib/fbe/fbe177.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe178.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe179.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe180.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe181.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe182.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe183.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe184.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe185.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe186.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe187.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe188.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe189.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe190.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe191.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe192.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe193.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe194.htm"
+    ],
+    "labels": ["Psalm 1","Psalm 2","Psalm 3","Psalm 4","Psalm 5","Psalm 6","Psalm 7","Psalm 8","Psalm 9","Psalm 10","Psalm 11","Psalm 12","Psalm 13","Psalm 14","Psalm 15","Psalm 16","Psalm 17","Psalm 18"],
+    "min_chars_each": 140
   }
 }
