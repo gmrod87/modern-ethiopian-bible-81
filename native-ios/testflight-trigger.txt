@@ -1,15 +1,13 @@
 Hobah TestFlight upload trigger
 Marketing Version: 1.0.0
-Expected Build Number: 48
+Expected Build Number: 50
 Bundle ID: com.hobah.bible
 Apple signing mode: Manual App Store profile
-Release 113 rights-safe corpus + approved Hobah branding
-Build 48: replaces all supported standard/deuterocanonical production text with documented public-domain World English Bible Classic wording
-Build 48: retains 1 Enoch and Jubilees as public-domain historical R. H. Charles English witnesses
-Build 48: temporarily withholds 1 Meqabyan, 2 Meqabyan, 3 Meqabyan and 4 Baruch English text until a documented distribution-rights-safe source is verified
-Build 48: removes the Platt/Sacred-Texts duplicate from the production Ancient Library conservative rights pass
-Build 48: retains 177 Ancient Library works that pass the Release 113 provenance gate, including Hobah works carrying explicit newly-prepared/public-domain license notes
-Build 48: includes rights-audit.json and RIGHTS_PROVENANCE.txt production provenance records and a final forbidden-phrase contamination scan
-Build 48: preserves the approved green/gold Hobah cross, native splash and Home Screen/App Store icon treatment
-Build 48: preserves Ancient Library read aloud, Study AI, voice commands, save/highlight/copy/share/note actions and native audio controls
-Final TestFlight trigger: Release 113 rights-safe corpus and provenance audit for App Store Connect upload
+Build 50: approved 4K Ancient Canon loading screen only
+Build 50: native launch artwork uses the approved dark forest-green background, dimensional gold cross, “The Ancient Canon” and “81 Books”
+Build 50: splash assets render up to 2160x3840 for a crisp high-resolution launch screen on modern iPhones
+Build 50: home page and all in-app UI remain unchanged from the current release
+Build 50: preserves Release 113 rights-safe corpus, provenance records and Ancient Library copyright safeguards
+Build 50: preserves Ancient Library mobile layout and read aloud fixes, Study AI, voice commands, save/highlight/copy/share/note actions and native audio controls
+Build 50: preserves the existing App Store/Home Screen icon and in-app header branding; this update changes the loading screen only
+Final TestFlight trigger: approved 4K loading-screen-only update
