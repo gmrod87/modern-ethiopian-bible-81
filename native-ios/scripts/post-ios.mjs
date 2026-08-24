@@ -33,7 +33,10 @@ if(!delegate.includes('Hobah background spoken-audio session')){
 }
 await writeFile(delegatePath,delegate);
 
+const HOBahGreen='#0D4C3F';
+const HOBahGold='#E1B34D';
 const iconSvg=await readFile(path.join(root,'assets','hobah-icon.svg'));
+const crossSvg=await readFile(path.join(root,'assets','hobah-cross-mark.svg'));
 const iconDir=path.join(appRoot,'Assets.xcassets','AppIcon.appiconset');
 await mkdir(iconDir,{recursive:true});
 const specs=[
@@ -50,7 +53,7 @@ for(const [idiom,size,scale,px] of specs){
   // pixel is visually opaque. Flatten AND removeAlpha to force RGB PNG output.
   await sharp(iconSvg)
     .resize(px,px)
-    .flatten({background:'#F3EFE5'})
+    .flatten({background:HOBahGreen})
     .removeAlpha()
     .png({palette:false})
     .toFile(path.join(iconDir,filename));
@@ -62,19 +65,17 @@ const splashDir=path.join(appRoot,'Assets.xcassets','Splash.imageset');
 if(existsSync(path.dirname(splashDir))){
   await mkdir(splashDir,{recursive:true});
 
-  // The App Store icon intentionally has a full opaque canvas. For the splash,
-  // remove only that canvas so the raised Hobah mark sits directly on the launch
-  // background instead of looking like a pale square with a white border.
-  const splashMarkSvg=Buffer.from(iconSvg.toString('utf8').replace(/\s*<rect width="1024" height="1024" fill="url\(#page\)"\/>\s*/,'\n'));
-  const logoSize=820;
+  // One visual identity everywhere: full Hobah green canvas, the same solo gold
+  // cross used by the header, and the Ancient Canon caption in the same gold family.
   const canvasSize=2732;
+  const logoSize=760;
   const logoLeft=Math.round((canvasSize-logoSize)/2);
-  const logoTop=855;
-  const logo=await sharp(splashMarkSvg).resize(logoSize,logoSize,{fit:'contain'}).png({palette:false}).toBuffer();
-  const caption=Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="2732" height="2732"><text x="1366" y="2350" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="60" font-weight="600" letter-spacing="5" fill="#B08A4F">The Ancient Canon</text></svg>`);
+  const logoTop=790;
+  const logo=await sharp(crossSvg).resize(logoSize,logoSize,{fit:'contain'}).png({palette:false}).toBuffer();
+  const caption=Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="2732" height="2732"><text x="1366" y="2350" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="60" font-weight="600" letter-spacing="5" fill="${HOBahGold}">The Ancient Canon</text></svg>`);
   const filenames=['splash-2732x2732.png','splash-2732x2732-1.png','splash-2732x2732-2.png'];
   for(const filename of filenames){
-    await sharp({create:{width:2732,height:2732,channels:3,background:'#F3EFE5'}})
+    await sharp({create:{width:2732,height:2732,channels:3,background:HOBahGreen}})
       .composite([{input:logo,left:logoLeft,top:logoTop},{input:caption,left:0,top:0}])
       .removeAlpha()
       .png({palette:false})
@@ -88,4 +89,4 @@ if(existsSync(path.dirname(splashDir))){
   await writeFile(path.join(splashDir,'Contents.json'),JSON.stringify(splashContents,null,2));
 }
 
-console.log('Hobah iOS native settings, permissions, background audio, status bar, opaque icons and polished 2-second splash applied');
+console.log('Hobah iOS native settings, permissions, background audio, unified gold-cross icons and green launch screen applied');
