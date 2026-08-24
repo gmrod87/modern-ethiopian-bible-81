@@ -1,28 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
   <defs>
-    <radialGradient id="hobahGreen" cx="42%" cy="34%" r="82%">
-      <stop offset="0" stop-color="#155B4C"/>
-      <stop offset="0.48" stop-color="#0D4C3F"/>
-      <stop offset="1" stop-color="#083A31"/>
+    <radialGradient id="hobahGreen" cx="42%" cy="28%" r="88%">
+      <stop offset="0" stop-color="#254A38"/>
+      <stop offset="0.48" stop-color="#173A2C"/>
+      <stop offset="1" stop-color="#0B281C"/>
     </radialGradient>
-    <linearGradient id="hobahGold" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#F7D879"/>
-      <stop offset="0.38" stop-color="#E7BD58"/>
-      <stop offset="0.72" stop-color="#C89536"/>
-      <stop offset="1" stop-color="#E8BC50"/>
+    <linearGradient id="hobahGold" x1="0.16" y1="0.08" x2="0.84" y2="0.94">
+      <stop offset="0" stop-color="#FFE38A"/>
+      <stop offset="0.28" stop-color="#F1C65C"/>
+      <stop offset="0.58" stop-color="#D9A23B"/>
+      <stop offset="0.82" stop-color="#C58A25"/>
+      <stop offset="1" stop-color="#E8B84B"/>
     </linearGradient>
-    <filter id="hobahShadow" x="-30%" y="-30%" width="160%" height="170%">
-      <feDropShadow dx="0" dy="18" stdDeviation="15" flood-color="#061A15" flood-opacity="0.5"/>
-      <feDropShadow dx="0" dy="3" stdDeviation="2" flood-color="#8D6421" flood-opacity="0.42"/>
+    <filter id="hobahShadow" x="-25%" y="-25%" width="150%" height="160%">
+      <feDropShadow dx="0" dy="16" stdDeviation="13" flood-color="#061A12" flood-opacity="0.5"/>
+      <feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="#6C4917" flood-opacity="0.3"/>
     </filter>
   </defs>
   <rect width="1024" height="1024" fill="url(#hobahGreen)"/>
-  <g fill="url(#hobahGold)" filter="url(#hobahShadow)">
-    <path d="M512 116 574 218 542 249c-15 15-22 32-22 53v468c0 32 11 59 34 82l63 64-105 92-105-92 63-64c23-23 34-50 34-82V302c0-21-7-38-22-53l-32-31Z"/>
-    <path d="m148 512 94-91 48 51c19 20 43 30 72 30h300c29 0 53-10 72-30l48-51 94 91-94 91-48-51c-19-20-43-30-72-30H362c-29 0-53 10-72 30l-48 51Z"/>
-  </g>
-  <g fill="none" stroke="#FFE7A2" stroke-width="5" stroke-linejoin="round" opacity="0.72">
-    <path d="M512 116 574 218 542 249c-15 15-22 32-22 53v468c0 32 11 59 34 82l63 64-105 92-105-92 63-64c23-23 34-50 34-82V302c0-21-7-38-22-53l-32-31Z"/>
-    <path d="m148 512 94-91 48 51c19 20 43 30 72 30h300c29 0 53-10 72-30l48-51 94 91-94 91-48-51c-19-20-43-30-72-30H362c-29 0-53 10-72 30l-48 51Z"/>
-  </g>
+  <path fill="url(#hobahGold)" filter="url(#hobahShadow)" d="M512 118C531 156 552 190 607 232L565 277C545 299 538 326 538 374V423H637C681 423 708 410 744 366L812 451L744 536C708 492 681 479 637 479H538V686C538 731 552 759 596 801L512 904L428 801C472 759 486 731 486 686V479H383C339 479 312 492 276 536L208 451L276 366C312 410 339 423 383 423H486V374C486 326 479 299 459 277L417 232C472 190 493 156 512 118Z"/>
+  <path fill="none" stroke="#FFE8A5" stroke-width="5" stroke-linejoin="round" opacity="0.55" d="M512 118C531 156 552 190 607 232L565 277C545 299 538 326 538 374V423H637C681 423 708 410 744 366L812 451L744 536C708 492 681 479 637 479H538V686C538 731 552 759 596 801L512 904L428 801C472 759 486 731 486 686V479H383C339 479 312 492 276 536L208 451L276 366C312 410 339 423 383 423H486V374C486 326 479 299 459 277L417 232C472 190 493 156 512 118Z"/>
 </svg>
