@@ -39,8 +39,12 @@ jobs:
             exit 1
           fi
           sudo xcode-select --switch "$XCODE_APP/Contents/Developer"
-          xcodebuild -version
-          xcodebuild -version | head -1 | grep -E '^Xcode 26([ .]|$)'
+          XCODE_VERSION="$(xcodebuild -version)"
+          printf '%s\n' "$XCODE_VERSION"
+          if [[ ! "$XCODE_VERSION" =~ ^Xcode[[:space:]]26([[:space:].]|$) ]]; then
+            echo "Expected Xcode 26, got: $XCODE_VERSION" >&2
+            exit 1
+          fi
 
       - name: Install Hobah web dependencies
         run: npm install
