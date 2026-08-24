@@ -1,16 +1,15 @@
 Hobah TestFlight upload trigger
 Marketing Version: 1.0.0
-Expected Build Number: 47
+Expected Build Number: 48
 Bundle ID: com.hobah.bible
 Apple signing mode: Manual App Store profile
-Release 112 unified Hobah cross branding + Release 111 Ancient Library read aloud
-Build 47: uses Hobah green #0D4C3F consistently across the App Store/Home Screen icon and native loading screen
-Build 47: replaces the old H app icon with the single gold Hobah cross mark
-Build 47: loading screen uses the same gold cross on Hobah green with The Ancient Canon caption
-Build 47: top app header uses the same solo gold cross with subtle shadow and no square badge or H
-Build 47: PWA/Home Screen icon, favicon, header and native App Store icon now share the same cross shape and gold palette
-Build 47: preserves Release 111 Ancient Library one-tap read aloud across all 178 works / 2,945 chapters
-Build 47: preserves Release 110 responsive Ancient chapter layout, Previous/Next cleanup and legibility fixes
-Build 47: preserves Release 109 ancient translations, provenance metadata and Dead Sea Scroll works
-Build 47: preserves Study AI, voice commands, save/highlight/copy/share/note actions and native audio controls
-Final TestFlight trigger: Release 112 unified Hobah branding and Ancient Library fixes for App Store Connect upload
+Release 113 rights-safe corpus + approved Hobah branding
+Build 48: replaces all supported standard/deuterocanonical production text with documented public-domain World English Bible Classic wording
+Build 48: retains 1 Enoch and Jubilees as public-domain historical R. H. Charles English witnesses
+Build 48: temporarily withholds 1 Meqabyan, 2 Meqabyan, 3 Meqabyan and 4 Baruch English text until a documented distribution-rights-safe source is verified
+Build 48: removes the Platt/Sacred-Texts duplicate from the production Ancient Library conservative rights pass
+Build 48: retains 177 Ancient Library works that pass the Release 113 provenance gate, including Hobah works carrying explicit newly-prepared/public-domain license notes
+Build 48: includes rights-audit.json and RIGHTS_PROVENANCE.txt production provenance records and a final forbidden-phrase contamination scan
+Build 48: preserves the approved green/gold Hobah cross, native splash and Home Screen/App Store icon treatment
+Build 48: preserves Ancient Library read aloud, Study AI, voice commands, save/highlight/copy/share/note actions and native audio controls
+Final TestFlight trigger: Release 113 rights-safe corpus and provenance audit for App Store Connect upload
