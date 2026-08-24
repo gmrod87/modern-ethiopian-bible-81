@@ -5,14 +5,58 @@
   "about": "Twelve testamentary discourses attributed to the sons of Jacob. The surviving Greek corpus is transmitted through Christian manuscripts and contains material whose Jewish, Christian, and redactional layers remain disputed. Hobah keeps the received material rather than silently deleting passages judged secondary.",
   "translation": {
     "status": "Hobah complete modern-English rendering from public-domain historical translation",
-    "base_text": "The complete public-domain Testaments of the Twelve Patriarchs already preserved in the audited Hobah Ancient Library, ultimately representing the Greek manuscript tradition used by R. H. Charles and related public-domain editions",
-    "method": "Complete conservative modernization of the audited public-domain historical English witness. Archaic pronouns and verbal forms are normalized while the historical edition's content and order are retained. This is a Hobah modern-English rendering, not falsely presented as a new direct translation from a freshly collated Greek critical text.",
-    "confidence": "High for preservation of the existing public-domain witness; medium for the underlying ancient text because recension and interpolation questions are substantial",
-    "notes": "Each patriarchal testament remains identifiable in the source-derived sections. Suspected Christian interpolation is not removed merely because it is disputed; the About This Text panel should disclose the textual history.",
-    "license_note": "Underlying ancient text and the historical English source used by the audited Hobah corpus are public domain. Hobah modernization is newly prepared for this project."
+    "base_text": "The complete public-domain Testaments of the Twelve Patriarchs text in Rutherford H. Platt Jr., The Forgotten Books of Eden (1926), chapter pages hosted by Sacred-Texts, ultimately dependent on earlier public-domain scholarly translation of the Greek manuscript tradition",
+    "method": "Complete conservative Hobah modernization of a public-domain historical English witness. Archaic pronouns and verbal forms are normalized while content, testament order, and chapter divisions are retained. This is an original Hobah modern-English rendering of a public-domain witness, not falsely presented as a new critical edition freshly collated from all Greek manuscripts.",
+    "confidence": "High for preservation of the public-domain witness; medium for the underlying ancient text because recension and interpolation questions are substantial",
+    "notes": "All twelve patriarchal testaments are retained. Suspected Christian interpolation is not silently removed; the About This Text panel should disclose the textual history.",
+    "license_note": "The ancient text and the 1926 public-domain historical English witness are public domain. Hobah modernization is newly prepared for this project."
   },
-  "derive_from_manifest": {
-    "title_regex": "Testament\\s+of\\s+(?:Reuben|Simeon|Levi|Judah|Issachar|Zebulun|Dan|Naphtali|Gad|Asher|Joseph|Benjamin)",
-    "flags": "i"
+  "derive_from_remote_pages": {
+    "urls": [
+      "https://www.sacred-texts.com/bib/fbe/fbe267.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe268.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe269.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe270.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe271.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe272.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe273.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe274.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe275.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe276.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe277.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe278.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe279.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe280.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe281.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe282.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe283.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe284.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe285.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe286.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe287.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe288.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe289.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe290.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe291.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe292.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe293.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe294.htm",
+      "https://www.sacred-texts.com/bib/fbe/fbe295.htm"
+    ],
+    "labels": [
+      "Testament of Reuben — Chapter 1","Testament of Reuben — Chapter 2",
+      "Testament of Simeon — Chapter 1","Testament of Simeon — Chapter 2","Testament of Simeon — Chapter 3",
+      "Testament of Levi — Chapter 1","Testament of Levi — Chapter 2","Testament of Levi — Chapter 3","Testament of Levi — Chapter 4","Testament of Levi — Chapter 5",
+      "Testament of Judah — Chapter 1","Testament of Judah — Chapter 2","Testament of Judah — Chapter 3","Testament of Judah — Chapter 4",
+      "Testament of Issachar — Chapter 1","Testament of Issachar — Chapter 2",
+      "Testament of Zebulun — Chapter 1","Testament of Zebulun — Chapter 2",
+      "Testament of Dan — Chapter 1","Testament of Dan — Chapter 2",
+      "Testament of Naphtali — Chapter 1","Testament of Naphtali — Chapter 2",
+      "Testament of Gad — Chapter 1","Testament of Gad — Chapter 2",
+      "Testament of Asher — Chapter 1",
+      "Testament of Joseph — Chapter 1","Testament of Joseph — Chapter 2",
+      "Testament of Benjamin — Chapter 1","Testament of Benjamin — Chapter 2"
+    ],
+    "min_chars_each": 180
   }
 }
