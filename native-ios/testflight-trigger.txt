@@ -11,4 +11,5 @@ Build 45: shortens long chapter/section labels inside buttons while preserving t
 Build 45: contains overflow and wrapping fixes for older Ancient Library cards and reader headings
 Build 45: preserves Release 109's 17 new ancient translations, provenance metadata and Dead Sea Scroll works
 Build 45: preserves direct local Ancient work files, fast opening, passage actions, Study AI, Listen, voice controls and settings
+Build 45: CI retry uses the robust Xcode 26 version check for current macOS runners
 Final TestFlight trigger: Release 110 Ancient Library mobile cleanup for App Store Connect upload
