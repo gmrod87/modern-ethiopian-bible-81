@@ -29,8 +29,8 @@ const articleMarker='<article id="ancientReaderText" class="chapterText ancientC
 if(!lib.includes(articleMarker))throw new Error('Release106 Ancient article marker missing');
 lib=lib.replace(articleMarker,'<div class="ancientTapHint">Tap any numbered passage to Save · Highlight · Listen · Explain · Note</div>'+articleMarker);
 
-// Add a capture-level fallback so a tap still opens the verse sheet even if a local
-// listener was replaced by a later reader rerender.
+// Install one capture-level tap handler. It intentionally runs before the local reader
+// listener so iOS/WKWebView always opens exactly one action sheet.
 const bootMarker='function boot(){installCaptureNavigation();';
 if(!lib.includes(bootMarker))throw new Error('Release106 boot marker missing');
 const capture=String.raw`function installAncientVerseCapture(){
@@ -38,15 +38,15 @@ const capture=String.raw`function installAncientVerseCapture(){
   document.documentElement.dataset.ancientVerseCapture106='1';
   document.addEventListener('click',e=>{
     const row=e.target.closest?.('#ancientReaderText .ancientVerse[data-ancient-v]');if(!row)return;
-    if(e.defaultPrevented)return;
+    const sel=window.getSelection?.();if(sel&&!sel.isCollapsed&&clean(sel.toString()))return;
     const n=Number(row.dataset.ancientV);if(!n)return;
     const bridge=window.HobahAncientBridge;if(!bridge?.openVerse)return;
-    const current=bridge.currentContext?.();
-    if(current)bridge.openVerse(current,n);
-  },false);
+    const current=bridge.currentContext?.();if(!current)return;
+    e.preventDefault();e.stopPropagation();bridge.openVerse(current,n);
+  },true);
 }
 `;
-// Expose the current bridge context from the reader itself for the fallback above.
+// Expose the current bridge context from the reader itself for the capture handler above.
 const setBridgeOld="function setBridge(ctx){try{window.HobahAncientBridge?.setContext?.(ctx)}catch(e){console.warn('Ancient bridge',e)}}";
 const setBridgeNew="let currentAncientReaderContext=null;function setBridge(ctx){currentAncientReaderContext=ctx;try{window.HobahAncientBridge?.setContext?.(ctx);if(window.HobahAncientBridge)window.HobahAncientBridge.currentContext=()=>currentAncientReaderContext}catch(e){console.warn('Ancient bridge',e)}}";
 if(!lib.includes(setBridgeOld))throw new Error('Release106 setBridge marker missing');
