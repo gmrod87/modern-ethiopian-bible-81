@@ -1,15 +1,16 @@
 Hobah TestFlight upload trigger
 Marketing Version: 1.0.0
-Expected Build Number: 46
+Expected Build Number: 47
 Bundle ID: com.hobah.bible
 Apple signing mode: Manual App Store profile
-Release 111 Ancient Library read aloud + Release 110 mobile cleanup
-Build 46: includes Release 111 in the bundled native iOS web app
-Build 46: Ancient Library Read aloud starts playback on one tap instead of only preparing the queue
-Build 46: all 178 Ancient Library works and 2,945 chapters are covered by a build-time audio smoke test
-Build 46: Ancient speech is split into narrator-safe chunks of no more than 430 characters before queueing
-Build 46: Ancient passage-level Listen also starts immediately from the passage action sheet
-Build 46: preserves Release 110 responsive chapter grid, equal Previous/Next controls and overflow fixes across older and new Ancient works
-Build 46: preserves Release 109's 17 new ancient translations, provenance metadata and Dead Sea Scroll works
-Build 46: preserves Study AI, voice commands, save/highlight/copy/share/note actions and native audio controls
-Final TestFlight trigger: Release 111 Ancient Library read aloud and mobile cleanup for App Store Connect upload
+Release 112 unified Hobah cross branding + Release 111 Ancient Library read aloud
+Build 47: uses Hobah green #0D4C3F consistently across the App Store/Home Screen icon and native loading screen
+Build 47: replaces the old H app icon with the single gold Hobah cross mark
+Build 47: loading screen uses the same gold cross on Hobah green with The Ancient Canon caption
+Build 47: top app header uses the same solo gold cross with subtle shadow and no square badge or H
+Build 47: PWA/Home Screen icon, favicon, header and native App Store icon now share the same cross shape and gold palette
+Build 47: preserves Release 111 Ancient Library one-tap read aloud across all 178 works / 2,945 chapters
+Build 47: preserves Release 110 responsive Ancient chapter layout, Previous/Next cleanup and legibility fixes
+Build 47: preserves Release 109 ancient translations, provenance metadata and Dead Sea Scroll works
+Build 47: preserves Study AI, voice commands, save/highlight/copy/share/note actions and native audio controls
+Final TestFlight trigger: Release 112 unified Hobah branding and Ancient Library fixes for App Store Connect upload
