@@ -1,0 +1,18 @@
+{
+  "id": "testaments-twelve-patriarchs",
+  "title": "Testaments of the Twelve Patriarchs — Hobah Translation",
+  "group": "ancient-writings",
+  "about": "Twelve testamentary discourses attributed to the sons of Jacob. The surviving Greek corpus is transmitted through Christian manuscripts and contains material whose Jewish, Christian, and redactional layers remain disputed. Hobah keeps the received material rather than silently deleting passages judged secondary.",
+  "translation": {
+    "status": "Hobah complete modern-English rendering from public-domain historical translation",
+    "base_text": "The complete public-domain Testaments of the Twelve Patriarchs already preserved in the audited Hobah Ancient Library, ultimately representing the Greek manuscript tradition used by R. H. Charles and related public-domain editions",
+    "method": "Complete conservative modernization of the audited public-domain historical English witness. Archaic pronouns and verbal forms are normalized while the historical edition's content and order are retained. This is a Hobah modern-English rendering, not falsely presented as a new direct translation from a freshly collated Greek critical text.",
+    "confidence": "High for preservation of the existing public-domain witness; medium for the underlying ancient text because recension and interpolation questions are substantial",
+    "notes": "Each patriarchal testament remains identifiable in the source-derived sections. Suspected Christian interpolation is not removed merely because it is disputed; the About This Text panel should disclose the textual history.",
+    "license_note": "Underlying ancient text and the historical English source used by the audited Hobah corpus are public domain. Hobah modernization is newly prepared for this project."
+  },
+  "derive_from_manifest": {
+    "title_regex": "Testament\\s+of\\s+(?:Reuben|Simeon|Levi|Judah|Issachar|Zebulun|Dan|Naphtali|Gad|Asher|Joseph|Benjamin)",
+    "flags": "i"
+  }
+}
