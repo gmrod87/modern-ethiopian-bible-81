@@ -1,9 +1,9 @@
 # Hobah iOS Compiler Status
 
-- status: cancelled
-- source_commit: cfc4dad844db65c1de56a9f6948520163fa5ac3d
-- run_id: 32731611155
+- status: success
+- source_commit: d7082193bc93fb45b4cc955eee0a2bb9cac52b88
+- run_id: 32731825975
 - xcode: Xcode 26.6 Build version 17F113 
-- checked_at_utc: 2026-08-24T13:18:16Z
+- checked_at_utc: 2026-08-24T13:28:26Z
 - native_voice_study: enabled
 - simulator_target: iPhone/iPad
