@@ -34,9 +34,7 @@ if(!delegate.includes('Hobah background spoken-audio session')){
 await writeFile(delegatePath,delegate);
 
 const HOBahGreen='#173A2C';
-const HOBahGold='#D9A23B';
 const iconSvg=await readFile(path.join(root,'assets','hobah-icon.svg'));
-const crossSvg=await readFile(path.join(root,'assets','hobah-cross-mark.svg'));
 const iconDir=path.join(appRoot,'Assets.xcassets','AppIcon.appiconset');
 await mkdir(iconDir,{recursive:true});
 const specs=[
@@ -59,31 +57,37 @@ for(const [idiom,size,scale,px] of specs){
 }
 await writeFile(path.join(iconDir,'Contents.json'),JSON.stringify({images,info:{author:'xcode',version:1}},null,2));
 
+// Loading screen only. This deliberately does not modify any web/home-page files.
+const loadingSvgPath=path.join(root,'assets','hobah-loading-screen.svg');
+if(!existsSync(loadingSvgPath))throw new Error('Approved Hobah loading screen asset missing');
+const loadingSvg=await readFile(loadingSvgPath);
 const splashDir=path.join(appRoot,'Assets.xcassets','Splash.imageset');
 if(existsSync(path.dirname(splashDir))){
   await mkdir(splashDir,{recursive:true});
-  // Match the approved icon reference: darker forest canvas, broad dimensional cross,
-  // and a restrained caption. The same source cross is used in the app header.
-  const canvasSize=2732;
-  const logoSize=1120;
-  const logoLeft=Math.round((canvasSize-logoSize)/2);
-  const logoTop=610;
-  const logo=await sharp(crossSvg).resize(logoSize,logoSize,{fit:'contain'}).png({palette:false}).toBuffer();
-  const caption=Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="2732" height="2732"><text x="1366" y="2352" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="54" font-weight="500" letter-spacing="4" fill="${HOBahGold}">The Ancient Canon</text></svg>`);
-  const filenames=['splash-2732x2732.png','splash-2732x2732-1.png','splash-2732x2732-2.png'];
-  for(const filename of filenames){
-    await sharp({create:{width:2732,height:2732,channels:3,background:HOBahGreen}})
-      .composite([{input:logo,left:logoLeft,top:logoTop},{input:caption,left:0,top:0}])
+  const splashSpecs=[
+    ['splash-approved-1x.png',720,1280,'1x'],
+    ['splash-approved-2x.png',1440,2560,'2x'],
+    ['splash-approved-3x.png',2160,3840,'3x']
+  ];
+  const splashImages=[];
+  for(const [filename,width,height,scale] of splashSpecs){
+    await sharp(loadingSvg)
+      .resize(width,height,{fit:'fill'})
+      .flatten({background:HOBahGreen})
       .removeAlpha()
-      .png({palette:false})
+      .png({palette:false,compressionLevel:9})
       .toFile(path.join(splashDir,filename));
+    splashImages.push({idiom:'universal',filename,scale});
   }
-  const splashContents={images:[
-    {idiom:'universal',filename:filenames[0],scale:'1x'},
-    {idiom:'universal',filename:filenames[1],scale:'2x'},
-    {idiom:'universal',filename:filenames[2],scale:'3x'}
-  ],info:{author:'xcode',version:1}};
-  await writeFile(path.join(splashDir,'Contents.json'),JSON.stringify(splashContents,null,2));
+  await writeFile(path.join(splashDir,'Contents.json'),JSON.stringify({images:splashImages,info:{author:'xcode',version:1}},null,2));
+
+  // Fill the native launch screen edge-to-edge while preserving the approved artwork.
+  const launchPath=path.join(appRoot,'Base.lproj','LaunchScreen.storyboard');
+  if(existsSync(launchPath)){
+    let launch=await readFile(launchPath,'utf8');
+    launch=launch.replaceAll('contentMode="scaleAspectFit"','contentMode="scaleAspectFill"');
+    await writeFile(launchPath,launch);
+  }
 }
 
-console.log('Hobah iOS native settings, permissions, background audio, approved bold-cross icons and forest launch screen applied');
+console.log('Hobah iOS native settings applied; approved 4K Ancient Canon loading screen installed with home page unchanged');
