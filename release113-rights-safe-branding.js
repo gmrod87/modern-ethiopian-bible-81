@@ -52,6 +52,21 @@ function withheldBook(book,reason){
   const chapters=[{n:1,label:`${book.title} — source verification`,verses:[{v:1,t}],note:''}];
   writeBook(book,chapters,{status:'withheld-pending-source-verification',reason});
 }
+function locatePrebuiltShelf(runtime){
+  const marker='const PREBUILT_ANCIENT_SHELF=';
+  const start=runtime.indexOf(marker);if(start<0)throw new Error('Release113 Ancient shelf marker missing');
+  let i=start+marker.length;while(/\s/.test(runtime[i]||''))i++;
+  if(runtime[i]!=='[')throw new Error('Release113 Ancient shelf does not begin with JSON array');
+  const jsonStart=i;let depth=0,inStr=false,escaped=false;
+  for(;i<runtime.length;i++){
+    const ch=runtime[i];
+    if(inStr){if(escaped){escaped=false;continue}if(ch==='\\'){escaped=true;continue}if(ch==='"')inStr=false;continue}
+    if(ch==='"'){inStr=true;continue}
+    if(ch==='[')depth++;
+    else if(ch===']'){depth--;if(depth===0)return{start,jsonStart,jsonEnd:i+1};}
+  }
+  throw new Error('Release113 Ancient shelf JSON did not terminate');
+}
 async function main(){
   const res=await fetch(WEB_URL,{headers:{'user-agent':'Hobah-Release113-rights-audit'}});if(!res.ok)throw new Error('Release113 WEB source download failed '+res.status);
   const xml=await res.text();
@@ -117,11 +132,11 @@ async function main(){
   if(retainedIds.size<100)throw new Error('Release113 Ancient rights gate removed unexpectedly many works: retained '+retainedIds.size);
 
   let lib=fs.readFileSync(p('release94-ancient-library.js'),'utf8');
-  const shelfRe=/const PREBUILT_ANCIENT_SHELF=(\[[\s\S]*?\]);\nfunction paintAncientInstant/;
-  const sm=lib.match(shelfRe);if(!sm)throw new Error('Release113 could not locate prebuilt Ancient shelf');
-  const shelf=JSON.parse(sm[1]),filtered=shelf.filter(w=>retainedIds.has(String(w.id)));
+  const shelfLoc=locatePrebuiltShelf(lib);
+  const shelf=JSON.parse(lib.slice(shelfLoc.jsonStart,shelfLoc.jsonEnd)),filtered=shelf.filter(w=>retainedIds.has(String(w.id)));
   if(filtered.length!==retainedIds.size)throw new Error(`Release113 shelf/file mismatch: shelf ${filtered.length}, files ${retainedIds.size}`);
-  lib=lib.replace(shelfRe,`const PREBUILT_ANCIENT_SHELF=${JSON.stringify(filtered).replace(/</g,'\\u003c').replace(/>/g,'\\u003e').replace(/&/g,'\\u0026')};\nfunction paintAncientInstant`);
+  const filteredJson=JSON.stringify(filtered).replace(/</g,'\\u003c').replace(/>/g,'\\u003e').replace(/&/g,'\\u0026');
+  lib=lib.slice(0,shelfLoc.start)+`const PREBUILT_ANCIENT_SHELF=${filteredJson}`+lib.slice(shelfLoc.jsonEnd);
   lib=lib.replace(/const LIB_VERSION='\d+';/,`const LIB_VERSION='${VERSION}';`);
   fs.writeFileSync(p('release94-ancient-library.js'),lib);
 
