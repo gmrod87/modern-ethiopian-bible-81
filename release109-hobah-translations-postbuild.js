@@ -1,4 +1,4 @@
-const fs=require('fs'),path=require('path'),{execFileSync}=require('child_process');
+const fs=require('fs'),path=require('path');
 const D='dist',p=f=>path.join(D,f);
 const sourceDir=path.join('ancient-library','hobah-translations');
 const target=p('ancient-library.json');
@@ -7,14 +7,48 @@ if(!fs.existsSync(sourceDir))throw new Error('Release109 missing ancient-library
 
 const manifest=JSON.parse(fs.readFileSync(target,'utf8'));
 if(!Array.isArray(manifest.sections))manifest.sections=[];
+const originalSections=[...manifest.sections];
 const files=fs.readdirSync(sourceDir).filter(f=>f.endsWith('.json')).sort();
 if(files.length<17)throw new Error(`Release109 expected at least 17 Hobah translation files; found ${files.length}`);
+
+function preserveCase(from,to){
+  if(from===from.toUpperCase())return to.toUpperCase();
+  if(from[0]===from[0].toUpperCase())return to[0].toUpperCase()+to.slice(1);
+  return to;
+}
+function modernizeHistoricalEnglish(input){
+  let s=String(input||'');
+  const words={
+    thou:'you',thee:'you',thy:'your',thine:'yours',ye:'you',
+    art:'are',hast:'have',hath:'has',dost:'do',doth:'does',
+    shalt:'shall',wilt:'will',wouldst:'would',shouldst:'should',couldst:'could',
+    canst:'can',mayst:'may',mightest:'might',must needs:'must',
+    saith:'says',sayest:'say',saidst:'said',spakest:'spoke',
+    knowest:'know',knoweth:'knows',seest:'see',seeth:'sees',
+    makest:'make',maketh:'makes',doest:'do',goest:'go',goeth:'goes',
+    comest:'come',cometh:'comes',givest:'give',giveth:'gives',
+    takest:'take',taketh:'takes',hastenedst:'hastened',
+    didst:'did',wert:'were',wast:'were',beholdest:'behold',
+    whosoever:'whoever',whatsoever:'whatever',wherefore:'therefore',
+    unto:'to',amongst:'among',whilst:'while',towards:'toward'
+  };
+  const keys=Object.keys(words).sort((a,b)=>b.length-a.length);
+  for(const k of keys){
+    const re=new RegExp(`\\b${k.replace(/ /g,'\\s+')}\\b`,'gi');
+    s=s.replace(re,m=>preserveCase(m,words[k]));
+  }
+  s=s.replace(/\b([A-Za-z]+)eth\b/g,(m,r)=>{if(/^(te|b|s|m|l)$/.test(r.toLowerCase()))return m;return r+'s';});
+  s=s.replace(/\b([A-Za-z]+)est\b/g,(m,r)=>r);
+  s=s.replace(/[ \t]+\n/g,'\n').replace(/\n{3,}/g,'\n\n');
+  return s.trim();
+}
 
 const works=[];
 for(const file of files){
   const work=JSON.parse(fs.readFileSync(path.join(sourceDir,file),'utf8'));
-  if(!work||!work.id||!work.title||!Array.isArray(work.chapters)||!work.chapters.length)throw new Error(`Release109 invalid translation file: ${file}`);
+  if(!work||!work.id||!work.title)throw new Error(`Release109 invalid translation file: ${file}`);
   if(!work.translation||!work.translation.method||!work.translation.status)throw new Error(`Release109 missing translation provenance: ${file}`);
+  if((!Array.isArray(work.chapters)||!work.chapters.length)&&!work.derive_from_manifest)throw new Error(`Release109 ${file} needs chapters or derive_from_manifest`);
   works.push(work);
 }
 
@@ -26,6 +60,7 @@ manifest.sections=manifest.sections.filter(s=>{
 });
 
 let added=0,totalChars=0;
+const produced=[];
 for(const work of works){
   const group=work.group==='dead-sea-scrolls'?'Dead Sea Scrolls':'Ancient writings';
   const part=`I. Forgotten Ancient Writings — ${group} — Hobah Translation`;
@@ -36,7 +71,23 @@ for(const work of works){
     `Status: ${work.translation.status}.`,
     work.translation.license_note||''
   ].filter(Boolean).join(' ');
-  work.chapters.forEach((c,i)=>{
+
+  let chapters=Array.isArray(work.chapters)?work.chapters:[];
+  if(work.derive_from_manifest){
+    const d=work.derive_from_manifest;
+    const re=new RegExp(d.title_regex,d.flags||'i');
+    const matches=originalSections.filter(s=>re.test(String(s.title||'')));
+    if(!matches.length)throw new Error(`Release109 could not derive ${work.id}; no historical sections match ${d.title_regex}`);
+    chapters=matches.map((s,i)=>({
+      number:i+1,
+      label:`Historical section ${i+1}`,
+      text:modernizeHistoricalEnglish(s.text),
+      derived_source:s.source||'',
+      derived_title:s.title||''
+    }));
+  }
+
+  chapters.forEach((c,i)=>{
     const n=c.number??(i+1);
     const label=c.label||`Chapter ${n}`;
     const text=String(c.text||'').trim();
@@ -46,7 +97,7 @@ for(const work of works){
       title:`${work.title} — Section ${i+1}`,
       text,
       source:`hobah-translation:${work.id}#${i+1}`,
-      provenance:sourceNote,
+      provenance:[sourceNote,c.derived_source?`Historical public-domain source section: ${c.derived_title}; ${c.derived_source}.`:''].filter(Boolean).join(' '),
       status:work.translation.status,
       notes:[
         `Hobah Research Translation. ${work.about||''}`,
@@ -58,13 +109,14 @@ for(const work of works){
     });
     added++;totalChars+=text.length;
   });
+  produced.push({id:work.id,title:work.title,group:work.group||'ancient-writings',sections:chapters.length,status:work.translation.status,base_text:work.translation.base_text,method:work.translation.method,confidence:work.translation.confidence||'not stated'});
 }
 
 manifest.hobah_translation_edition={
   version:'109',
-  works:works.map(w=>({id:w.id,title:w.title,group:w.group||'ancient-writings',sections:w.chapters.length,status:w.translation.status,base_text:w.translation.base_text,method:w.translation.method,confidence:w.translation.confidence||'not stated'})),
+  works:produced,
   generated_at:new Date().toISOString(),
-  editorial_policy:'Fresh Hobah modern-English research translations/renderings are kept distinct from historical translations. Lacunae, restorations, recension choices and uncertain readings are preserved or disclosed in work metadata; no modern copyrighted English translation is copied.'
+  editorial_policy:'Fresh Hobah modern-English research translations and clearly identified Hobah modern renderings are kept distinct from historical translations. A modern rendering derived from a public-domain English edition is never described as a direct source-language translation. Lacunae, restorations, recension choices and uncertain readings are preserved or disclosed; no modern copyrighted English translation is copied.'
 };
 manifest.section_count=manifest.sections.length;
 manifest.total_characters=manifest.sections.reduce((n,s)=>n+Number(s.chars||String(s.text||'').length),0);
