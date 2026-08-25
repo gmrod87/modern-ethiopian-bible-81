@@ -1,15 +1,16 @@
 {
   "id": "life-of-adam-and-eve",
-  "title": "Life of Adam and Eve — Hobah Translation",
+  "title": "Life of Adam and Eve — Hobah Comparative Reading",
   "group": "ancient-writings",
-  "about": "The Greek Adam-and-Eve apocalypse commonly called the Apocalypse of Moses. It recounts the fall, the penitence of Adam and Eve, Adam's final illness and death, and Eve's death. This is distinct from the much later First Book of Adam and Eve already in the library.",
+  "about": "A provisional Hobah comparative reading of the pluriform Adam-and-Eve literature. The surviving Greek Apocalypse of Moses, Latin Life of Adam and Eve, Armenian, Georgian, Slavonic, and other witnesses overlap but do not preserve one identical sequence. This reading contains material associated with more than one recension and must not be cited as a direct translation of the Greek Apocalypse of Moses alone.",
   "translation": {
-    "status": "Hobah source-language research translation",
-    "base_text": "Greek recension in C. von Tischendorf, Apocalypses Apocryphae (1866), as preserved in the public-domain Greek textual tradition and compared with the Online Critical Pseudepigrapha transcription",
-    "method": "Fresh modern-English rendering from the Greek recension; wording is independent of modern copyrighted English translations. Chapter divisions follow the Greek tradition. Obvious textual damage or uncertainty is left bracketed rather than silently repaired.",
-    "confidence": "Medium-high for the narrative sense; medium for places where Tischendorf's nineteenth-century Greek text is text-critically uncertain",
-    "notes": "Tischendorf's Greek recension is useful but not the final critical text. The Hobah edition therefore treats its wording as a manuscript-recension translation, not a reconstruction of the lost archetype.",
-    "license_note": "Ancient text and 1866 Greek edition are public domain. Hobah English wording is newly prepared for this project."
+    "status": "Hobah provisional comparative reading — not a direct single-recension translation",
+    "base_text": "Public-domain Greek and Latin Adam-and-Eve textual witnesses, including C. von Tischendorf's Greek Apocalypse of Moses (1866) and the Latin Life tradition represented by W. Meyer (1878) and J. H. Mozley (1928–1929), with recension differences treated explicitly",
+    "method": "Fresh Hobah modern-English reader rendering based on public-domain ancient-text witnesses. The present narrative preserves previously prepared Hobah prose but is now classified honestly as a comparative reading because its sequence includes material belonging to different recensions. No modern copyrighted English translation is copied. A future source-reset edition should translate each recension separately rather than silently harmonizing them.",
+    "confidence": "Medium for the broad Adam-and-Eve narrative; low to medium for recension-specific wording until the text is reset against a single witness line by line",
+    "notes": "Important correction: the river penitence in the Jordan and Tigris and related opening material are characteristic of the Latin/Armenian/Georgian forms, not the opening of the Greek Apocalypse of Moses. Tischendorf's 1866 Greek text is also an outdated and text-critically flawed reconstruction, so it should not be treated as a definitive archetype. Brackets or explicit notes should be used for damaged, uncertain, or recension-specific material rather than silently blending witnesses.",
+    "license_note": "The ancient work and the cited nineteenth-/early-twentieth-century Greek and Latin editions are public domain. Hobah English wording is newly prepared for this project. Modern copyrighted critical editions may be consulted for scholarship but are not copied into the production text.",
+    "completeness": "provisional comparative reading; not a diplomatic or complete critical edition of any one recension"
   },
   "chapters": [
     {"number":1,"label":"Chapter 1","text":"After Adam and Eve had gone out of Paradise, they made themselves a shelter and mourned for seven days in great grief. When the seven days were finished they became hungry and looked for food, but they found nothing like the food they had known in the garden. Only food fit for animals was before them. Adam said to Eve, ‘Rise. Let us search, so that we may find something by which we can live and not perish.’"},
