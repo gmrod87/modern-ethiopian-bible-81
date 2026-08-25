@@ -1,15 +1,14 @@
 Hobah TestFlight upload trigger
 Marketing Version: 1.0.0
-Expected Build Number: 54
+Expected Build Number: 55
 Bundle ID: com.hobah.bible
 Apple signing mode: Manual App Store profile
-Build 54: include Hobah Release 114 Book of Giants in the Ancient Library
-Build 54: include all 13 surviving Aramaic fragment sections in the native iOS offline bundle
-Build 54: keep Book of Giants outside the Ethiopian 81-book canon
-Build 54: enable Book of Giants Read Aloud through the existing Ancient Library narration engine
-Build 54: verify every Book of Giants fragment produces non-empty narration chunks capped at 430 characters
-Build 54: use the native iOS AVFoundation narration path for Book of Giants playback
-Build 54: preserve play, pause, resume, previous, next, rate control and lock-screen audio behavior
-Build 54: preserve the no-branded-loading-screen launch behavior
-Build 54: all existing Scripture, Study AI, voice commands, saved library and navigation remain unchanged
-Final TestFlight trigger: Book of Giants + verified read aloud
+Build 55: include Hobah Release 115 Ancient Library read-aloud continuation fix
+Build 55: Book of Giants continues from the current fragment section into the next fragment section
+Build 55: prevent Ancient Library narration from falling through to Genesis after a section ends
+Build 55: apply the same same-work continuation rule to all Ancient Library works
+Build 55: stop read aloud cleanly after the final section of an Ancient Library work
+Build 55: retain native iOS AVFoundation playback, pause, resume, previous, next and rate controls
+Build 55: retain Book of Giants 13-fragment Ancient Library edition and keep the 81-book canon unchanged
+Build 55: preserve Study AI, voice commands, saved library, navigation and no-branded-loading-screen behavior
+Final TestFlight trigger: Ancient Library same-work audio continuation
