@@ -1,0 +1,86 @@
+{
+  "id": "hobah-book-of-giants",
+  "title": "Book of Giants — Direct Aramaic Fragment Translation",
+  "collection": "ancient",
+  "meta": {
+    "author": "Anonymous",
+    "date": "c. 3rd–2nd century BCE composition; surviving Qumran copies c. 1st century BCE–1st century CE"
+  },
+  "about": "An Enochic work known from badly damaged Aramaic manuscripts among the Dead Sea Scrolls. It expands the Watchers tradition from Genesis 6 and 1 Enoch by following the giants themselves as they confront dreams of judgment and send Mahaway to seek Enoch's interpretation. No complete ancient copy survives, and the order of many fragments is uncertain. This edition therefore presents the recoverable text as manuscript fragments rather than inventing missing narrative.",
+  "translation": {
+    "status": "Hobah public-domain direct translation of the surviving Aramaic Book of Giants fragments",
+    "base_text": "Ancient Aramaic witnesses commonly assigned to the Book of Giants, especially 1Q23, 4Q203, 4Q530, 4Q531, 4Q532 and 6Q8, checked against publicly accessible manuscript and Aramaic transcription resources.",
+    "method": "Fresh modern-English rendering of recoverable Aramaic sense. Brackets and ellipses mark physical loss or uncertain continuation. Fragment boundaries are preserved; no modern reconstructed continuous narrative is silently substituted for the manuscripts.",
+    "confidence": "Medium in the longer 4Q530/4Q531 passages; low-to-medium where only isolated words or broken lines remain.",
+    "notes": "Names are rendered in common scholarly English forms (Ohyah, Hahyah, Mahaway, Shemihazah, Azazel, Gilgamesh). The work is historical Enochic literature and is not presented as part of the Ethiopian 81-book canon.",
+    "license_note": "The ancient Aramaic witnesses are public domain. This newly prepared Hobah English wording is dedicated to the public domain under CC0 1.0. No modern published English translation is reproduced.",
+    "source_note": "Primary manuscript identification cross-checked with the Leon Levy Dead Sea Scrolls Digital Library; Aramaic readings cross-checked against open scholarly transcription resources. Editorial restorations are kept conservative."
+  },
+  "chapters": [
+    {
+      "chapterNumber": 1,
+      "label": "1Q23 fragments 9 + 14 + 15 — Violence on the earth",
+      "text": "[...] they knew the secrets of [...]\n[...] sin became great upon the earth [...]\n[...] and they killed many [...]\n[...] they fathered giants [...]."
+    },
+    {
+      "chapterNumber": 2,
+      "label": "1Q23 fragments 1 + 6 — The two hundred",
+      "text": "[...] two hundred [...]\n[...] two hundred donkeys, two hundred [...] rams of the flock, two hundred goats, two hundred [...]\n[...] beasts of the field, from every animal and from every bird [...]\n[...] for unlawful mixing [...]."
+    },
+    {
+      "chapterNumber": 3,
+      "label": "4Q531 fragment 3 — What the earth produced",
+      "text": "[...] everything that the earth brought forth [...]\n[...] the great fish [...]\n[...] the sky and everything that grew [...]\n[...] the fruit of the earth, every kind of grain, and all the trees [...]\n[...] beasts and creeping things, all that moves upon the earth; and they observed all [...]\n[...] every violent deed and [...] speech [...]\n[...] male and female, and among humankind [...]."
+    },
+    {
+      "chapterNumber": 4,
+      "label": "4Q531 fragment 1 — The giant's boast and fear",
+      "text": "[...] I am a giant. By the mighty strength of my arm and by my great power [...] every mortal, and I made war against them. Yet I was not [...] able to stand against them, because those who oppose me [...] dwell in heaven and live among the holy ones. [...] they are stronger than I. [...] the beast has come, and they call me the wild one. [...] Then Ohyah said to him: I was compelled to dream [...] sleep departed from my eyes so that I might see a vision. Now I know that [...] Gilgamesh [...]."
+    },
+    {
+      "chapterNumber": 5,
+      "label": "4Q530 fragment 7 — Ohyah and Hahyah",
+      "text": "[...] your strength [...]\n[...] Then Ohyah said to Hahyah [...]\nHe answered: It is not against us, but against Azazel, because he did [...]\n[...] the sons of the Watchers are the giants, and they will not allow all their beloved ones to be left unjudged [...]\n[...] we have not been cast down; you still have strength [...]."
+    },
+    {
+      "chapterNumber": 6,
+      "label": "4Q530 column 2 — The report concerning Gilgamesh",
+      "text": "[...] this concerns the death of our lives [...] and all his companions. Ohyah told them what Gilgamesh had said to him [...] and it was said [...] concerning [...] the chief has cursed the mighty ones. The giants rejoiced at his words. Then he turned and went away [...]."
+    },
+    {
+      "chapterNumber": 7,
+      "label": "4Q530 column 2 — The garden dream",
+      "text": "Then two of them dreamed dreams, and sleep fled from their eyes. They arose and came [...] and told their dreams. They spoke in the assembly of their companions, the Nephilim: [...] In my dream I was watching during this night [...] a garden [...] gardeners, and they were watering [...] two hundred trees, and great shoots came out from their roots [...] all the water [...] and fire burned through the whole garden [...] This was the end of the dream. [...] Let us go to Enoch, the renowned scribe, and he will explain the dream for us [...]."
+    },
+    {
+      "chapterNumber": 8,
+      "label": "6Q8 fragment 2 — The three roots",
+      "text": "[...] three of its roots [...]\n[...] while I was watching, there came [...]\n[...] they brought the roots into this garden, all of them, and not [...]."
+    },
+    {
+      "chapterNumber": 9,
+      "label": "4Q530 column 2 — Ohyah's dream and the sending of Mahaway",
+      "text": "Then his companion Ohyah answered and said before the giants: I too dreamed during this night. Behold, the Ruler of heaven came down to the earth [...] and this was the end of the dream. Then all the giants and the Nephilim became afraid. They called Mahaway, and he came to them. They appealed to him and sent him to Enoch, the renowned scribe [...] so that he might hear his voice and bring back the interpretation of the dreams [...]."
+    },
+    {
+      "chapterNumber": 10,
+      "label": "4Q530 fragment 7 ii — Mahaway's journey to Enoch",
+      "text": "[...] like powerful winds he rose, and with his hands he flew like an eagle [...] He left behind the inhabited land and crossed the desolation, the great wilderness [...] Enoch saw him and called to him. Mahaway said to him: [...] an oracle [...] A second time I ask you for an oracle [...] The giants await your words, together with all the Nephilim of the earth. If [...] from the days of their [...] then [...] We want to learn from you their interpretation [...] the two hundred trees that came down from heaven [...]."
+    },
+    {
+      "chapterNumber": 11,
+      "label": "4Q203 fragments 7–8 — Enoch's second tablet",
+      "text": "[...] to you, Mahaway [...] the two tablets [...] and the second had not yet been read.\n\nCopy of the second tablet of the letter, written by the hand of Enoch, the renowned scribe [...] to Shemihazah and all his companions.\n\nLet it be known to you that [...] what you have done, and your wives [...] they, their sons, and the wives of their sons [...] because of your corruption upon the earth [...] the earth cries out and brings accusation against you and against the deeds of your children [...] the violence with which you have injured it [...] until Raphael comes. Behold, destruction [...] and whatever is in the deserts and whatever is in the seas [...] upon you for evil. But now, loosen the bonds that bind you [...] and pray [...]."
+    },
+    {
+      "chapterNumber": 12,
+      "label": "4Q203 fragmentary dialogue — Azazel and the tablets",
+      "text": "Then Ohyah said to Hahyah his brother: [...] and your strength [...] He punished — not us, but Azazel — and [...] the sons of the Watchers, the giants. [...] none of those dear to them will be spared [...] he has bound us and has seized you. [...] Mahaway [...] the two tablets [...]."
+    },
+    {
+      "chapterNumber": 13,
+      "label": "4Q532 fragment 2 — Corruption, hunger and binding",
+      "text": "[...] in the flesh [...]\n[...] Nephilim [...]\n[...] were standing [...]\n[...] the earth [...]\n[...] from the Watchers [...]\n[...] perished and died [...]\n[...] great destruction [...]\n[...] they corrupted the earth [...]\n[...] it was not enough for food [...]\n[...] upon the earth [...]\n[...] and now [...]\n[...] a strong bond [...]."
+    }
+  ]
+}
