@@ -1,14 +1,9 @@
 Hobah TestFlight upload trigger
 Marketing Version: 1.0.0
-Expected Build Number: 57
+Expected Build Number: assigned by GitHub Actions run number
 Bundle ID: com.hobah.bible
-Apple signing mode: Manual App Store profile
-Build 57: canonical 81-book readers now use the Ancient Library-style control dashboard
-Build 57: full-width Book and Chapter selectors with Read aloud, Study AI, Find in text, Aa and Books controls
-Build 57: preserve chapter save as an unobtrusive reader-header heart
-Build 57: Ancient Library work, section and exact scroll position save automatically
-Build 57: Home Continue card shows the most recently read Ancient Library work/section and resumes it
-Build 57: canonical reading replaces the Home Continue card again when Scripture is read more recently
-Build 57: preserve Release 115 Ancient same-work read-aloud continuation and Book of Giants fragment handling
-Build 57: preserve native audio, Voice Study, Study AI, saved Library, offline reading and no-branded-loading-screen launch behavior
-Final TestFlight trigger: unified canonical dashboard and Ancient reading progress
+Release 118: Ancient Library read aloud now loads the active work directly and automatically advances to the next chapter/section when narration finishes
+Release 118: continuation reopens the next Ancient chapter and immediately restarts the same Read aloud session without another tap
+Release 118: duplicate end-event guard prevents double chapter skips on iOS/Safari
+Release 118: preserves Book of Giants 13-fragment handling, Ancient reading progress, Study AI, voice controls, saved Library, offline reading and App Store readiness
+Final TestFlight trigger: Ancient Library continuous chapter narration
