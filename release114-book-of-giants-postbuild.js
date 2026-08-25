@@ -26,7 +26,9 @@ if(work.id!==WORK_ID)throw new Error('Release114 unexpected Book of Giants id '+
 if(work.collection!=='ancient')throw new Error('Release114 Book of Giants must be Ancient Library content');
 if(!Array.isArray(work.chapters)||work.chapters.length<10)throw new Error('Release114 Book of Giants fragment edition is unexpectedly short');
 if(!/public domain|CC0/i.test(String(work.translation?.license_note||'')))throw new Error('Release114 Book of Giants lacks explicit public-domain/CC0 provenance');
-if(/complete ancient copy survives|continuous complete text|canonical scripture/i.test(String(work.about||'')))throw new Error('Release114 Book of Giants metadata overstates the fragmentary witness');
+const about=String(work.about||'');
+const falselyClaimsComplete=/complete ancient copy survives/i.test(about)&&!/no complete ancient copy survives/i.test(about);
+if(falselyClaimsComplete||/continuous complete text|canonical scripture/i.test(about))throw new Error('Release114 Book of Giants metadata overstates the fragmentary witness');
 
 const workDir=p('ancient-works');
 fs.writeFileSync(path.join(workDir,WORK_ID+'.json'),JSON.stringify(work));
