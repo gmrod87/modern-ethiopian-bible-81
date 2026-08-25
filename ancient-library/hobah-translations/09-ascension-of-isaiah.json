@@ -1,14 +1,14 @@
 {
   "id": "ascension-of-isaiah",
-  "title": "Ascension of Isaiah — Hobah Translation",
+  "title": "Ascension of Isaiah — Hobah Edition",
   "group": "ancient-writings",
   "about": "A composite Jewish-Christian apocalypse preserved most completely in Ethiopic, combining the martyrdom of Isaiah, a vision concerning the Beloved, and Isaiah's ascent through the seven heavens. It is especially important for early Christian angelology, christology, and apocalyptic tradition. The received book has a layered literary history and should not be treated as a single composition from one moment.",
   "translation": {
-    "status": "Hobah complete modern-English rendering from public-domain Ethiopic-based historical translation",
+    "status": "Hobah complete modern-English edition from a public-domain Ethiopic-based historical English witness",
     "base_text": "R. H. Charles, The Ascension of Isaiah (1900), translated principally from the Ethiopic version and critically compared with Greek, Latin, and Slavonic witnesses",
-    "method": "The complete public-domain Charles reading text is ingested from Internet Archive and conservatively modernized for Hobah. The work's received chapter order and textual complexity are retained. This is a modern Hobah rendering of Charles's Ethiopic-based historical translation, not a claim to replace a modern critical edition or to erase divergent recensions.",
+    "method": "The complete public-domain Charles reading text is ingested from Internet Archive and conservatively modernized for Hobah. The work's received chapter order and textual complexity are retained. This is a Hobah edition of Charles's Ethiopic-based historical translation, not a claim to replace a modern critical edition or to erase divergent recensions.",
     "confidence": "High for preservation of Charles's published Ethiopic-based witness; medium for passages where the Ethiopic, Greek, Latin, and Slavonic evidence diverges",
-    "notes": "The app should flag the work as composite and textually complex. Passages often separated by scholars into Martyrdom, Testament, and Vision layers remain in their received sequence unless a textual note says otherwise.",
+    "notes": "The work is flagged as composite and textually complex. Passages often separated by scholars into Martyrdom, Testament, and Vision layers remain in their received sequence unless a textual note says otherwise.",
     "license_note": "Charles's 1900 edition is public domain. Hobah modernization is newly prepared for this project."
   },
   "derive_from_remote_public_domain": {
