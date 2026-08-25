@@ -179,6 +179,64 @@ jobs:
           fi
           test -d ios/archive/Hobah.xcarchive
 
+      - name: Validate signed archive for App Store
+        working-directory: native-ios
+        env:
+          MARKETING_VERSION: ${{ inputs.marketing_version || '1.0.0' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP_PATH="$(find ios/archive/Hobah.xcarchive/Products/Applications -maxdepth 1 -type d -name '*.app' -print -quit)"
+          test -n "$APP_PATH"
+          test -d "$APP_PATH"
+          INFO="$APP_PATH/Info.plist"
+          test -f "$INFO"
+
+          value(){ /usr/libexec/PlistBuddy -c "Print :$1" "$INFO"; }
+          test "$(value CFBundleIdentifier)" = "$BUNDLE_ID"
+          test "$(value CFBundleShortVersionString)" = "$MARKETING_VERSION"
+          test "$(value CFBundleVersion)" = "$GITHUB_RUN_NUMBER"
+          test "$(value MinimumOSVersion)" = "15.0"
+          test "$(value UIDeviceFamily:0)" = "1"
+          test "$(value UIDeviceFamily:1)" = "2"
+          test "$(value UIBackgroundModes:0)" = "audio"
+          test "$(value ITSAppUsesNonExemptEncryption)" = "false"
+          test -n "$(value NSMicrophoneUsageDescription)"
+          test -n "$(value NSSpeechRecognitionUsageDescription)"
+          if /usr/libexec/PlistBuddy -c 'Print :UIApplicationExitsOnSuspend' "$INFO" >/dev/null 2>&1; then
+            echo 'UIApplicationExitsOnSuspend must not be present in the shipping app.' >&2
+            exit 1
+          fi
+
+          test -f "$APP_PATH/Frameworks/Capacitor.framework/PrivacyInfo.xcprivacy"
+          test -f "$APP_PATH/Frameworks/Cordova.framework/PrivacyInfo.xcprivacy"
+          plutil -lint "$APP_PATH/Frameworks/Capacitor.framework/PrivacyInfo.xcprivacy"
+          plutil -lint "$APP_PATH/Frameworks/Cordova.framework/PrivacyInfo.xcprivacy"
+
+          test -f "$APP_PATH/public/privacy.html"
+          test -f "$APP_PATH/public/support.html"
+          GIANTS="$APP_PATH/public/ancient-works/hobah-book-of-giants.json"
+          test -f "$GIANTS"
+          python3 - "$GIANTS" <<'PY'
+          import json,sys
+          p=sys.argv[1]
+          d=json.load(open(p))
+          assert d.get('id')=='hobah-book-of-giants'
+          assert d.get('collection')=='ancient'
+          assert len(d.get('chapters') or [])==13
+          note=((d.get('translation') or {}).get('license_note') or '').lower()
+          assert 'public domain' in note or 'cc0' in note
+          print('Book of Giants archive check passed: 13 Ancient Library fragment sections')
+          PY
+
+          if grep -RIlE 'sk-[A-Za-z0-9_-]{20,}' "$APP_PATH/public" >/dev/null 2>&1; then
+            echo 'Potential API secret detected in the public app bundle.' >&2
+            exit 1
+          fi
+
+          codesign --verify --deep --strict --verbose=2 "$APP_PATH"
+          echo "App Store archive preflight passed: $APP_PATH"
+
       - name: Export App Store IPA
         working-directory: native-ios
         env:
