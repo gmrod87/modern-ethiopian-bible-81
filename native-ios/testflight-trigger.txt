@@ -1,13 +1,13 @@
 Hobah TestFlight upload trigger
 Marketing Version: 1.0.0
-Expected Build Number: 50
+Expected Build Number: 51
 Bundle ID: com.hobah.bible
 Apple signing mode: Manual App Store profile
-Build 50: approved 4K Ancient Canon loading screen only
-Build 50: native launch artwork uses the approved dark forest-green background, dimensional gold cross, “The Ancient Canon” and “81 Books”
-Build 50: splash assets render up to 2160x3840 for a crisp high-resolution launch screen on modern iPhones
-Build 50: home page and all in-app UI remain unchanged from the current release
-Build 50: preserves Release 113 rights-safe corpus, provenance records and Ancient Library copyright safeguards
-Build 50: preserves Ancient Library mobile layout and read aloud fixes, Study AI, voice commands, save/highlight/copy/share/note actions and native audio controls
-Build 50: preserves the existing App Store/Home Screen icon and in-app header branding; this update changes the loading screen only
-Final TestFlight trigger: approved 4K loading-screen-only update
+Build 51: corrected Ancient Canon loading screen to match the approved reference image
+Build 51: substantially larger dimensional gold cross with stronger metallic depth and natural shadow
+Build 51: richer textured dark forest-green background with subtle vignette and paper grain
+Build 51: tighter, slightly higher “The Ancient Canon” and “81 Books” title block matching the supplied reference proportions
+Build 51: full edge-to-edge native splash assets render up to 2160x3840 on modern iPhones
+Build 51: home page, App Store/Home Screen icon and all in-app UI remain unchanged
+Build 51: preserves Release 113 rights-safe corpus, provenance records, Ancient Library, Study AI, voice commands and audio controls
+Final TestFlight trigger: corrected approved-reference loading screen upload
