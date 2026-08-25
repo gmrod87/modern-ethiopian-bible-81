@@ -1,14 +1,14 @@
 {
   "id": "biblical-antiquities-pseudo-philo",
-  "title": "Biblical Antiquities (Pseudo-Philo) — Hobah Translation",
+  "title": "Biblical Antiquities (Pseudo-Philo) — Hobah Edition",
   "group": "ancient-writings",
   "about": "A major Jewish retelling of biblical history from Adam through the death of Saul. It preserves traditions absent from the canonical narrative and is one of the most valuable witnesses to Jewish biblical interpretation around the turn of the era. The complete work survives only in Latin manuscripts; the Latin appears to derive from Greek, and many scholars have proposed a Semitic original behind that Greek.",
   "translation": {
-    "status": "Hobah complete modern-English rendering from public-domain historical translation",
+    "status": "Hobah complete modern-English edition from a public-domain historical English witness",
     "base_text": "M. R. James, The Biblical Antiquities of Philo (1917), translated from the surviving Old Latin version and published in a public-domain edition",
-    "method": "The complete public-domain James reading text is ingested from the Internet Archive and conservatively modernized for Hobah. Its ancient narrative is retained in full rather than summarized. This is explicitly a modern rendering of James's Latin-based translation, not a claim to reconstruct a lost Hebrew or Greek original.",
+    "method": "The complete public-domain James reading text is ingested from the Internet Archive and conservatively modernized for Hobah. Its ancient narrative is retained in full rather than summarized. This is a Hobah edition of James's Latin-based historical translation, not a claim to reconstruct a lost Hebrew or Greek original.",
     "confidence": "High for preservation of James's Latin-based historical witness; medium for the wording of the lost earlier language stages",
-    "notes": "The app should identify the work as Pseudo-Philo rather than attributing it to Philo of Alexandria. Introductory scholarship, apparatus, and appendices are not treated as ancient primary text by the reader.",
+    "notes": "The work is identified as Pseudo-Philo rather than attributed to Philo of Alexandria. Introductory scholarship, apparatus, and appendices are not treated as ancient primary text by the reader.",
     "license_note": "James's 1917 edition is public domain. Hobah modernization is newly prepared for this project."
   },
   "derive_from_remote_public_domain": {
