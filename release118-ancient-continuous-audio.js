@@ -49,7 +49,6 @@ const newContinuation=String.raw`document.addEventListener('hobah:ancient-audio-
     const nextIndex=currentIndex+1;
     if(nextIndex>=work.chapters.length){window.HobahAncientBridge?.finishListen?.();return}
 
-    setAudioStatus?.('Ancient Library • continuing…');
     await openAncientReader(work.id,nextIndex);
     const chapter=work.chapters[nextIndex],nextCtx=bridgeContext(work,chapter,nextIndex);
     setBridge(nextCtx);
