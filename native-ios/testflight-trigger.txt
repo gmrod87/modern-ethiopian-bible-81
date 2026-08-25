@@ -1,14 +1,17 @@
 Hobah TestFlight upload trigger
 Marketing Version: 1.0.0
-Expected Build Number: 55
+Expected Build Number: 56
 Bundle ID: com.hobah.bible
 Apple signing mode: Manual App Store profile
-Build 55: include Hobah Release 115 Ancient Library read-aloud continuation fix
-Build 55: Book of Giants continues from the current fragment section into the next fragment section
-Build 55: prevent Ancient Library narration from falling through to Genesis after a section ends
-Build 55: apply the same same-work continuation rule to all Ancient Library works
-Build 55: stop read aloud cleanly after the final section of an Ancient Library work
-Build 55: retain native iOS AVFoundation playback, pause, resume, previous, next and rate controls
-Build 55: retain Book of Giants 13-fragment Ancient Library edition and keep the 81-book canon unchanged
-Build 55: preserve Study AI, voice commands, saved library, navigation and no-branded-loading-screen behavior
-Final TestFlight trigger: Ancient Library same-work audio continuation
+Build 56: final App Store release-candidate hardening pass
+Build 56: retain Release 115 Ancient Library same-work Read Aloud continuation fix
+Build 56: retain Book of Giants 13-fragment edition and prevent any fall-through to Genesis
+Build 56: include updated public Privacy Policy with current Study AI and TTS third-party processing disclosure
+Build 56: include updated public Support page covering Ancient Library and fragmentary works
+Build 56: run signed-archive App Store preflight before IPA export
+Build 56: verify bundle ID, version/build number, iPhone+iPad support, iOS 15 minimum, microphone/speech descriptions and background audio
+Build 56: verify Capacitor and Cordova privacy manifests in the signed app archive
+Build 56: verify Book of Giants is present as 13 Ancient Library fragment sections in the signed archive
+Build 56: verify no obvious OpenAI-style API secret is embedded in the public app bundle
+Build 56: preserve native AVFoundation playback, Voice Study, Study AI, saved Library, offline reading and no-branded-loading-screen launch behavior
+Final TestFlight trigger: App Store release candidate preflight
