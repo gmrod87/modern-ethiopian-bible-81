@@ -57,31 +57,27 @@ for(const [idiom,size,scale,px] of specs){
 }
 await writeFile(path.join(iconDir,'Contents.json'),JSON.stringify({images,info:{author:'xcode',version:1}},null,2));
 
-// Loading screen only. This deliberately does not modify any web/home-page files.
-const loadingSvgPath=path.join(root,'assets','hobah-loading-screen.svg');
-if(!existsSync(loadingSvgPath))throw new Error('Approved Hobah loading screen asset missing');
-const loadingSvg=await readFile(loadingSvgPath);
+// No branded loading screen. iOS still requires a native launch surface while the
+// process starts, so make that surface a plain copy of the app's cream background
+// and let Capacitor hide it immediately. To the user, the app opens straight in.
+const LAUNCH_BG='#F3EFE5';
 const splashDir=path.join(appRoot,'Assets.xcassets','Splash.imageset');
 if(existsSync(path.dirname(splashDir))){
   await mkdir(splashDir,{recursive:true});
   const splashSpecs=[
-    ['splash-approved-1x.png',720,1280,'1x'],
-    ['splash-approved-2x.png',1440,2560,'2x'],
-    ['splash-approved-3x.png',2160,3840,'3x']
+    ['splash-blank-1x.png',720,1280,'1x'],
+    ['splash-blank-2x.png',1440,2560,'2x'],
+    ['splash-blank-3x.png',2160,3840,'3x']
   ];
   const splashImages=[];
   for(const [filename,width,height,scale] of splashSpecs){
-    await sharp(loadingSvg)
-      .resize(width,height,{fit:'fill'})
-      .flatten({background:HOBahGreen})
-      .removeAlpha()
+    await sharp({create:{width,height,channels:3,background:LAUNCH_BG}})
       .png({palette:false,compressionLevel:9})
       .toFile(path.join(splashDir,filename));
     splashImages.push({idiom:'universal',filename,scale});
   }
   await writeFile(path.join(splashDir,'Contents.json'),JSON.stringify({images:splashImages,info:{author:'xcode',version:1}},null,2));
 
-  // Fill the native launch screen edge-to-edge while preserving the approved artwork.
   const launchPath=path.join(appRoot,'Base.lproj','LaunchScreen.storyboard');
   if(existsSync(launchPath)){
     let launch=await readFile(launchPath,'utf8');
@@ -90,4 +86,4 @@ if(existsSync(path.dirname(splashDir))){
   }
 }
 
-console.log('Hobah iOS native settings applied; approved 4K Ancient Canon loading screen installed with home page unchanged');
+console.log('Hobah iOS native settings applied; branded loading screen removed and launch surface set to immediate app background');
