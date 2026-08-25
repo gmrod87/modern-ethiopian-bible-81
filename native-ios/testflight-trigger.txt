@@ -1,12 +1,11 @@
 Hobah TestFlight upload trigger
 Marketing Version: 1.0.0
-Expected Build Number: 52
 Bundle ID: com.hobah.bible
 Apple signing mode: Manual App Store profile
-Build 52: remove the branded loading screen entirely
-Build 52: remove the Ancient Canon cross/title splash artwork from the native iOS launch path
-Build 52: set Capacitor splash duration to 0 and enable immediate auto-hide
-Build 52: native iOS launch surface is now only the app cream background required during process startup
-Build 52: app opens straight into the app UI with no branded loading-screen delay
-Build 52: all existing app content, Study AI, audio, voice commands and navigation remain unchanged
-Final TestFlight trigger: no branded loading screen
+Release 114: include Book of Giants in Ancient Library
+Release 114: 13 direct Aramaic fragment sections
+Release 114: preserve fragment gaps and uncertainty markers
+Release 114: keep Ethiopian 81-book canon unchanged
+Release 114: public-domain/CC0 Hobah English wording
+Release 114: include the full current web release in the native iOS bundle
+TestFlight trigger: Book of Giants native App Store build
