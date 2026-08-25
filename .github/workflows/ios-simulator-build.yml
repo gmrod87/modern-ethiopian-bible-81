@@ -20,7 +20,7 @@ concurrency:
 jobs:
   ios-simulator:
     runs-on: macos-latest
-    timeout-minutes: 35
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v4
 
@@ -98,6 +98,54 @@ jobs:
           fi
           test -d ios/build/Build/Products/Debug-iphonesimulator/App.app
 
+      - name: Launch smoke test on iPhone Simulator
+        working-directory: native-ios
+        shell: bash
+        run: |
+          set -euo pipefail
+          APP="$PWD/ios/build/Build/Products/Debug-iphonesimulator/App.app"
+          SHOT="$RUNNER_TEMP/hobah-home-smoke.png"
+          UDID="$(python3 - <<'PY'
+          import json,subprocess
+          raw=subprocess.check_output(['xcrun','simctl','list','devices','available','-j'])
+          data=json.loads(raw)
+          candidates=[]
+          for runtime,devices in data.get('devices',{}).items():
+              if 'iOS' not in runtime:
+                  continue
+              for d in devices:
+                  if d.get('isAvailable') and str(d.get('name','')).startswith('iPhone'):
+                      candidates.append((runtime,d.get('name',''),d.get('udid','')))
+          candidates.sort(reverse=True)
+          if not candidates:
+              raise SystemExit('No available iPhone simulator')
+          print(candidates[0][2])
+          PY
+          )"
+          test -n "$UDID"
+          xcrun simctl boot "$UDID" >/dev/null 2>&1 || true
+          xcrun simctl bootstatus "$UDID" -b
+          xcrun simctl install "$UDID" "$APP"
+          xcrun simctl launch "$UDID" com.hobah.bible
+          sleep 6
+          xcrun simctl io "$UDID" screenshot "$SHOT"
+          test -s "$SHOT"
+          python3 - "$SHOT" <<'PY'
+          import os,sys
+          p=sys.argv[1]
+          if os.path.getsize(p)<25000:
+              raise SystemExit('Simulator screenshot is unexpectedly small')
+          print('iPhone launch smoke screenshot bytes:',os.path.getsize(p))
+          PY
+          echo "SMOKE_SCREENSHOT=$SHOT" >> "$GITHUB_ENV"
+
+      - name: Archive launch smoke screenshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: hobah-ios-launch-smoke
+          path: ${{ env.SMOKE_SCREENSHOT }}
+          if-no-files-found: error
+
       - name: Archive compiled Simulator app
         uses: actions/upload-artifact@v4
         with:
@@ -133,6 +181,7 @@ jobs:
           - checked_at_utc: $(date -u +'%Y-%m-%dT%H:%M:%SZ')
           - native_voice_study: enabled
           - simulator_target: iPhone/iPad
+          - launch_smoke: automated iPhone simulator launch + screenshot
           EOF
           )
           ENCODED="$(printf '%s' "$BODY" | base64)"
