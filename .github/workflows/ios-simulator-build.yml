@@ -105,10 +105,21 @@ jobs:
           set -euo pipefail
           APP="$PWD/ios/build/Build/Products/Debug-iphonesimulator/App.app"
           SHOT="$RUNNER_TEMP/hobah-home-smoke.png"
-          UDID="$(python3 - <<'PY'
-          import json,subprocess
-          raw=subprocess.check_output(['xcrun','simctl','list','devices','available','-j'])
-          data=json.loads(raw)
+          python3 - "$APP" "$SHOT" <<'PY'
+          import json, os, subprocess, sys, time
+          app, shot = sys.argv[1:]
+
+          def run(args, timeout=12, check=False):
+              try:
+                  p=subprocess.run(args, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout)
+              except subprocess.TimeoutExpired as e:
+                  return 124, (e.stdout or ''), (e.stderr or '')
+              if check and p.returncode:
+                  raise SystemExit(f"command failed ({p.returncode}): {' '.join(args)}\n{p.stderr}")
+              return p.returncode,p.stdout,p.stderr
+
+          code,out,err=run(['xcrun','simctl','list','devices','available','-j'],20,True)
+          data=json.loads(out)
           candidates=[]
           for runtime,devices in data.get('devices',{}).items():
               if 'iOS' not in runtime:
@@ -119,38 +130,38 @@ jobs:
           candidates.sort(reverse=True)
           if not candidates:
               raise SystemExit('No available iPhone simulator')
-          print(candidates[0][2])
-          PY
-          )"
-          test -n "$UDID"
-          echo "Using simulator $UDID"
-          xcrun simctl shutdown all >/dev/null 2>&1 || true
-          xcrun simctl boot "$UDID" >/dev/null 2>&1 || true
+          runtime,name,udid=candidates[0]
+          print('Using simulator:',runtime,name,udid)
 
-          INSTALLED=0
-          for attempt in {1..18}; do
-            if xcrun simctl install "$UDID" "$APP" >/dev/null 2>&1; then
-              INSTALLED=1
-              break
-            fi
-            sleep 5
-          done
-          if [ "$INSTALLED" -ne 1 ]; then
-            echo 'iPhone simulator did not become ready for app installation.' >&2
-            xcrun simctl list devices
-            exit 1
-          fi
+          run(['xcrun','simctl','shutdown','all'],8)
+          run(['xcrun','simctl','boot',udid],10)
 
-          xcrun simctl launch "$UDID" com.hobah.bible
-          sleep 8
-          xcrun simctl io "$UDID" screenshot "$SHOT"
-          test -s "$SHOT"
-          python3 - "$SHOT" <<'PY'
-          import os,sys
-          p=sys.argv[1]
-          if os.path.getsize(p)<25000:
-              raise SystemExit('Simulator screenshot is unexpectedly small')
-          print('iPhone launch smoke screenshot bytes:',os.path.getsize(p))
+          installed=False
+          last=''
+          for attempt in range(8):
+              code,out,err=run(['xcrun','simctl','install',udid,app],8)
+              last=(err or out or '').strip()
+              if code==0:
+                  installed=True
+                  print('App installed on simulator')
+                  break
+              print(f'Install attempt {attempt+1}/8 not ready: code={code} {last[-300:]}')
+              time.sleep(4)
+          if not installed:
+              raise SystemExit('iPhone simulator did not become install-ready within bounded retries: '+last[-500:])
+
+          code,out,err=run(['xcrun','simctl','launch',udid,'com.hobah.bible'],15)
+          if code:
+              raise SystemExit('Hobah failed to launch in simulator: '+(err or out)[-500:])
+          print('Launch:',out.strip())
+          time.sleep(8)
+
+          code,out,err=run(['xcrun','simctl','io',udid,'screenshot',shot],15)
+          if code:
+              raise SystemExit('Simulator screenshot failed: '+(err or out)[-500:])
+          if not os.path.isfile(shot) or os.path.getsize(shot)<25000:
+              raise SystemExit('Simulator screenshot is missing or unexpectedly small')
+          print('iPhone launch smoke screenshot bytes:',os.path.getsize(shot))
           PY
           echo "SMOKE_SCREENSHOT=$SHOT" >> "$GITHUB_ENV"
 
@@ -196,7 +207,7 @@ jobs:
           - checked_at_utc: $(date -u +'%Y-%m-%dT%H:%M:%SZ')
           - native_voice_study: enabled
           - simulator_target: iPhone/iPad
-          - launch_smoke: automated iPhone simulator launch + screenshot
+          - launch_smoke: automated iPhone simulator launch + screenshot with bounded simctl calls
           EOF
           )
           ENCODED="$(printf '%s' "$BODY" | base64)"
