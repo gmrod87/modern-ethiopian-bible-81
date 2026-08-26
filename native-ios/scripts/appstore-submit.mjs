@@ -14,6 +14,26 @@ const cfg={
   report:process.env.APPSTORE_REPORT_PATH||''
 };
 const BASE='https://api.appstoreconnect.apple.com';
+const SUPPORT_URL='https://modern-ethiopian-bible-81.vercel.app/support.html';
+const MARKETING_URL='https://modern-ethiopian-bible-81.vercel.app/';
+const DEFAULT_DESCRIPTION=`Hobah brings the 81-book Ethiopian canon and a curated Ancient Library into one focused reading and study app.
+
+Read searchable Scripture, continue where you left off, save passages and notes, listen with natural Read Aloud, and explore ancient writings alongside the biblical text.
+
+Features:
+• 81-book Ethiopian canon with fast book and chapter navigation
+• Ancient Library with public-domain and rights-safe historical writings
+• Fragmentary ancient works presented transparently as surviving fragments or sections
+• Search across Scripture
+• Saved verses, highlights, notes and reading progress
+• Natural Read Aloud with playback controls
+• Study AI for explanations, historical context, manuscripts and research
+• Voice Commands for hands-free reading controls
+• Offline access to bundled reading texts; an internet connection is required for Study AI and natural voice generation
+• Privacy-focused local storage for saved reading data
+
+Hobah is designed for readers who want broad access to biblical and ancient literature in a clean interface. Ancient works may be fragmentary or based on historical translations; Hobah identifies them accordingly rather than presenting missing material as complete.`;
+const DEFAULT_KEYWORDS='bible,ethiopian,enoch,jubilees,scripture,ancient,study,read aloud,apocrypha';
 const notes=[];
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const b64url=v=>Buffer.from(v).toString('base64url');
@@ -62,10 +82,24 @@ async function findBuild(appId){
   }
   throw new Error(`Build ${cfg.build} was not VALID in App Store Connect within the polling window.`);
 }
+async function completeLocalization(loc){
+  const a=loc.attributes||{},attributes={};
+  if(!String(a.description||'').trim())attributes.description=DEFAULT_DESCRIPTION;
+  if(!String(a.supportUrl||'').trim())attributes.supportUrl=SUPPORT_URL;
+  if(!String(a.marketingUrl||'').trim())attributes.marketingUrl=MARKETING_URL;
+  if(!String(a.keywords||'').trim())attributes.keywords=DEFAULT_KEYWORDS;
+  if(!Object.keys(attributes).length)return loc;
+  const {json}=await api('PATCH',`/v1/appStoreVersionLocalizations/${loc.id}`,{data:{type:'appStoreVersionLocalizations',id:loc.id,attributes}});
+  note(`Completed missing App Store listing metadata for ${a.locale||'the primary locale'}.`);
+  return json?.data||{...loc,attributes:{...a,...attributes}};
+}
 async function metadataChecks(versionId){
   const q=params({'fields[appStoreVersionLocalizations]':'locale,description,keywords,supportUrl,marketingUrl,promotionalText,whatsNew',limit:50});
-  const {json}=await api('GET',`/v1/appStoreVersions/${versionId}/appStoreVersionLocalizations?${q}`);const locs=json?.data||[];
-  if(!locs.length)throw new Error('No App Store version localization exists.');
+  let {json}=await api('GET',`/v1/appStoreVersions/${versionId}/appStoreVersionLocalizations?${q}`);let locs=json?.data||[];
+  if(!locs.length){
+    const created=await api('POST','/v1/appStoreVersionLocalizations',{data:{type:'appStoreVersionLocalizations',attributes:{locale:'en-US',description:DEFAULT_DESCRIPTION,keywords:DEFAULT_KEYWORDS,supportUrl:SUPPORT_URL,marketingUrl:MARKETING_URL},relationships:{appStoreVersion:{data:{type:'appStoreVersions',id:versionId}}}}});
+    locs=created.json?.data?[created.json.data]:[];note('Created the English App Store listing metadata.');
+  }else locs=await Promise.all(locs.map(completeLocalization));
   const usable=locs.filter(x=>String(x.attributes?.description||'').trim()&&String(x.attributes?.supportUrl||'').trim());
   if(!usable.length)throw new Error('App Store listing is missing a description or support URL.');
   note(`App Store listing metadata present for ${usable.map(x=>x.attributes?.locale).join(', ')}`);
