@@ -26,7 +26,7 @@ concurrency:
 jobs:
   release:
     runs-on: ubuntu-latest
-    timeout-minutes: 35
+    timeout-minutes: 25
     env:
       BUNDLE_ID: com.hobah.bible
       MARKETING_VERSION: ${{ inputs.marketing_version || '1.0.0' }}
@@ -36,7 +36,6 @@ jobs:
       APP_STORE_CONNECT_API_KEY_P8_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8_BASE64 }}
       APPSTORE_REPORT_PATH: ${{ github.workspace }}/appstore-release-status.md
       APPSTORE_CONTACT_CIPHERTEXT_PATH: ${{ github.workspace }}/native-ios/app-review-contact.enc.json
-      APPSTORE_SCREENSHOT_DIR: ${{ github.workspace }}/native-ios/appstore-screenshots
     steps:
       - uses: actions/checkout@v4
 
@@ -55,40 +54,18 @@ jobs:
             fi
           done
 
-      - name: Emit safe review-contact encryption public key
-        shell: bash
-        run: |
-          node - <<'NODE'
-          const crypto=require('node:crypto');
-          const pem=Buffer.from(process.env.APP_STORE_CONNECT_API_KEY_P8_BASE64,'base64').toString('utf8');
-          const der=crypto.createPublicKey(pem).export({type:'spki',format:'der'});
-          console.log(`APPSTORE_CONTACT_PUBLIC_KEY_SPKI_B64=${der.toString('base64')}`);
-          NODE
-
       - name: Validate release automation syntax
         run: |
           node --check native-ios/scripts/appstore-preflight.mjs
-          node --check native-ios/scripts/render-appstore-screenshots.mjs
-          node --check native-ios/scripts/upload-appstore-screenshots.mjs
           node --check native-ios/scripts/appstore-submit.mjs
           node --check native-ios/scripts/appstore-submit-runner.mjs
+          node --check native-ios/scripts/appstore-submit-debug.mjs
 
       - name: Complete App Store metadata preflight
         run: node native-ios/scripts/appstore-preflight.mjs
 
-      - name: Install screenshot renderer
-        run: |
-          npm install --no-save playwright@1.55.0
-          npx playwright install --with-deps chromium
-
-      - name: Render required iPhone and iPad screenshots
-        run: node native-ios/scripts/render-appstore-screenshots.mjs
-
-      - name: Upload required screenshots to App Store Connect
-        run: node native-ios/scripts/upload-appstore-screenshots.mjs
-
       - name: Final checks and submit to Apple Review
-        run: node native-ios/scripts/appstore-submit-runner.mjs
+        run: node native-ios/scripts/appstore-submit-debug.mjs
 
       - name: Archive App Store release report
         if: always()
