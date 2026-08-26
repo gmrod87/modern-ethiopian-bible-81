@@ -56,11 +56,15 @@ jobs:
 
       - name: Validate release automation syntax
         run: |
+          node --check native-ios/scripts/update-appstore-description.mjs
           node --check native-ios/scripts/appstore-preflight.mjs
           node --check native-ios/scripts/set-appstore-free.mjs
           node --check native-ios/scripts/appstore-submit.mjs
           node --check native-ios/scripts/appstore-submit-runner.mjs
           node --check native-ios/scripts/appstore-submit-debug.mjs
+
+      - name: Update premium App Store description
+        run: node native-ios/scripts/update-appstore-description.mjs
 
       - name: Complete App Store metadata preflight
         run: node native-ios/scripts/appstore-preflight.mjs
