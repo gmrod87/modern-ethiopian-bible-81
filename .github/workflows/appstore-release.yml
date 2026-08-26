@@ -66,8 +66,12 @@ jobs:
 
       - name: Validate release automation syntax
         run: |
+          node --check native-ios/scripts/appstore-preflight.mjs
           node --check native-ios/scripts/appstore-submit.mjs
           node --check native-ios/scripts/appstore-submit-runner.mjs
+
+      - name: Complete App Store metadata preflight
+        run: node native-ios/scripts/appstore-preflight.mjs
 
       - name: Final checks and submit to Apple Review
         run: node native-ios/scripts/appstore-submit-runner.mjs
