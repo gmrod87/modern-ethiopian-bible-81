@@ -1,19 +1,19 @@
 # Hobah TestFlight Status
 
 - status: success
-- source_commit: 6b4054c652249ab3299c0922a1e2d4d83daa994b
-- run_id: 32912798196
+- source_commit: 33c6ce60f88bd55617e3c319e5ad6a09d293243c
+- run_id: 32915570911
 - bundle_id: com.hobah.bible
-- checked_at_utc: 2026-08-25T23:58:56Z
+- checked_at_utc: 2026-08-26T00:37:09Z
 
 ## App Store Connect upload output
 
 Running altool at path '/Applications/Xcode_26.6.app/Contents/SharedFrameworks/ContentDelivery.framework/Resources/altool'...
 
-2026-08-25 23:58:52.487  INFO: [ContentDelivery.Uploader.B0CC44440] 
+2026-08-26 00:37:07.201  INFO: [ContentDelivery.Uploader.BB4C48440] 
 ==========================================
 UPLOAD SUCCEEDED with no errors
-Delivery UUID: 8a9cd061-5ca9-4b4d-804e-7539d276f6a0
-Transferred 13135277 bytes in 0.450 seconds (29.2MB/s, 233.488Mbps)
+Delivery UUID: 608b3887-ef97-46c6-a5df-7dd26c149ed8
+Transferred 13135361 bytes in 0.729 seconds (18.0MB/s, 144.070Mbps)
 ==========================================
 No errors uploading archive at '/Users/runner/work/modern-ethiopian-bible-81/modern-ethiopian-bible-81/native-ios/ios/export/App.ipa'.
