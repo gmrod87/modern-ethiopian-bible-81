@@ -106,62 +106,96 @@ jobs:
           APP="$PWD/ios/build/Build/Products/Debug-iphonesimulator/App.app"
           SHOT="$RUNNER_TEMP/hobah-home-smoke.png"
           python3 - "$APP" "$SHOT" <<'PY'
-          import json, os, subprocess, sys, time
+          import json, os, re, subprocess, sys, time
           app, shot = sys.argv[1:]
 
-          def run(args, timeout=12, check=False):
+          def run(args, timeout=30, check=False):
               try:
-                  p=subprocess.run(args, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout)
+                  p = subprocess.run(
+                      args,
+                      text=True,
+                      stdout=subprocess.PIPE,
+                      stderr=subprocess.PIPE,
+                      timeout=timeout,
+                  )
+                  code, out, err = p.returncode, p.stdout, p.stderr
               except subprocess.TimeoutExpired as e:
-                  return 124, (e.stdout or ''), (e.stderr or '')
-              if check and p.returncode:
-                  raise SystemExit(f"command failed ({p.returncode}): {' '.join(args)}\n{p.stderr}")
-              return p.returncode,p.stdout,p.stderr
+                  code = 124
+                  out = e.stdout.decode() if isinstance(e.stdout, bytes) else (e.stdout or '')
+                  err = e.stderr.decode() if isinstance(e.stderr, bytes) else (e.stderr or '')
+              if check and code:
+                  raise SystemExit(
+                      f"command failed ({code}): {' '.join(args)}\n"
+                      f"stdout:\n{out[-1500:]}\nstderr:\n{err[-1500:]}"
+                  )
+              return code, out, err
 
-          code,out,err=run(['xcrun','simctl','list','devices','available','-j'],20,True)
-          data=json.loads(out)
-          candidates=[]
-          for runtime,devices in data.get('devices',{}).items():
+          def runtime_key(runtime):
+              match = re.search(r'iOS-(\d+)(?:-(\d+))?(?:-(\d+))?$', runtime)
+              if not match:
+                  return (0, 0, 0)
+              return tuple(int(part or 0) for part in match.groups())
+
+          _, out, _ = run(['xcrun', 'simctl', 'list', 'devices', 'available', '-j'], 30, True)
+          data = json.loads(out)
+          candidates = []
+          for runtime, devices in data.get('devices', {}).items():
               if 'iOS' not in runtime:
                   continue
-              for d in devices:
-                  if d.get('isAvailable') and str(d.get('name','')).startswith('iPhone'):
-                      candidates.append((runtime,d.get('name',''),d.get('udid','')))
+              for device in devices:
+                  if device.get('isAvailable') and str(device.get('name', '')).startswith('iPhone'):
+                      candidates.append((runtime_key(runtime), runtime, device.get('name', ''), device.get('udid', '')))
           candidates.sort(reverse=True)
           if not candidates:
               raise SystemExit('No available iPhone simulator')
-          runtime,name,udid=candidates[0]
-          print('Using simulator:',runtime,name,udid)
 
-          run(['xcrun','simctl','shutdown','all'],8)
-          run(['xcrun','simctl','boot',udid],10)
+          _, runtime, name, udid = candidates[0]
+          print('Using simulator:', runtime, name, udid)
 
-          installed=False
-          last=''
-          for attempt in range(8):
-              code,out,err=run(['xcrun','simctl','install',udid,app],8)
-              last=(err or out or '').strip()
-              if code==0:
-                  installed=True
+          # Start from a deterministic state, then wait for CoreSimulator to report
+          # the device fully booted before trying to install the app. A short boot
+          # timeout can leave the device half-started and make every install retry fail.
+          run(['xcrun', 'simctl', 'shutdown', udid], 20)
+          code, out, err = run(['xcrun', 'simctl', 'boot', udid], 60)
+          if code not in (0, 149):
+              print('simctl boot returned:', code, (err or out)[-800:])
+
+          code, out, err = run(['xcrun', 'simctl', 'bootstatus', udid, '-b'], 180)
+          if code:
+              _, devices_out, devices_err = run(['xcrun', 'simctl', 'list', 'devices'], 20)
+              raise SystemExit(
+                  'iPhone simulator did not reach a boot-ready state. '
+                  f'bootstatus code={code}\n{(err or out)[-1500:]}\n'
+                  f'devices:\n{(devices_out or devices_err)[-2000:]}'
+              )
+          print('Simulator is fully booted')
+
+          installed = False
+          last = ''
+          for attempt in range(3):
+              code, out, err = run(['xcrun', 'simctl', 'install', udid, app], 30)
+              last = (err or out or '').strip()
+              if code == 0:
+                  installed = True
                   print('App installed on simulator')
                   break
-              print(f'Install attempt {attempt+1}/8 not ready: code={code} {last[-300:]}')
-              time.sleep(4)
+              print(f'Install attempt {attempt + 1}/3 failed: code={code} {last[-500:]}')
+              time.sleep(3)
           if not installed:
-              raise SystemExit('iPhone simulator did not become install-ready within bounded retries: '+last[-500:])
+              raise SystemExit('Hobah failed to install on a fully booted simulator: ' + last[-1500:])
 
-          code,out,err=run(['xcrun','simctl','launch',udid,'com.hobah.bible'],15)
+          code, out, err = run(['xcrun', 'simctl', 'launch', udid, 'com.hobah.bible'], 30)
           if code:
-              raise SystemExit('Hobah failed to launch in simulator: '+(err or out)[-500:])
-          print('Launch:',out.strip())
+              raise SystemExit('Hobah failed to launch in simulator: ' + (err or out)[-1500:])
+          print('Launch:', out.strip())
           time.sleep(8)
 
-          code,out,err=run(['xcrun','simctl','io',udid,'screenshot',shot],15)
+          code, out, err = run(['xcrun', 'simctl', 'io', udid, 'screenshot', shot], 30)
           if code:
-              raise SystemExit('Simulator screenshot failed: '+(err or out)[-500:])
-          if not os.path.isfile(shot) or os.path.getsize(shot)<25000:
+              raise SystemExit('Simulator screenshot failed: ' + (err or out)[-1500:])
+          if not os.path.isfile(shot) or os.path.getsize(shot) < 25000:
               raise SystemExit('Simulator screenshot is missing or unexpectedly small')
-          print('iPhone launch smoke screenshot bytes:',os.path.getsize(shot))
+          print('iPhone launch smoke screenshot bytes:', os.path.getsize(shot))
           PY
           echo "SMOKE_SCREENSHOT=$SHOT" >> "$GITHUB_ENV"
 
@@ -207,7 +241,7 @@ jobs:
           - checked_at_utc: $(date -u +'%Y-%m-%dT%H:%M:%SZ')
           - native_voice_study: enabled
           - simulator_target: iPhone/iPad
-          - launch_smoke: automated iPhone simulator launch + screenshot with bounded simctl calls
+          - launch_smoke: automated iPhone simulator launch + screenshot after boot readiness verification
           EOF
           )
           ENCODED="$(printf '%s' "$BODY" | base64)"
