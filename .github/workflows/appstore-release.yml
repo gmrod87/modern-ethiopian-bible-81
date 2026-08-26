@@ -35,6 +35,7 @@ jobs:
       APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
       APP_STORE_CONNECT_API_KEY_P8_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8_BASE64 }}
       APPSTORE_REPORT_PATH: ${{ github.workspace }}/appstore-release-status.md
+      APPSTORE_CONTACT_CIPHERTEXT_PATH: ${{ github.workspace }}/native-ios/app-review-contact.enc.json
     steps:
       - uses: actions/checkout@v4
 
@@ -52,6 +53,16 @@ jobs:
               exit 1
             fi
           done
+
+      - name: Emit safe review-contact encryption public key
+        shell: bash
+        run: |
+          node - <<'NODE'
+          const crypto=require('node:crypto');
+          const pem=Buffer.from(process.env.APP_STORE_CONNECT_API_KEY_P8_BASE64,'base64').toString('utf8');
+          const der=crypto.createPublicKey(pem).export({type:'spki',format:'der'});
+          console.log(`APPSTORE_CONTACT_PUBLIC_KEY_SPKI_B64=${der.toString('base64')}`);
+          NODE
 
       - name: Validate release automation syntax
         run: |
