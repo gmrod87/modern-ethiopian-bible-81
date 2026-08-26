@@ -1,15 +1,16 @@
 {
   "id": "damascus-document",
-  "title": "Damascus Document — Hobah Translation",
+  "title": "Damascus Document — Hobah Research Reading",
   "group": "dead-sea-scrolls",
   "about": "The Damascus Document is a Jewish sectarian work known from medieval Cairo Geniza copies (CD) and multiple ancient Qumran fragments. It combines an admonition about Israel's history and the community's origins with legal rules for covenant members living in camps and settlements. No single ancient manuscript preserves the whole work.",
   "translation": {
-    "status": "Hobah provisional source-language reading translation of major preserved Damascus Document passages",
-    "base_text": "The Hebrew Damascus Document tradition represented by CD A/B and the Qumran fragments, keeping the Cairo and Qumran witnesses conceptually distinct",
-    "method": "Fresh modern-English rendering from the Hebrew sense of substantially preserved passages. Because the work survives in overlapping witnesses with gaps and different arrangements, this reader does not pretend to reconstruct a single perfect archetype. Brackets indicate damaged or uncertain sense.",
-    "confidence": "Medium-high in continuous CD passages; medium or lower where Qumran fragments supply broken or variant material",
-    "notes": "This edition presents the major admonition and legal themes in source order where possible. It is a reading translation, not a diplomatic edition or a silent conflation of every fragment.",
-    "license_note": "The ancient Hebrew witnesses are public domain. Hobah English wording is newly prepared for this project."
+    "status": "Hobah provisional selected research reading — not a complete line-by-line translation",
+    "base_text": "The Hebrew Damascus Document tradition represented by CD A/B and the Qumran fragments provides the source framework. The present English is a Hobah thematic reading of major preserved material and does not claim to reconstruct one complete archetype.",
+    "method": "New Hobah English prose follows the major admonition and legal themes of the surviving Hebrew witnesses without copying a modern copyrighted English translation. Because the witnesses overlap, differ, and contain gaps, the current text is classified as a research reading rather than a diplomatic translation. A future direct edition must identify CD and each Qumran witness at line level and mark lacunae and restorations explicitly.",
+    "confidence": "Medium-high for the broad themes and continuous CD material; not yet rated for line-level equivalence across the overlapping witnesses",
+    "notes": "The Cairo and Qumran witnesses must remain distinguishable. Editorial summaries or harmonized transitions are Hobah explanatory prose, not words silently attributed to an ancient manuscript.",
+    "license_note": "The ancient Hebrew manuscript text is public domain. Hobah English prose is newly prepared for this project. Modern copyrighted critical reconstructions or translations may be consulted for scholarship but are not copied into production wording.",
+    "completeness": "selected major-content research reading; not a complete diplomatic or critical edition"
   },
   "chapters": [
     {"number":1,"label":"Admonition I — A remnant awakened","text":"Listen, all who know righteousness and understand the works of God. He has a dispute with all flesh and will bring judgment upon those who reject him. When Israel was unfaithful and abandoned the covenant, he hid his face from them and gave them into the sword. Yet he remembered the covenant of the ancestors and left a remnant. After a period of wrath he visited them and caused a root of planting to spring from Israel and Aaron, so that his land might again be possessed and the goodness of his soil enjoyed."},
