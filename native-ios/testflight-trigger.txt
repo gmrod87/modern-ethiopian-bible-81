@@ -2,8 +2,8 @@ Hobah TestFlight upload trigger
 Marketing Version: 1.0.0
 Expected Build Number: assigned by GitHub Actions run number
 Bundle ID: com.hobah.bible
-Release 118: Ancient Library read aloud now loads the active work directly and automatically advances to the next chapter/section when narration finishes
-Release 118: continuation reopens the next Ancient chapter and immediately restarts the same Read aloud session without another tap
-Release 118: duplicate end-event guard prevents double chapter skips on iOS/Safari
-Release 118: preserves Book of Giants 13-fragment handling, Ancient reading progress, Study AI, voice controls, saved Library, offline reading and App Store readiness
-Final TestFlight trigger: Ancient Library continuous chapter narration
+Release 119: Home hero descriptor changed from THE ETHIOPIAN CANON • 81 BOOKS to 81 Books + Ancient Writings
+Release 119: descriptor is explicitly left-aligned to the same content edge as the Hobah wordmark below it
+Release 119: heading change is applied to both initial app HTML and the runtime Home renderer so it remains correct after navigation
+Release 119: stylesheet cache is bumped and Ancient Library, continuous read aloud, Study AI, voice controls, saved Library, offline reading and App Store readiness are preserved
+Final TestFlight trigger: Home title descriptor and left alignment
