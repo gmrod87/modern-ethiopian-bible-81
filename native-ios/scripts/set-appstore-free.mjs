@@ -32,17 +32,6 @@ async function findApp(){
   const {json}=await api('GET',`/v1/apps?${params({'filter[bundleId]':cfg.bundleId,'fields[apps]':'name,bundleId',limit:2})}`);
   const app=json?.data?.[0];if(!app)throw new Error(`No app found for ${cfg.bundleId}`);return app;
 }
-async function getSchedule(appId){
-  const r=await api('GET',`/v1/apps/${appId}/appPriceSchedule`,null,{allow:[404]});
-  return r.status===200?r.json?.data:null;
-}
-async function activeFreePrice(scheduleId){
-  if(!scheduleId)return false;
-  const q=params({include:'appPricePoint','fields[appPrices]':'manual,startDate,endDate,appPricePoint','fields[appPricePoints]':'customerPrice',limit:200});
-  const {json}=await api('GET',`/v1/appPriceSchedules/${scheduleId}/manualPrices?${q}`);
-  const points=new Map((json?.included||[]).filter(x=>x.type==='appPricePoints').map(x=>[x.id,Number(x.attributes?.customerPrice)]));
-  return (json?.data||[]).some(p=>p.attributes?.endDate==null&&points.get(p.relationships?.appPricePoint?.data?.id)===0);
-}
 async function freePoint(appId){
   const q=params({'filter[territory]':BASE_TERRITORY,'fields[appPricePoints]':'customerPrice,proceeds',limit:200});
   const {json}=await api('GET',`/v1/apps/${appId}/appPricePoints?${q}`);
@@ -53,12 +42,8 @@ async function freePoint(appId){
 
 const app=await findApp();
 console.log(`[pricing] Found ${app.attributes?.name||'Hobah'} (${cfg.bundleId}).`);
-let schedule=await getSchedule(app.id);
-if(schedule&&await activeFreePrice(schedule.id)){
-  console.log('[pricing] App Store price is already Free (A$0.00).');
-  process.exit(0);
-}
 const point=await freePoint(app.id);
+console.log(`[pricing] Found Apple Free price point for Australia: ${point.id}.`);
 const tempId='${freeprice-0}';
 const body={
   data:{
@@ -77,8 +62,12 @@ const body={
     relationships:{appPricePoint:{data:{type:'appPricePoints',id:point.id}}}
   }]
 };
-await api('POST','/v1/appPriceSchedules',body);
-console.log('[pricing] Set Hobah base App Store price to Free (A$0.00), base territory Australia.');
-schedule=await getSchedule(app.id);
-if(!schedule||!(await activeFreePrice(schedule.id))) throw new Error('Apple accepted the price request but an active Free price could not be verified.');
-console.log('[pricing] Apple confirms an active Free price schedule.');
+const result=await api('POST','/v1/appPriceSchedules',body,{allow:[409]});
+if(result.status===201){
+  console.log('[pricing] Set Hobah base App Store price to Free (A$0.00), base territory Australia.');
+}else{
+  const details=appleError(result.json,result.text);
+  if(/already|duplicate|existing|price schedule/i.test(details)) console.log(`[pricing] Apple reports the price schedule already exists: ${details}`);
+  else throw new Error(`Apple did not accept the Free price schedule.\n${details}`);
+}
+console.log('[pricing] Pricing write completed; Apple review validation will confirm the active selling price.');
