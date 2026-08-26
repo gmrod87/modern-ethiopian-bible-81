@@ -4,4 +4,4 @@ Build Number: 59
 Bundle ID: com.hobah.bible
 Release 119 final App Store publication
 Action: run App Store Connect final metadata/build checks, attach build 59, set automatic release after approval, and submit to Apple App Review
-Retry: 10 — handle empty review-detail response, create secure App Review contact, and submit Hobah 1.0.0 build 59
+Retry: 11 — complete app-level metadata preflight, diagnose remaining Apple requirements, and submit Hobah 1.0.0 build 59
