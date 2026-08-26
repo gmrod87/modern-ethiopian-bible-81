@@ -54,10 +54,12 @@ jobs:
           done
 
       - name: Validate release automation syntax
-        run: node --check native-ios/scripts/appstore-submit.mjs
+        run: |
+          node --check native-ios/scripts/appstore-submit.mjs
+          node --check native-ios/scripts/appstore-submit-runner.mjs
 
       - name: Final checks and submit to Apple Review
-        run: node native-ios/scripts/appstore-submit.mjs
+        run: node native-ios/scripts/appstore-submit-runner.mjs
 
       - name: Archive App Store release report
         if: always()
