@@ -1,0 +1,8 @@
+{
+  "scheme": "p256-hkdf-sha256-aes-256-gcm",
+  "ephemeralPublicKeySpkiB64": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAEHq9IP8EX/R2POS6YGjthS+2IAvIwChOCksehkC1wagVyMpj4kBzkzaJJndQKWkmQWpJwFG4wafRYmV9NwxMHsw==",
+  "saltB64": "QqJ3vFWDh/VpsCLJjZ5VYBa7AvDAked/f9l0gcVM7D0=",
+  "ivB64": "RLwGUB842uGZZzqT",
+  "ciphertextB64": "wsWjyxCZGg145fsP0g6rcbN9g4YW0DYUTYAWpzjTldTU8s5obLAhaRIdP9BwnTYXB5HwG/hzs7nHoxr22djRgekYti0adTP7DRhWkjfpboaEAz17VKjAO66P+Qt/zRYAOVciYLEXOhdu3mQLMTvGNgwB4PhVFJQTxZN2ELLhonKAT+MZSjNxSwTjwM9BdbO2X+Qu+P+U3l8Gw3CIVZPTnOFNvOZlDZ7DEuiUPin6tpRZ54KYZWGNwohGZaKZ0bKZpU4apssj7Ao/8RUlGg/Q2kHLfz3tx3vRXKtJ+UaTUN1O3ooZKtQu79psBP8n6TxZeUof/DcgBknrpSRhtIwnzd9mKwtx/SeyiREKIBUa6xh7IcTBh3OjaGZuI6GaojJwDZg5xOVlTX0i3EnMqqECr40tzNS/Jh+6",
+  "tagB64": "gElvSwMGXzAdSFI1foCuJQ=="
+}
