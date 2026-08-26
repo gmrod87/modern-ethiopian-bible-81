@@ -1,0 +1,68 @@
+name: Publish Hobah to App Store
+
+on:
+  workflow_dispatch:
+    inputs:
+      marketing_version:
+        description: 'App version in App Store Connect'
+        required: true
+        default: '1.0.0'
+      build_number:
+        description: 'Processed App Store Connect build number'
+        required: true
+        default: '59'
+  push:
+    branches: [main]
+    paths:
+      - 'native-ios/appstore-release-trigger.txt'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hobah-appstore-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      BUNDLE_ID: com.hobah.bible
+      MARKETING_VERSION: ${{ inputs.marketing_version || '1.0.0' }}
+      BUILD_NUMBER: ${{ inputs.build_number || '59' }}
+      APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+      APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+      APP_STORE_CONNECT_API_KEY_P8_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8_BASE64 }}
+      APPSTORE_REPORT_PATH: ${{ github.workspace }}/appstore-release-status.md
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Verify App Store Connect release credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in APP_STORE_CONNECT_KEY_ID APP_STORE_CONNECT_ISSUER_ID APP_STORE_CONNECT_API_KEY_P8_BASE64; do
+            if [ -z "${!name:-}" ]; then
+              echo "Missing required App Store Connect secret: $name" >&2
+              exit 1
+            fi
+          done
+
+      - name: Validate release automation syntax
+        run: node --check native-ios/scripts/appstore-submit.mjs
+
+      - name: Final checks and submit to Apple Review
+        run: node native-ios/scripts/appstore-submit.mjs
+
+      - name: Archive App Store release report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hobah-appstore-release-status
+          path: appstore-release-status.md
+          if-no-files-found: warn
