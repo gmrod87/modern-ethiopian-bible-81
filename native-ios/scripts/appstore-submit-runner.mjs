@@ -84,7 +84,13 @@ globalThis.fetch=async(input,init)=>{
     const reviewMatch=original.hostname==='api.appstoreconnect.apple.com'&&method==='GET'&&original.pathname.match(/^\/v1\/appStoreVersions\/([^/]+)\/appStoreReviewDetail$/);
     if(reviewMatch){
       const existing=await realFetch(input,init);
-      if(existing.status!==404)return existing;
+      if(existing.status===200){
+        let payload=null;
+        try{payload=await existing.clone().json()}catch{}
+        if(payload?.data)return existing;
+      }else if(existing.status!==404){
+        return existing;
+      }
       const headers={...(init?.headers||{})};
       let attrs=null;
       const bundle=process.env.BUNDLE_ID||'com.hobah.bible';
