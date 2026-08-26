@@ -20,10 +20,25 @@ globalThis.fetch=async(input,init)=>{
         allUrl.searchParams.delete('filter[versionString]');
         allUrl.searchParams.set('limit','200');
         const allResp=await realFetch(allUrl.toString(),init);
+        let versions=[];
         if(allResp.ok){
           const all=await allResp.json();
-          const versions=(all?.data||[]).filter(v=>v?.attributes?.platform==='IOS');
+          versions=(all?.data||[]).filter(v=>v?.attributes?.platform==='IOS');
           console.log('Existing iOS App Store versions:',versions.map(v=>`${v.attributes?.versionString||'?'} [${v.attributes?.appStoreState||v.attributes?.appVersionState||'?'}] id=${v.id}`).join('; ')||'none');
+        }
+
+        const editable=versions.find(v=>(v.attributes?.appStoreState||v.attributes?.appVersionState)==='PREPARE_FOR_SUBMISSION');
+        if(editable){
+          const headers={...(init?.headers||{})};
+          const rename=await realFetch(`https://api.appstoreconnect.apple.com/v1/appStoreVersions/${encodeURIComponent(editable.id)}`,{
+            method:'PATCH',
+            headers,
+            body:JSON.stringify({data:{type:'appStoreVersions',id:editable.id,attributes:{versionString:wanted,releaseType:'AFTER_APPROVAL'}}})
+          });
+          if(!rename.ok)return rename;
+          const updated=await rename.json();
+          console.log(`Updated draft App Store version ${editable.attributes?.versionString||''} to ${wanted} to match the signed build.`);
+          return new Response(JSON.stringify({data:[updated.data]}),{status:200,headers:{'content-type':'application/json'}});
         }
 
         const headers={...(init?.headers||{})};
