@@ -1,0 +1,6 @@
+Hobah App Store release trigger
+Marketing Version: 1.0.0
+Build Number: 59
+Bundle ID: com.hobah.bible
+Release 119 final App Store publication
+Action: run App Store Connect final metadata/build checks, attach build 59, set automatic release after approval, and submit to Apple App Review
