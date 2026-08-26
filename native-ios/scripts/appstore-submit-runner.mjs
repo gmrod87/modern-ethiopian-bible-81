@@ -16,6 +16,16 @@ globalThis.fetch=async(input,init)=>{
         const match=(payload?.data||[]).find(v=>v?.attributes?.versionString===wanted&&v?.attributes?.platform==='IOS');
         if(match)return new Response(JSON.stringify({...payload,data:[match]}),{status:r.status,headers:{'content-type':'application/json'}});
 
+        const allUrl=new URL(u);
+        allUrl.searchParams.delete('filter[versionString]');
+        allUrl.searchParams.set('limit','200');
+        const allResp=await realFetch(allUrl.toString(),init);
+        if(allResp.ok){
+          const all=await allResp.json();
+          const versions=(all?.data||[]).filter(v=>v?.attributes?.platform==='IOS');
+          console.log('Existing iOS App Store versions:',versions.map(v=>`${v.attributes?.versionString||'?'} [${v.attributes?.appStoreState||v.attributes?.appVersionState||'?'}] id=${v.id}`).join('; ')||'none');
+        }
+
         const headers={...(init?.headers||{})};
         const create=await realFetch('https://api.appstoreconnect.apple.com/v1/appStoreVersions',{
           method:'POST',
