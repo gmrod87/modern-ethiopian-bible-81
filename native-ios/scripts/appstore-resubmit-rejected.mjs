@@ -44,17 +44,18 @@ const submissions=(await api('GET',`/v1/apps/${app.id}/reviewSubmissions?${param
 let sub=submissions.find(s=>s.attributes?.state==='UNRESOLVED_ISSUES')||submissions.find(s=>s.attributes?.state==='READY_FOR_REVIEW');
 if(!sub)throw new Error('No unresolved or ready App Review submission found to update.');
 log(`Review submission state: ${sub.attributes?.state}.`);
-const itemResp=await api('GET',`/v1/reviewSubmissions/${sub.id}/items?include=appStoreVersion&fields%5BreviewSubmissionItems%5D=state,appStoreVersion&fields%5BappStoreVersions%5D=versionString,appStoreState,appVersionState&limit=50`);
-const included=itemResp.json?.included||[];
-let item=(itemResp.json?.data||[]).find(i=>i.relationships?.appStoreVersion?.data?.id===version.id)||
-  (itemResp.json?.data||[]).find(i=>{const id=i.relationships?.appStoreVersion?.data?.id;const v=included.find(x=>x.type==='appStoreVersions'&&x.id===id);return v?.attributes?.versionString===cfg.version});
+async function listItems(){return (await api('GET',`/v1/reviewSubmissions/${sub.id}/items?include=appStoreVersion&fields%5BreviewSubmissionItems%5D=state,appStoreVersion&fields%5BappStoreVersions%5D=versionString,appStoreState,appVersionState&limit=50`)).json||{}}
+let itemResp=await listItems();
+let included=itemResp.included||[];
+let item=(itemResp.data||[]).find(i=>i.relationships?.appStoreVersion?.data?.id===version.id)||
+  (itemResp.data||[]).find(i=>{const id=i.relationships?.appStoreVersion?.data?.id;const v=included.find(x=>x.type==='appStoreVersions'&&x.id===id);return v?.attributes?.versionString===cfg.version});
 if(!item)throw new Error(`Could not find version ${cfg.version} in the unresolved review submission.`);
 log(`Review item state: ${item.attributes?.state||'unknown'}.`);
 
-// Apple's unresolved-issues flow is two distinct actions: first edit/resolve the
-// rejected item so it returns to Ready for Review, then resubmit the parent review
-// submission. The parent may continue to report UNRESOLVED_ISSUES until the second
-// action is sent, so don't wait for it to become READY_FOR_REVIEW first.
+// Apple's unresolved-issues flow is two distinct actions: first resolve/edit the
+// rejected item until it is Ready for Review, then resubmit the parent submission.
+// The item resource intentionally has no GET-instance operation, so readiness is
+// re-read through the supported reviewSubmissions/{id}/items list endpoint.
 if(item.attributes?.state==='REJECTED'){
   const resolved=await api('PATCH',`/v1/reviewSubmissionItems/${item.id}`,{data:{type:'reviewSubmissionItems',id:item.id,attributes:{resolved:true}}},{allow:[400,409,422]});
   if(resolved.status>=400)throw new Error(`Apple did not accept the Update Review action for the rejected item (${resolved.status}).\n${err(resolved.json,resolved.text)}`);
@@ -62,15 +63,17 @@ if(item.attributes?.state==='REJECTED'){
   log(`Updated rejected item; Apple now reports item state ${item.attributes?.state||'processing'}.`);
 }
 
-for(let i=0;i<20;i++){
-  const r=await api('GET',`/v1/reviewSubmissionItems/${item.id}?fields%5BreviewSubmissionItems%5D=state`);
-  item=r.json?.data||item;
+for(let i=0;item.attributes?.state!=='READY_FOR_REVIEW'&&i<20;i++){
+  itemResp=await listItems();
+  const current=(itemResp.data||[]).find(x=>x.id===item.id);
+  if(current)item=current;
   const state=item.attributes?.state||'';
   if(state==='READY_FOR_REVIEW')break;
-  if(state!=='REJECTED')log(`Waiting for review item readiness: ${state||'processing'}…`);
+  log(`Waiting for review item readiness: ${state||'processing'}…`);
   if(i===19)throw new Error(`Review item did not become READY_FOR_REVIEW after Update Review; current state: ${state||'unknown'}`);
   await sleep(1500);
 }
+if(item.attributes?.state!=='READY_FOR_REVIEW')throw new Error(`Correction item is not Ready for Review: ${item.attributes?.state||'unknown'}`);
 log('Correction item is Ready for Review.');
 
 const freshSub=await api('GET',`/v1/reviewSubmissions/${sub.id}?fields%5BreviewSubmissions%5D=platform,submittedDate,state`);
