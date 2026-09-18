@@ -11,7 +11,7 @@ on:
       - 'release75-appstore-ready.js'
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: hobah-ios-simulator-main
@@ -46,164 +46,123 @@ jobs:
             exit 1
           fi
 
-      - name: Install Hobah web dependencies
-        run: npm install
-
       - name: Build Hobah web release
-        run: npm run build
+        run: |
+          npm install
+          npm run build
 
-      - name: Install Capacitor dependencies
-        working-directory: native-ios
-        run: npm install
-
-      - name: Prepare native web bundle and bridges
+      - name: Generate native iOS project
         working-directory: native-ios
         run: |
+          npm install
           npm run prepare:web
           npm run build:bridge
-
-      - name: Generate and sync Xcode project
-        working-directory: native-ios
-        run: |
           node scripts/init-ios.mjs
           npx cap sync ios
           node scripts/post-ios.mjs
           npm run doctor
 
-      - name: Build unsigned iPhone/iPad Simulator app
+      - name: Build ad-hoc signed Simulator app
         working-directory: native-ios
+        shell: bash
         run: |
           set -euo pipefail
           rm -rf ios/build
+          COMMON=(
+            -scheme App
+            -configuration Debug
+            -sdk iphonesimulator
+            -destination 'generic/platform=iOS Simulator'
+            -derivedDataPath ios/build
+            CODE_SIGNING_ALLOWED=YES
+            CODE_SIGNING_REQUIRED=YES
+            CODE_SIGN_IDENTITY=-
+            DEVELOPMENT_TEAM=
+            PROVISIONING_PROFILE_SPECIFIER=
+            build
+          )
           if [ -d ios/App/App.xcworkspace ]; then
-            xcodebuild \
-              -workspace ios/App/App.xcworkspace \
-              -scheme App \
-              -configuration Debug \
-              -sdk iphonesimulator \
-              -destination 'generic/platform=iOS Simulator' \
-              -derivedDataPath ios/build \
-              CODE_SIGNING_ALLOWED=NO \
-              build
+            xcodebuild -workspace ios/App/App.xcworkspace "${COMMON[@]}"
           else
-            xcodebuild \
-              -project ios/App/App.xcodeproj \
-              -scheme App \
-              -configuration Debug \
-              -sdk iphonesimulator \
-              -destination 'generic/platform=iOS Simulator' \
-              -derivedDataPath ios/build \
-              CODE_SIGNING_ALLOWED=NO \
-              build
+            xcodebuild -project ios/App/App.xcodeproj "${COMMON[@]}"
           fi
-          test -d ios/build/Build/Products/Debug-iphonesimulator/App.app
+          APP="$PWD/ios/build/Build/Products/Debug-iphonesimulator/App.app"
+          test -d "$APP"
+          codesign --verify --deep --strict --verbose=2 "$APP"
+          codesign -dv --verbose=2 "$APP" 2>&1 | tail -20
 
-      - name: Launch smoke test on iPhone Simulator
+      - name: Launch smoke test on iPhone and iPad Simulators
         working-directory: native-ios
         shell: bash
         run: |
           set -euo pipefail
           APP="$PWD/ios/build/Build/Products/Debug-iphonesimulator/App.app"
-          SHOT="$RUNNER_TEMP/hobah-home-smoke.png"
-          python3 - "$APP" "$SHOT" <<'PY'
+          OUT="$RUNNER_TEMP/hobah-simulator-smoke"
+          mkdir -p "$OUT"
+          python3 - "$APP" "$OUT" <<'PY'
           import json, os, re, subprocess, sys, time
-          app, shot = sys.argv[1:]
+          app, out_dir = sys.argv[1:]
 
-          def run(args, timeout=30, check=False):
+          def run(args, timeout=60, check=False):
               try:
-                  p = subprocess.run(
-                      args,
-                      text=True,
-                      stdout=subprocess.PIPE,
-                      stderr=subprocess.PIPE,
-                      timeout=timeout,
-                  )
-                  code, out, err = p.returncode, p.stdout, p.stderr
+                  p=subprocess.run(args,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE,timeout=timeout)
+                  code,out,err=p.returncode,p.stdout,p.stderr
               except subprocess.TimeoutExpired as e:
-                  code = 124
-                  out = e.stdout.decode() if isinstance(e.stdout, bytes) else (e.stdout or '')
-                  err = e.stderr.decode() if isinstance(e.stderr, bytes) else (e.stderr or '')
+                  code=124
+                  out=e.stdout.decode() if isinstance(e.stdout,bytes) else (e.stdout or '')
+                  err=e.stderr.decode() if isinstance(e.stderr,bytes) else (e.stderr or '')
               if check and code:
-                  raise SystemExit(
-                      f"command failed ({code}): {' '.join(args)}\n"
-                      f"stdout:\n{out[-1500:]}\nstderr:\n{err[-1500:]}"
-                  )
-              return code, out, err
+                  raise SystemExit(f"command failed ({code}): {' '.join(args)}\nstdout:\n{out[-1800:]}\nstderr:\n{err[-1800:]}")
+              return code,out,err
 
           def runtime_key(runtime):
-              match = re.search(r'iOS-(\d+)(?:-(\d+))?(?:-(\d+))?$', runtime)
-              if not match:
-                  return (0, 0, 0)
-              return tuple(int(part or 0) for part in match.groups())
+              m=re.search(r'iOS-(\d+)(?:-(\d+))?(?:-(\d+))?$',runtime)
+              return tuple(int(x or 0) for x in m.groups()) if m else (0,0,0)
 
-          _, out, _ = run(['xcrun', 'simctl', 'list', 'devices', 'available', '-j'], 30, True)
-          data = json.loads(out)
-          candidates = []
-          for runtime, devices in data.get('devices', {}).items():
-              if 'iOS' not in runtime:
-                  continue
-              for device in devices:
-                  if device.get('isAvailable') and str(device.get('name', '')).startswith('iPhone'):
-                      candidates.append((runtime_key(runtime), runtime, device.get('name', ''), device.get('udid', '')))
-          candidates.sort(reverse=True)
-          if not candidates:
-              raise SystemExit('No available iPhone simulator')
+          _,raw,_=run(['xcrun','simctl','list','devices','available','-j'],30,True)
+          data=json.loads(raw)
+          all_devices=[]
+          for runtime,devices in data.get('devices',{}).items():
+              if 'iOS' not in runtime: continue
+              for d in devices:
+                  if d.get('isAvailable'):
+                      all_devices.append((runtime_key(runtime),runtime,d.get('name',''),d.get('udid','')))
+          all_devices.sort(reverse=True)
 
-          _, runtime, name, udid = candidates[0]
-          print('Using simulator:', runtime, name, udid)
+          targets=[]
+          for kind,prefix in [('iphone','iPhone'),('ipad','iPad')]:
+              found=next((x for x in all_devices if x[2].startswith(prefix)),None)
+              if not found: raise SystemExit(f'No available {kind} simulator')
+              targets.append((kind,*found))
 
-          # Start from a deterministic state, then wait for CoreSimulator to report
-          # the device fully booted before trying to install the app. A short boot
-          # timeout can leave the device half-started and make every install retry fail.
-          run(['xcrun', 'simctl', 'shutdown', udid], 20)
-          code, out, err = run(['xcrun', 'simctl', 'boot', udid], 60)
-          if code not in (0, 149):
-              print('simctl boot returned:', code, (err or out)[-800:])
-
-          code, out, err = run(['xcrun', 'simctl', 'bootstatus', udid, '-b'], 180)
-          if code:
-              _, devices_out, devices_err = run(['xcrun', 'simctl', 'list', 'devices'], 20)
-              raise SystemExit(
-                  'iPhone simulator did not reach a boot-ready state. '
-                  f'bootstatus code={code}\n{(err or out)[-1500:]}\n'
-                  f'devices:\n{(devices_out or devices_err)[-2000:]}'
-              )
-          print('Simulator is fully booted')
-
-          installed = False
-          last = ''
-          for attempt in range(3):
-              code, out, err = run(['xcrun', 'simctl', 'install', udid, app], 30)
-              last = (err or out or '').strip()
-              if code == 0:
-                  installed = True
-                  print('App installed on simulator')
-                  break
-              print(f'Install attempt {attempt + 1}/3 failed: code={code} {last[-500:]}')
-              time.sleep(3)
-          if not installed:
-              raise SystemExit('Hobah failed to install on a fully booted simulator: ' + last[-1500:])
-
-          code, out, err = run(['xcrun', 'simctl', 'launch', udid, 'com.hobah.bible'], 30)
-          if code:
-              raise SystemExit('Hobah failed to launch in simulator: ' + (err or out)[-1500:])
-          print('Launch:', out.strip())
-          time.sleep(8)
-
-          code, out, err = run(['xcrun', 'simctl', 'io', udid, 'screenshot', shot], 30)
-          if code:
-              raise SystemExit('Simulator screenshot failed: ' + (err or out)[-1500:])
-          if not os.path.isfile(shot) or os.path.getsize(shot) < 25000:
-              raise SystemExit('Simulator screenshot is missing or unexpectedly small')
-          print('iPhone launch smoke screenshot bytes:', os.path.getsize(shot))
+          for kind,_,runtime,name,udid in targets:
+              print(f'Using {kind}: {runtime} {name} {udid}')
+              run(['xcrun','simctl','shutdown',udid],20)
+              code,stdout,stderr=run(['xcrun','simctl','boot',udid],60)
+              if code not in (0,149):
+                  print('boot returned',code,(stderr or stdout)[-800:])
+              run(['xcrun','simctl','bootstatus',udid,'-b'],180,True)
+              run(['xcrun','simctl','uninstall',udid,'com.hobah.bible'],30)
+              run(['xcrun','simctl','install',udid,app],60,True)
+              code,stdout,stderr=run(['xcrun','simctl','launch','--terminate-running-process',udid,'com.hobah.bible'],30)
+              if code:
+                  raise SystemExit(f'Hobah failed to launch on {kind}: {(stderr or stdout)[-1800:]}')
+              print('Launch:',stdout.strip())
+              time.sleep(10 if kind=='ipad' else 7)
+              shot=os.path.join(out_dir,f'hobah-{kind}-smoke.png')
+              run(['xcrun','simctl','io',udid,'screenshot',shot],30,True)
+              if not os.path.isfile(shot) or os.path.getsize(shot)<25000:
+                  raise SystemExit(f'{kind} screenshot missing or unexpectedly small')
+              print(f'{kind} screenshot bytes:',os.path.getsize(shot))
+              run(['xcrun','simctl','terminate',udid,'com.hobah.bible'],20)
           PY
-          echo "SMOKE_SCREENSHOT=$SHOT" >> "$GITHUB_ENV"
+          echo "SMOKE_DIR=$OUT" >> "$GITHUB_ENV"
 
-      - name: Archive launch smoke screenshot
+      - name: Archive launch smoke screenshots
         uses: actions/upload-artifact@v4
         with:
           name: hobah-ios-launch-smoke
-          path: ${{ env.SMOKE_SCREENSHOT }}
+          path: ${{ env.SMOKE_DIR }}/*.png
           if-no-files-found: error
 
       - name: Archive compiled Simulator app
@@ -212,54 +171,3 @@ jobs:
           name: hobah-ios-simulator-app
           path: native-ios/ios/build/Build/Products/Debug-iphonesimulator/App.app
           if-no-files-found: error
-
-      - name: Archive generated Xcode project
-        uses: actions/upload-artifact@v4
-        with:
-          name: hobah-ios-xcode-project
-          path: |
-            native-ios/ios/App
-            !native-ios/ios/build
-          if-no-files-found: error
-
-      - name: Publish compiler status
-        if: always()
-        env:
-          GH_TOKEN: ${{ github.token }}
-          JOB_STATUS: ${{ job.status }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          XCODE_VERSION="$(xcodebuild -version 2>/dev/null | tr '\n' ' ' || true)"
-          BODY=$(cat <<EOF
-          # Hobah iOS Compiler Status
-
-          - status: ${JOB_STATUS}
-          - source_commit: ${GITHUB_SHA}
-          - run_id: ${GITHUB_RUN_ID}
-          - xcode: ${XCODE_VERSION:-unavailable}
-          - checked_at_utc: $(date -u +'%Y-%m-%dT%H:%M:%SZ')
-          - native_voice_study: enabled
-          - simulator_target: iPhone/iPad
-          - launch_smoke: automated iPhone simulator launch + screenshot after boot readiness verification
-          EOF
-          )
-          ENCODED="$(printf '%s' "$BODY" | base64)"
-          REPO="${GITHUB_REPOSITORY}"
-          STATUS_BRANCH="ci-ios-status"
-          if ! gh api "repos/${REPO}/git/ref/heads/${STATUS_BRANCH}" >/dev/null 2>&1; then
-            gh api -X POST "repos/${REPO}/git/refs" -f ref="refs/heads/${STATUS_BRANCH}" -f sha="${GITHUB_SHA}" >/dev/null
-          fi
-          OLD_SHA="$(gh api "repos/${REPO}/contents/ios-simulator-status.md?ref=${STATUS_BRANCH}" --jq '.sha' 2>/dev/null || true)"
-          if [ -n "$OLD_SHA" ]; then
-            gh api -X PUT "repos/${REPO}/contents/ios-simulator-status.md" \
-              -f message="Update Hobah iOS compiler status" \
-              -f content="$ENCODED" \
-              -f branch="$STATUS_BRANCH" \
-              -f sha="$OLD_SHA" >/dev/null
-          else
-            gh api -X PUT "repos/${REPO}/contents/ios-simulator-status.md" \
-              -f message="Publish Hobah iOS compiler status" \
-              -f content="$ENCODED" \
-              -f branch="$STATUS_BRANCH" >/dev/null
-          fi
