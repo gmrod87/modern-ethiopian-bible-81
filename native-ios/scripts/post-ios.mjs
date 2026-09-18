@@ -11,27 +11,18 @@ const delegatePath=path.join(appRoot,'AppDelegate.swift');
 if(!existsSync(infoPath)||!existsSync(delegatePath))throw new Error('iOS project not found. Run npm run ios:init first.');
 
 let info=await readFile(infoPath,'utf8');
-// App Store validation: Hobah supports iPhone/iPad multitasking, so this legacy
-// opt-out flag must never be present in the shipping Info.plist.
+// App Store review hardening: Hobah 1.0 uses foreground-only audio. Remove legacy
+// background execution declarations rather than advertising a background mode that
+// is not essential to the app's core reading experience.
 info=info.replace(/\s*<key>UIApplicationExitsOnSuspend<\/key>\s*<(?:true|false)\s*\/>/g,'');
+info=info.replace(/\s*<key>UIBackgroundModes<\/key>\s*<array>[\s\S]*?<\/array>/g,'');
 const add=(key,snippet)=>{if(!info.includes(`<key>${key}</key>`))info=info.replace('</dict>\n</plist>',`${snippet}\n</dict>\n</plist>`)};
 add('NSMicrophoneUsageDescription',`\t<key>NSMicrophoneUsageDescription</key>\n\t<string>Hobah uses the microphone only while Voice Commands are enabled so you can pause, resume, explain and save while listening.</string>`);
 add('NSSpeechRecognitionUsageDescription',`\t<key>NSSpeechRecognitionUsageDescription</key>\n\t<string>Hobah uses speech recognition for optional hands-free Bible reading commands.</string>`);
-add('UIBackgroundModes',`\t<key>UIBackgroundModes</key>\n\t<array>\n\t\t<string>audio</string>\n\t</array>`);
 add('CFBundleURLTypes',`\t<key>CFBundleURLTypes</key>\n\t<array>\n\t\t<dict>\n\t\t\t<key>CFBundleTypeRole</key>\n\t\t\t<string>Editor</string>\n\t\t\t<key>CFBundleURLName</key>\n\t\t\t<string>com.hobah.bible</string>\n\t\t\t<key>CFBundleURLSchemes</key>\n\t\t\t<array><string>hobah</string></array>\n\t\t</dict>\n\t</array>`);
 add('ITSAppUsesNonExemptEncryption',`\t<key>ITSAppUsesNonExemptEncryption</key>\n\t<false/>`);
 add('UIViewControllerBasedStatusBarAppearance',`\t<key>UIViewControllerBasedStatusBarAppearance</key>\n\t<true/>`);
 await writeFile(infoPath,info);
-
-let delegate=await readFile(delegatePath,'utf8');
-if(!delegate.includes('import AVFoundation'))delegate=delegate.replace('import UIKit','import UIKit\nimport AVFoundation');
-if(!delegate.includes('Hobah background spoken-audio session')){
-  const audio=`\n        // Hobah background spoken-audio session\n        do {\n            let session = AVAudioSession.sharedInstance()\n            try session.setCategory(.playback, mode: .spokenAudio, options: [])\n            try session.setActive(true)\n        } catch {\n            print("Hobah audio session error: \\(error)")\n        }\n`;
-  const marker='        return true';
-  if(!delegate.includes(marker))throw new Error('AppDelegate launch return not found');
-  delegate=delegate.replace(marker,audio+marker);
-}
-await writeFile(delegatePath,delegate);
 
 const HOBahGreen='#173A2C';
 const iconSvg=await readFile(path.join(root,'assets','hobah-icon.svg'));
@@ -86,4 +77,4 @@ if(existsSync(path.dirname(splashDir))){
   }
 }
 
-console.log('Hobah iOS native settings applied; branded loading screen removed and launch surface set to immediate app background');
+console.log('Hobah iOS native settings applied; background execution declaration removed and launch surface set to immediate app background');
