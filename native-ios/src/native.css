@@ -4,3 +4,49 @@ html,body{overscroll-behavior-y:none;-webkit-text-size-adjust:100%}body.nativeCa
 .nativeCapacitor .sheetClose,.nativeCapacitor #sheetClose,.nativeCapacitor #settingsClose{width:44px!important;height:44px!important;min-width:44px!important;min-height:44px!important;max-width:44px!important;max-height:44px!important;flex:0 0 44px!important;aspect-ratio:1/1!important;padding:0!important;margin:0!important;border-radius:50%!important;display:grid!important;place-items:center!important;box-sizing:border-box!important;line-height:1!important;text-align:center!important;-webkit-appearance:none!important;appearance:none!important;font-size:0!important}
 .nativeCapacitor .sheetClose::before,.nativeCapacitor #sheetClose::before,.nativeCapacitor #settingsClose::before{content:"×";display:block!important;width:100%!important;text-align:center!important;color:currentColor!important;font:400 30px/1 -apple-system,BlinkMacSystemFont,"SF Pro Display","Helvetica Neue",Arial,sans-serif!important;transform:translateY(-1px)!important}
 .nativeCapacitor .sheetClose:focus-visible,.nativeCapacitor #sheetClose:focus-visible,.nativeCapacitor #settingsClose:focus-visible{outline:3px solid rgba(86,158,219,.52)!important;outline-offset:3px!important}
+
+/* App Review 2026-09 — iPad reader hardening.
+   The review screenshots showed the final reader actions squeezed together in a
+   single horizontal row. On tablet widths use a stable three-column control grid
+   with full 44pt+ touch targets and reserve scroll room above the audio transport. */
+@media (min-width:700px) and (max-width:1180px){
+  body.nativeCapacitor{padding-bottom:calc(176px + env(safe-area-inset-bottom))}
+  .nativeCapacitor .reader{max-width:920px!important;padding-bottom:150px!important}
+  .nativeCapacitor .readerHead{padding-left:28px!important;padding-right:28px!important}
+  .nativeCapacitor .readerTools{
+    display:grid!important;
+    grid-template-columns:minmax(0,1.25fr) minmax(0,1fr) minmax(0,1fr)!important;
+    grid-auto-flow:row!important;
+    gap:10px!important;
+    width:100%!important;
+    padding:12px!important;
+    overflow:visible!important;
+    align-items:stretch!important;
+  }
+  .nativeCapacitor .readerTools>select,.nativeCapacitor .readerTools>button{
+    width:100%!important;
+    min-width:0!important;
+    max-width:none!important;
+    min-height:48px!important;
+    height:48px!important;
+    padding-left:12px!important;
+    padding-right:12px!important;
+    white-space:normal!important;
+    text-align:center!important;
+    line-height:1.12!important;
+  }
+  .nativeCapacitor .readerTools .bookSelect,.nativeCapacitor .readerTools #chapterSelect,.nativeCapacitor .readerTools #verseSelect{min-width:0!important;flex:none!important}
+  .nativeCapacitor #audioDock,.nativeCapacitor .audioDock{
+    left:50%!important;
+    right:auto!important;
+    width:min(720px,calc(100vw - 48px))!important;
+    max-width:720px!important;
+    transform:translateX(-50%)!important;
+    bottom:calc(86px + env(safe-area-inset-bottom))!important;
+  }
+}
+
+/* Apple 5.1.2 — explicit third-party AI permission sheet. */
+.hobahAiConsentBackdrop{position:fixed;inset:0;z-index:12000;display:grid;place-items:center;padding:20px;background:rgba(10,29,24,.42);-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px)}
+.hobahAiConsentCard{width:min(100%,540px);max-height:calc(100dvh - 40px);overflow:auto;padding:28px;border:1px solid rgba(83,71,50,.18);border-radius:28px;background:#fbf8f0;color:#163a32;box-shadow:0 28px 90px rgba(20,35,30,.3)}
+.hobahAiConsentCard .eyebrow{display:block;margin-bottom:10px;color:#8b6230;font-size:10px;font-weight:900;letter-spacing:.16em;text-transform:uppercase}.hobahAiConsentCard h2{margin:0 0 14px;font:500 33px/1.05 Georgia,"Times New Roman",serif;color:#163a32}.hobahAiConsentCard p{margin:0 0 13px;color:#43554f;font-size:15px;line-height:1.55}.hobahAiConsentCard a{color:#0d4c3f;font-weight:800}.hobahAiConsentActions{display:grid;grid-template-columns:1fr 1.25fr;gap:10px;margin-top:22px}.hobahAiConsentActions button{min-height:50px;border-radius:16px;border:1px solid rgba(71,65,46,.18);font-weight:850}.hobahAiConsentActions .allow{background:#0d4c3f;color:#f7f1e6;border-color:#0d4c3f}.hobahAiConsentActions .later{background:#fffdf8;color:#163a32}@media(max-width:560px){.hobahAiConsentCard{padding:24px 20px;border-radius:24px}.hobahAiConsentActions{grid-template-columns:1fr}.hobahAiConsentActions .allow{grid-row:1}}
