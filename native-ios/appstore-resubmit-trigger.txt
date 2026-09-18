@@ -2,4 +2,5 @@ Hobah App Review correction resubmission
 Version: 1.0.0
 Build: 61
 Date: 18 September 2026
-Action: wait for Apple processing, attach build 61, update App Review notes, resolve the rejected app-version item, and resubmit the existing unresolved submission.
+Action: correction build 61 is VALID and attached. Re-run the unresolved-issues flow by confirming the corrected item is Ready for Review, then send the parent Resubmit to App Review action and verify Apple's resulting state.
+Retry: 2 — fixes the parent submission state transition after resolving the rejected item.
