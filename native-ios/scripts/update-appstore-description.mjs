@@ -13,7 +13,7 @@ const cfg={
 
 const DESCRIPTION=`Hobah is a beautifully focused home for the 81-book Ethiopian canon, ancient writings, and intelligent Bible study.
 
-Read across the Ethiopian canon in a clean, immersive interface. Explore a curated Ancient Library, listen hands-free with natural narration, save your place, and use Study AI to go deeper into passages, history, manuscripts, and context.
+Read across the Ethiopian canon in a clean, immersive interface. Explore a curated Ancient Library, listen with on-device Read Aloud, save your place, and optionally use Study AI to go deeper into passages, history, manuscripts, and context.
 
 Built for serious study and everyday reading, Hobah brings Scripture, ancient literature, audio, and research tools together in one app.
 
@@ -23,13 +23,15 @@ Features:
 • Fragmentary ancient works clearly presented as surviving fragments or sections
 • Fast search across Scripture
 • Saved verses, highlights, notes, and reading progress
-• Natural Read Aloud with playback controls
-• Study AI for explanations, historical context, manuscripts, and research
+• On-device Read Aloud using the iPhone or iPad speech system
+• Optional Study AI for explanations, historical context, manuscripts, and research
 • Voice Commands for hands-free reading controls
 • Offline access to bundled reading texts
 • Privacy-focused local storage for saved reading data
 
-An internet connection is required for Study AI and natural voice generation. Ancient works may be fragmentary or based on historical translations; Hobah identifies them accordingly rather than presenting missing material as complete.`;
+Core reading, search, Library and native Scripture Read Aloud can be used without Study AI. Before the native app sends a Study AI request to OpenAI, Hobah shows an explicit permission screen explaining what information will be shared and lets you choose Not now or Allow & Continue. An internet connection is required for Study AI.
+
+Ancient works may be fragmentary or based on historical translations; Hobah identifies them accordingly rather than presenting missing material as complete.`;
 
 const BASE='https://api.appstoreconnect.apple.com';
 const b64url=v=>Buffer.from(v).toString('base64url');
@@ -63,7 +65,7 @@ const loc=locs.find(x=>x.attributes?.locale==='en-AU')||locs[0];
 if(!loc) throw new Error('No App Store version localization found.');
 
 if(loc.attributes?.description===DESCRIPTION){
-  console.log(`[description] Premium App Store description is already live for ${loc.attributes?.locale||'primary locale'}.`);
+  console.log(`[description] App Store description is already current for ${loc.attributes?.locale||'primary locale'}.`);
   process.exit(0);
 }
 
