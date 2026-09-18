@@ -1,0 +1,52 @@
+name: Resubmit Hobah App Review Correction
+
+on:
+  workflow_dispatch:
+    inputs:
+      marketing_version:
+        description: 'App version'
+        required: true
+        default: '1.0.0'
+      build_number:
+        description: 'Correction build number'
+        required: true
+        default: '61'
+  push:
+    branches: [main]
+    paths:
+      - 'native-ios/appstore-resubmit-trigger.txt'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hobah-appreview-resubmit
+  cancel-in-progress: false
+
+jobs:
+  resubmit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      BUNDLE_ID: com.hobah.bible
+      MARKETING_VERSION: ${{ inputs.marketing_version || '1.0.0' }}
+      BUILD_NUMBER: ${{ inputs.build_number || '61' }}
+      APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+      APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+      APP_STORE_CONNECT_API_KEY_P8_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8_BASE64 }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify App Store Connect credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          for name in APP_STORE_CONNECT_KEY_ID APP_STORE_CONNECT_ISSUER_ID APP_STORE_CONNECT_API_KEY_P8_BASE64; do
+            if [ -z "${!name:-}" ]; then echo "Missing $name" >&2; exit 1; fi
+          done
+      - name: Validate resubmission script
+        run: node --check native-ios/scripts/appstore-resubmit-rejected.mjs
+      - name: Attach correction build and resubmit to App Review
+        run: node native-ios/scripts/appstore-resubmit-rejected.mjs
