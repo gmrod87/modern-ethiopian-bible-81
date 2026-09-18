@@ -199,7 +199,10 @@ jobs:
           test "$(value MinimumOSVersion)" = "15.0"
           test "$(value UIDeviceFamily:0)" = "1"
           test "$(value UIDeviceFamily:1)" = "2"
-          test "$(value UIBackgroundModes:0)" = "audio"
+          if /usr/libexec/PlistBuddy -c 'Print :UIBackgroundModes' "$INFO" >/dev/null 2>&1; then
+            echo 'UIBackgroundModes must not be present in the App Review build; Hobah 1.0 uses foreground-only audio.' >&2
+            exit 1
+          fi
           test "$(value ITSAppUsesNonExemptEncryption)" = "false"
           test -n "$(value NSMicrophoneUsageDescription)"
           test -n "$(value NSSpeechRecognitionUsageDescription)"
@@ -315,6 +318,7 @@ jobs:
             echo "- source_commit: ${GITHUB_SHA}"
             echo "- run_id: ${GITHUB_RUN_ID}"
             echo "- bundle_id: ${BUNDLE_ID}"
+            echo "- build_number: ${GITHUB_RUN_NUMBER}"
             echo "- checked_at_utc: $(date -u +'%Y-%m-%dT%H:%M:%SZ')"
             if [ -f "$RUNNER_TEMP/app-store-upload.log" ]; then
               echo
