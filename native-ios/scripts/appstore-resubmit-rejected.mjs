@@ -46,30 +46,46 @@ if(!sub)throw new Error('No unresolved or ready App Review submission found to u
 log(`Review submission state: ${sub.attributes?.state}.`);
 const itemResp=await api('GET',`/v1/reviewSubmissions/${sub.id}/items?include=appStoreVersion&fields%5BreviewSubmissionItems%5D=state,appStoreVersion&fields%5BappStoreVersions%5D=versionString,appStoreState,appVersionState&limit=50`);
 const included=itemResp.json?.included||[];
-const item=(itemResp.json?.data||[]).find(i=>i.relationships?.appStoreVersion?.data?.id===version.id)||
+let item=(itemResp.json?.data||[]).find(i=>i.relationships?.appStoreVersion?.data?.id===version.id)||
   (itemResp.json?.data||[]).find(i=>{const id=i.relationships?.appStoreVersion?.data?.id;const v=included.find(x=>x.type==='appStoreVersions'&&x.id===id);return v?.attributes?.versionString===cfg.version});
 if(!item)throw new Error(`Could not find version ${cfg.version} in the unresolved review submission.`);
 log(`Review item state: ${item.attributes?.state||'unknown'}.`);
+
+// Apple's unresolved-issues flow is two distinct actions: first edit/resolve the
+// rejected item so it returns to Ready for Review, then resubmit the parent review
+// submission. The parent may continue to report UNRESOLVED_ISSUES until the second
+// action is sent, so don't wait for it to become READY_FOR_REVIEW first.
 if(item.attributes?.state==='REJECTED'){
   const resolved=await api('PATCH',`/v1/reviewSubmissionItems/${item.id}`,{data:{type:'reviewSubmissionItems',id:item.id,attributes:{resolved:true}}},{allow:[400,409,422]});
   if(resolved.status>=400)throw new Error(`Apple did not accept the Update Review action for the rejected item (${resolved.status}).\n${err(resolved.json,resolved.text)}`);
-  log('Marked the rejected app-version item resolved (equivalent to Update Review).');
+  item=resolved.json?.data||item;
+  log(`Updated rejected item; Apple now reports item state ${item.attributes?.state||'processing'}.`);
 }
 
-for(let i=0;i<10;i++){
-  const r=await api('GET',`/v1/reviewSubmissions/${sub.id}?fields%5BreviewSubmissions%5D=platform,submittedDate,state`);sub=r.json?.data||sub;
-  if(sub.attributes?.state==='READY_FOR_REVIEW')break;
-  if(sub.attributes?.state!=='UNRESOLVED_ISSUES')break;
+for(let i=0;i<20;i++){
+  const r=await api('GET',`/v1/reviewSubmissionItems/${item.id}?fields%5BreviewSubmissionItems%5D=state`);
+  item=r.json?.data||item;
+  const state=item.attributes?.state||'';
+  if(state==='READY_FOR_REVIEW')break;
+  if(state!=='REJECTED')log(`Waiting for review item readiness: ${state||'processing'}…`);
+  if(i===19)throw new Error(`Review item did not become READY_FOR_REVIEW after Update Review; current state: ${state||'unknown'}`);
   await sleep(1500);
 }
-if(sub.attributes?.state==='UNRESOLVED_ISSUES')throw new Error('Apple still reports Unresolved Issues after the item was updated.');
-if(sub.attributes?.state==='READY_FOR_REVIEW'){
-  const sent=await api('PATCH',`/v1/reviewSubmissions/${sub.id}`,{data:{type:'reviewSubmissions',id:sub.id,attributes:{submitted:true}}});sub=sent.json?.data||sub;log('Resubmitted Hobah to App Review.');
+log('Correction item is Ready for Review.');
+
+const freshSub=await api('GET',`/v1/reviewSubmissions/${sub.id}?fields%5BreviewSubmissions%5D=platform,submittedDate,state`);
+sub=freshSub.json?.data||sub;
+if(['UNRESOLVED_ISSUES','READY_FOR_REVIEW'].includes(sub.attributes?.state)){
+  const sent=await api('PATCH',`/v1/reviewSubmissions/${sub.id}`,{data:{type:'reviewSubmissions',id:sub.id,attributes:{submitted:true}}});
+  sub=sent.json?.data||sub;
+  log(`Resubmission request accepted; Apple state: ${sub.attributes?.state||'processing'}.`);
 }
-for(let i=0;i<12;i++){
+
+for(let i=0;i<20;i++){
   const r=await api('GET',`/v1/reviewSubmissions/${sub.id}?fields%5BreviewSubmissions%5D=platform,submittedDate,state`);sub=r.json?.data||sub;const state=sub.attributes?.state||'';
   if(['WAITING_FOR_REVIEW','IN_REVIEW','COMPLETE'].includes(state)){log(`Apple review state: ${state}.`);process.exit(0)}
-  if(state==='UNRESOLVED_ISSUES')throw new Error('Submission returned to UNRESOLVED_ISSUES.');
+  if(state==='UNRESOLVED_ISSUES'&&i>2)throw new Error('Submission returned to UNRESOLVED_ISSUES after resubmission.');
+  log(`Waiting for App Review submission state: ${state||'processing'}…`);
   await sleep(2500);
 }
-log(`Final Apple review submission state: ${sub.attributes?.state||'submitted'}.`);
+throw new Error(`App Review resubmission was not confirmed; final state: ${sub.attributes?.state||'unknown'}`);
