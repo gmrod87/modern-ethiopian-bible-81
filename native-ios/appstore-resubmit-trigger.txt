@@ -1,0 +1,5 @@
+Hobah App Review correction resubmission
+Version: 1.0.0
+Build: 61
+Date: 18 September 2026
+Action: wait for Apple processing, attach build 61, update App Review notes, resolve the rejected app-version item, and resubmit the existing unresolved submission.
