@@ -2,8 +2,10 @@ Hobah TestFlight upload trigger
 Marketing Version: 1.0.0
 Expected Build Number: assigned by GitHub Actions run number
 Bundle ID: com.hobah.bible
-Release 119: Home hero descriptor changed from THE ETHIOPIAN CANON • 81 BOOKS to 81 Books + Ancient Writings
-Release 119: descriptor is explicitly left-aligned to the same content edge as the Hobah wordmark below it
-Release 119: heading change is applied to both initial app HTML and the runtime Home renderer so it remains correct after navigation
-Release 119: stylesheet cache is bumped and Ancient Library, continuous read aloud, Study AI, voice controls, saved Library, offline reading and App Store readiness are preserved
-Final TestFlight trigger: Home title descriptor and left alignment
+App Review resubmission: 18 September 2026
+Fix 2.1 App Completeness: native Scripture Read Aloud now uses reliable on-device iOS/WebKit speech instead of failing when remote natural voice is unavailable.
+Fix 2.5.4 Software Requirements: UIBackgroundModes/audio background execution declaration removed; Hobah 1.0 uses foreground-only audio.
+Fix 4.0 Design: iPad reader toolbar now uses a stable responsive grid with full-size controls and improved audio-dock spacing.
+Fix 5.1.2 Privacy: explicit in-app permission is required before Study AI or related third-party AI requests are sent to OpenAI; core reading and on-device Read Aloud work without permission.
+Privacy policy and App Store description updated to match the shipping behavior.
+Trigger: App Review correction build.
