@@ -27,13 +27,15 @@ if(!app.includes("fetch('/search/'+cat+'.json'"))throw new Error('Native app is 
 if(!app.includes('HOBAH_NETWORK_CONNECTED===false'))throw new Error('Native offline API guards are missing');
 for(const needle of ['HobahNativeAudio.play','hobah:native-audio-ended','hobah:native-audio-next','hobah:native-audio-previous'])if(!app.includes(needle))throw new Error('Native Scripture audio integration missing: '+needle);
 for(const needle of ['HobahNativeVoice.start','hobah:native-voice-transcript','handleVoice(text','save that','explain that'])if(!app.includes(needle))throw new Error('Native Voice Study integration missing: '+needle);
+for(const needle of ['HOBAH_AI_CONSENT_KEY','hobahRequireAIConsent','OpenAI','third-party AI permission'])if(!app.includes(needle))throw new Error('App Review AI consent gate missing: '+needle);
 const html=await readFile(path.join(www,'index.html'),'utf8');
 for(const needle of ['native-bridge.js','native-audio.js','native.css','bottomAbout'])if(!html.includes(needle))throw new Error('Native HTML integration missing: '+needle);
 if(!app.includes('HobahNativeReady')||!app.includes('HobahNativeAudioReady'))throw new Error('Native bootstrap does not wait for device/audio bridges');
 const bridge=await readFile(path.join(www,'native-bridge.js'),'utf8');
 if(!bridge.includes('HOBAH_NETWORK_CONNECTED'))throw new Error('Native connectivity bridge missing');
 const audioBridge=await readFile(path.join(www,'native-audio.js'),'utf8');
-for(const needle of ['HobahAudio','HobahVoice','HobahNativeVoice','native-voice-transcript'])if(!audioBridge.includes(needle))throw new Error('Native audio/voice bridge missing: '+needle);
+for(const needle of ['HobahAudio','HobahNativeVoice','native-voice-transcript','SpeechSynthesisUtterance','onDevice:true'])if(!audioBridge.includes(needle))throw new Error('Native audio/voice bridge missing App Review hardening: '+needle);
+if(/async function play\([^]*?requireOnline\(/.test(audioBridge))throw new Error('Native Scripture Read Aloud still requires network access');
 const swiftRoot=path.join(root,'plugins','hobah-audio','ios','Sources','HobahNativeAudio');
 const audioSwift=path.join(swiftRoot,'HobahAudioPlugin.swift');
 const voiceSwift=path.join(swiftRoot,'HobahVoicePlugin.swift');
@@ -41,4 +43,4 @@ if(!existsSync(audioSwift))throw new Error('Native Swift audio plugin source mis
 if(!existsSync(voiceSwift))throw new Error('Native Swift Voice Study plugin source missing');
 const voiceSource=await readFile(voiceSwift,'utf8');
 for(const needle of ['SFSpeechRecognizer','AVAudioEngine','setVoiceProcessingEnabled','notifyListeners("transcript"'])if(!voiceSource.includes(needle))throw new Error('Native Swift Voice Study source incomplete: '+needle);
-console.log(`Hobah iOS doctor passed • ${books.length} offline books • pre-expanded search • native AVFoundation audio • native Voice Study • native API bridge ready`);
+console.log(`Hobah iOS doctor passed • ${books.length} offline books • on-device Read Aloud • explicit OpenAI consent • responsive native UI • native Voice Study`);
