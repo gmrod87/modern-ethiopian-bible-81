@@ -8,4 +8,4 @@ Fix 2.5.4 Software Requirements: UIBackgroundModes/audio background execution de
 Fix 4.0 Design: iPad reader toolbar now uses a stable responsive grid with full-size controls and improved audio-dock spacing.
 Fix 5.1.2 Privacy: explicit in-app permission is required before Study AI or related third-party AI requests are sent to OpenAI; core reading and on-device Read Aloud work without permission.
 Privacy policy and App Store description updated to match the shipping behavior.
-Trigger: App Review correction build.
+Trigger: App Review correction build retry after CI validation fix.
