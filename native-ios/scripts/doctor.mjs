@@ -35,7 +35,7 @@ const bridge=await readFile(path.join(www,'native-bridge.js'),'utf8');
 if(!bridge.includes('HOBAH_NETWORK_CONNECTED'))throw new Error('Native connectivity bridge missing');
 const audioBridge=await readFile(path.join(www,'native-audio.js'),'utf8');
 for(const needle of ['HobahAudio','HobahNativeVoice','native-voice-transcript','SpeechSynthesisUtterance','onDevice'])if(!audioBridge.includes(needle))throw new Error('Native audio/voice bridge missing App Review hardening: '+needle);
-if(/async function play\([^]*?requireOnline\(/.test(audioBridge))throw new Error('Native Scripture Read Aloud still requires network access');
+for(const needle of ['hobah:naturalVoiceConsent:v1','hobah:narrationEngine','Allow natural voices','cedar','marin'])if(!audioBridge.includes(needle))throw new Error('Natural narration integration missing: '+needle);
 const swiftRoot=path.join(root,'plugins','hobah-audio','ios','Sources','HobahNativeAudio');
 const audioSwift=path.join(swiftRoot,'HobahAudioPlugin.swift');
 const voiceSwift=path.join(swiftRoot,'HobahVoicePlugin.swift');
@@ -43,4 +43,4 @@ if(!existsSync(audioSwift))throw new Error('Native Swift audio plugin source mis
 if(!existsSync(voiceSwift))throw new Error('Native Swift Voice Study plugin source missing');
 const voiceSource=await readFile(voiceSwift,'utf8');
 for(const needle of ['SFSpeechRecognizer','AVAudioEngine','setVoiceProcessingEnabled','notifyListeners("transcript"'])if(!voiceSource.includes(needle))throw new Error('Native Swift Voice Study source incomplete: '+needle);
-console.log(`Hobah iOS doctor passed • ${books.length} offline books • on-device Read Aloud • explicit OpenAI consent • responsive native UI • native Voice Study`);
+console.log(`Hobah iOS doctor passed • ${books.length} offline books • natural male/female voices + device option • explicit OpenAI consent • responsive native UI • native Voice Study`);

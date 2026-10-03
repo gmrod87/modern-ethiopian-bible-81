@@ -30,7 +30,7 @@ ANCIENT LIBRARY
 Explore additional ancient writings while keeping them clearly separate from the Ethiopian 81-book canon. Fragmentary works are identified as fragmentary rather than silently reconstructed. The Book of Giants, for example, is presented as surviving Aramaic fragment sections rather than as a complete ancient manuscript.
 
 LISTEN
-Use natural Read Aloud for Scripture and supported Ancient Library texts. Background audio and lock-screen controls let you keep listening while your device is locked or Hobah is in the background.
+Use natural male and female AI-generated Read Aloud for Scripture and supported Ancient Library texts. Natural narration requires internet and explicit permission to send the selected passage to OpenAI. Select Device voice for offline speech. Audio remains foreground-only in this release.
 
 STUDY AI
 Ask about the passage on screen for literary context, theology, cross-references, history and major interpretive views. Study AI distinguishes supplied text from broader historical or scholarly context.

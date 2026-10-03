@@ -1,6 +1,10 @@
 name: Build Hobah iOS Simulator
 
 on:
+  pull_request:
+    paths:
+      - 'native-ios/**'
+      - '.github/workflows/ios-simulator-build.yml'
   workflow_dispatch:
   push:
     branches: [main]

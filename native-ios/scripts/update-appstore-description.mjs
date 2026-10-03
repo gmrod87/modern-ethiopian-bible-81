@@ -13,7 +13,7 @@ const cfg={
 
 const DESCRIPTION=`Hobah is a beautifully focused home for the 81-book Ethiopian canon, ancient writings, and intelligent Bible study.
 
-Read across the Ethiopian canon in a clean, immersive interface. Explore a curated Ancient Library, listen with on-device Read Aloud, save your place, and optionally use Study AI to go deeper into passages, history, manuscripts, and context.
+Read across the Ethiopian canon in a clean, immersive interface. Explore a curated Ancient Library, listen with natural male or female Read Aloud voices, save your place, and optionally use Study AI to go deeper into passages, history, manuscripts, and context.
 
 Built for serious study and everyday reading, Hobah brings Scripture, ancient literature, audio, and research tools together in one app.
 
@@ -23,13 +23,13 @@ Features:
 • Fragmentary ancient works clearly presented as surviving fragments or sections
 • Fast search across Scripture
 • Saved verses, highlights, notes, and reading progress
-• On-device Read Aloud using the iPhone or iPad speech system
+• Natural male and female AI-generated Read Aloud voices, plus a device voice option for offline listening
 • Optional Study AI for explanations, historical context, manuscripts, and research
 • Voice Commands for hands-free reading controls
 • Offline access to bundled reading texts
 • Privacy-focused local storage for saved reading data
 
-Core reading, search, Library and native Scripture Read Aloud can be used without Study AI. Before the native app sends a Study AI request to OpenAI, Hobah shows an explicit permission screen explaining what information will be shared and lets you choose Not now or Allow & Continue. An internet connection is required for Study AI.
+Core reading, search, Library and device voice can be used offline and without Study AI. Natural voices and Study AI require an internet connection. Before sending a passage to OpenAI for natural narration, Hobah asks for your permission. Study AI has a separate permission prompt explaining what information will be shared. You can decline either feature and continue using core reading and device speech.
 
 Ancient works may be fragmentary or based on historical translations; Hobah identifies them accordingly rather than presenting missing material as complete.`;
 

@@ -11,10 +11,10 @@ This folder contains the native Capacitor 8 shell for Hobah. It is intentionally
 - Haptics are used for navigation and save actions.
 - iOS status-bar and safe-area handling are configured.
 - `hobah://` deep links are handled for Siri Shortcuts / Shortcuts automations.
-- The iOS audio session is configured for background spoken audio.
+- The iOS audio session is configured for spoken audio; the shipping app keeps foreground-only execution.
 - Media Session handlers connect lock-screen play, pause, previous and next to Hobah's player.
 - Native connectivity state shows an offline indicator while keeping the local Bible available.
-- Study AI and natural TTS remain online services; API keys stay on Vercel and are never packaged in the app.
+- Natural Read Aloud restores Cedar (male) and Marin (female) through the native audio player, with separate passage-sharing consent before playback or prefetch. Study AI keeps its existing consent gate. Device voice is an explicit offline option. API keys stay on Vercel and are never packaged in the app.
 
 ## Requirements
 

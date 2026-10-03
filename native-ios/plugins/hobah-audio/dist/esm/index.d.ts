@@ -1,6 +1,6 @@
 import type { PluginListenerHandle } from '@capacitor/core';
 export type HobahAudioChannel='scripture'|'study';
-export interface HobahAudioItem { id:string; text:string; mode?:'normal'|'context'|'advanced'; title?:string; subtitle?:string; rate?:number; forcePlayback?:boolean; channel?:HobahAudioChannel }
+export interface HobahAudioItem { id:string; text:string; voice?:'cedar'|'marin'; mode?:'normal'|'context'|'advanced'; title?:string; subtitle?:string; rate?:number; forcePlayback?:boolean; channel?:HobahAudioChannel }
 export interface HobahAudioChannelOptions { channel?:HobahAudioChannel }
 export interface HobahAudioPlugin {
   prepare(options:HobahAudioItem):Promise<{cached:boolean}>;
