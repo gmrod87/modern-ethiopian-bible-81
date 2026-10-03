@@ -144,7 +144,7 @@ export function installNarrationSettings(narration) {
   row.setAttribute('role', 'group');
   row.setAttribute('aria-label', 'Narration source');
   row.innerHTML = '<span>READ ALOUD</span><button type="button" data-narration-engine="natural">Natural voices</button><button type="button" data-narration-engine="device">Device voice</button><small></small>';
-  settings.appendChild(row);
+  settings.after(row);
   const sync = () => {
     row.querySelectorAll('button').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.narrationEngine === narration.engine())));
     row.querySelector('small').textContent = narration.onDevice ? 'On-device speech • works offline' : 'Natural male and female AI voices • internet required';
