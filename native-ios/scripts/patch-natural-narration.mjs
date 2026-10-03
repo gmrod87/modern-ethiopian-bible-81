@@ -22,10 +22,12 @@ replace('window.HobahNativeAudio.prepare({text:part,mode:\'normal\'})', 'window.
 replace("catch(e){console.warn('Voice90 native Study narration',e);const ok=await voice90BrowserSpeak(part);if(!ok)throw e}", "catch(e){console.warn('Voice90 native Study narration',e);throw e}");
 replace("if(e.detail?.channel==='study')return;if(window.HobahNativeAudio&&!state.audio.stopped&&!state.audio.studyBusy)advanceNarration()", "if(e.detail?.channel==='study')return;if(e.detail?.success===false){state.audio.playing=false;state.audio.paused=false;setAudioStatus('Audio interrupted. Tap Play to retry.');setAudioPlay('▶');return}if(window.HobahNativeAudio&&!state.audio.stopped&&!state.audio.studyBusy)advanceNarration()");
 
-app += `\ndocument.addEventListener('hobah:narration-engine-changed',()=>{
+const engineListener = `document.addEventListener('hobah:narration-engine-changed',()=>{
   ++nativeNarrationSerial;state.audio.preparing=false;state.audio.playing=false;
   state.audio.paused=!!state.audio.items.length;syncAudioUI();setAudioPlay('▶');
   setAudioStatus(window.HobahNativeAudio.onDevice?'Device voice selected':'Natural voices selected');
 });\n`;
+// Register inside the reader IIFE so this handler shares its playback state.
+replace('bindAudio();\n', engineListener + 'bindAudio();\n');
 await writeFile(appPath, app);
 console.log('Natural narration: cancellation, narrator switching, and explicit device choice applied');

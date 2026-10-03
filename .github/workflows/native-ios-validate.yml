@@ -40,6 +40,9 @@ jobs:
       - name: Prepare bundled offline Bible
         working-directory: native-ios
         run: npm run prepare:web
+      - name: Test assembled reader narration controls
+        working-directory: native-ios
+        run: npm run test:narration-bundle
       - name: Bundle native bridge
         working-directory: native-ios
         run: npm run build:bridge
