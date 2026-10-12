@@ -1,0 +1,70 @@
+name: Check Hobah TestFlight Processing
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/check-testflight-processing.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  testflight-status:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    env:
+      APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+      APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+      APP_STORE_CONNECT_API_KEY_P8_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8_BASE64 }}
+    steps:
+      - name: Read latest Hobah 1.0.1 build processing and TestFlight states
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          import crypto from 'node:crypto';
+          const kid=process.env.APP_STORE_CONNECT_KEY_ID,iss=process.env.APP_STORE_CONNECT_ISSUER_ID,
+            key=Buffer.from(process.env.APP_STORE_CONNECT_API_KEY_P8_BASE64||'','base64').toString('utf8');
+          if(!kid||!iss||!key)throw Error('App Store Connect API credentials missing');
+          const now=Math.floor(Date.now()/1000);
+          const h=Buffer.from(JSON.stringify({alg:'ES256',kid,typ:'JWT'})).toString('base64url');
+          const p=Buffer.from(JSON.stringify({iss,iat:now-20,exp:now+900,aud:'appstoreconnect-v1'})).toString('base64url');
+          const sig=crypto.sign('sha256',Buffer.from(h+'.'+p),{key,dsaEncoding:'ieee-p1363'}).toString('base64url');
+          const auth='Bearer '+h+'.'+p+'.'+sig;
+          async function get(path){
+            const r=await fetch('https://api.appstoreconnect.apple.com'+path,{headers:{Authorization:auth}});
+            const json=await r.json().catch(()=>({}));
+            if(!r.ok)throw Error('Apple API status '+r.status+' for '+path+': '+(json.errors?.[0]?.detail||'unknown error'));
+            return json;
+          }
+          const q=new URLSearchParams({'filter[bundleId]':'com.hobah.bible',limit:'2'});
+          const app=(await get('/v1/apps?'+q)).data?.[0];
+          if(!app)throw Error('Hobah not found in App Store Connect');
+          const params=new URLSearchParams({'filter[app]':app.id,'filter[version]':'63','fields[builds]':'version,processingState,uploadedDate',limit:'20'});
+          const builds=(await get('/v1/builds?'+params)).data||[];
+          const found=builds.sort((a,b)=>(b.attributes?.uploadedDate||'').localeCompare(a.attributes?.uploadedDate||''))[0];
+          const processing=found?.attributes?.processingState||'NOT_YET_INDEXED';
+          let internal='UNKNOWN',external='UNKNOWN';
+          if(found){
+            const r=await fetch('https://api.appstoreconnect.apple.com/v1/builds/'+found.id+'/buildBetaDetail',{headers:{Authorization:auth}});
+            if(r.ok){
+              const d=(await r.json()).data?.attributes||{};
+              internal=d.internalBuildState||'UNKNOWN';
+              external=d.externalBuildState||'UNKNOWN';
+            }
+          }
+          const summary=[
+            '# Hobah TestFlight 1.0.1 (build 63)',
+            '',
+            '- App: '+(app.attributes?.name||'Hobah'),
+            '- Build processing: '+processing,
+            '- Internal testing: '+internal,
+            '- External testing: '+external,
+            '- Apple build record: '+(found?.id||'not yet indexed'),
+            '- Uploaded: '+(found?.attributes?.uploadedDate||'not yet indexed')
+          ].join('\n')+'\n';
+          console.log(summary);
+          const fs=await import('node:fs');
+          fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY,summary);
+          if(['FAILED','INVALID'].includes(processing))process.exitCode=1;
+          NODE
