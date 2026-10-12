@@ -2,10 +2,13 @@ Hobah TestFlight upload trigger
 Marketing Version: 1.0.0
 Expected Build Number: assigned by GitHub Actions run number
 Bundle ID: com.hobah.bible
-App Review resubmission: 18 September 2026
-Fix 2.1 App Completeness: native Scripture Read Aloud now uses reliable on-device iOS/WebKit speech instead of failing when remote natural voice is unavailable.
-Fix 2.5.4 Software Requirements: UIBackgroundModes/audio background execution declaration removed; Hobah 1.0 uses foreground-only audio.
-Fix 4.0 Design: iPad reader toolbar now uses a stable responsive grid with full-size controls and improved audio-dock spacing.
-Fix 5.1.2 Privacy: explicit in-app permission is required before Study AI or related third-party AI requests are sent to OpenAI; core reading and on-device Read Aloud work without permission.
-Privacy policy and App Store description updated to match the shipping behavior.
-Trigger: App Review correction build retry after CI validation fix.
+Change: Restore natural Read Aloud after 12 October 2026 OpenAI API funding restored.
+- Cedar male voice and Marin female voice: verified live production MP3 generation.
+- Study AI: verified complete streamed answer.
+- Natural voices send selected passage only with separate user consent.
+- Explicit offline Device voice option, not a silent fallback.
+- Fix voice switching, cancellation and foreground-only audio.
+- Native bundle validation passed and signed iOS Simulator app compiled.
+- iOS simulator smoke run: https://github.com/gmrod87/modern-ethiopian-bible-81/actions/runs/38236568713
+- Live service checks: https://github.com/gmrod87/modern-ethiopian-bible-81/actions/runs/38236563911
+Release workflow: Upload a signed update to TestFlight for hands-on testing. Do not automatically submit App Store public release until it has been tested.
