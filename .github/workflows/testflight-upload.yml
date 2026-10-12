@@ -6,7 +6,7 @@ on:
       marketing_version:
         description: 'App version shown in App Store Connect'
         required: true
-        default: '1.0.0'
+        default: '1.0.1'
   push:
     branches: [main]
     paths:
@@ -157,7 +157,7 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-          MARKETING_VERSION: ${{ inputs.marketing_version || '1.0.0' }}
+          MARKETING_VERSION: ${{ inputs.marketing_version || '1.0.1' }}
         run: |
           set -euo pipefail
           rm -rf ios/archive ios/export
@@ -182,7 +182,7 @@ jobs:
       - name: Validate signed archive for App Store
         working-directory: native-ios
         env:
-          MARKETING_VERSION: ${{ inputs.marketing_version || '1.0.0' }}
+          MARKETING_VERSION: ${{ inputs.marketing_version || '1.0.1' }}
         shell: bash
         run: |
           set -euo pipefail
