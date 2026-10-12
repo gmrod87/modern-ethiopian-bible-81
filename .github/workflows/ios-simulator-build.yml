@@ -24,7 +24,7 @@ concurrency:
 jobs:
   ios-simulator:
     runs-on: macos-latest
-    timeout-minutes: 40
+    timeout-minutes: 55
     steps:
       - uses: actions/checkout@v4
 
@@ -145,7 +145,7 @@ jobs:
               code,stdout,stderr=run(['xcrun','simctl','boot',udid],60)
               if code not in (0,149):
                   print('boot returned',code,(stderr or stdout)[-800:])
-              run(['xcrun','simctl','bootstatus',udid,'-b'],180,True)
+              run(['xcrun','simctl','bootstatus',udid,'-b'],540,True)
               run(['xcrun','simctl','uninstall',udid,'com.hobah.bible'],30)
               run(['xcrun','simctl','install',udid,app],60,True)
               code,stdout,stderr=run(['xcrun','simctl','launch','--terminate-running-process',udid,'com.hobah.bible'],30)
