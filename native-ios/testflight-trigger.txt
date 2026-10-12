@@ -1,5 +1,5 @@
 Hobah TestFlight upload trigger
-Marketing Version: 1.0.0
+Marketing Version: 1.0.1
 Expected Build Number: assigned by GitHub Actions run number
 Bundle ID: com.hobah.bible
 Change: Restore natural Read Aloud after 12 October 2026 OpenAI API funding restored.
@@ -12,3 +12,5 @@ Change: Restore natural Read Aloud after 12 October 2026 OpenAI API funding rest
 - iOS simulator smoke run: https://github.com/gmrod87/modern-ethiopian-bible-81/actions/runs/38236568713
 - Live service checks: https://github.com/gmrod87/modern-ethiopian-bible-81/actions/runs/38236563911
 Release workflow: Upload a signed update to TestFlight for hands-on testing. Do not automatically submit App Store public release until it has been tested.
+
+12 October 2026 re-upload: Apple rejected build 1.0.0 (90062: already approved version). Use 1.0.1 for new voice update. Native API service verified working.
