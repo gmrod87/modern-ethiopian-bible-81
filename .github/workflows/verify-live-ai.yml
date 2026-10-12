@@ -1,0 +1,56 @@
+name: Verify Hobah Natural Voices and Study AI
+
+on:
+  push:
+    branches:
+      - fix/natural-voices-2026-10-03
+    paths:
+      - '.github/workflows/verify-live-ai.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  verify-live-ai:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - name: Check Cedar and Marin produce live MP3 audio
+        shell: bash
+        run: |
+          set -euo pipefail
+          for voice in cedar marin; do
+            echo "Testing natural voice: $voice"
+            status=$(curl --silent --show-error --max-time 90 --connect-timeout 15 \
+              -H "Content-Type: application/json" \
+              -d "{\"text\":\"Let there be light.\",\"voice\":\"$voice\",\"mode\":\"normal\"}" \
+              -D "/tmp/$voice.headers" -o "/tmp/$voice.data" -w "%{http_code}" \
+              https://modern-ethiopian-bible-81.vercel.app/api/tts)
+            if [[ "$status" != "200" ]] || ! grep -qi '^content-type: audio/mpeg' "/tmp/$voice.headers" || [[ $(wc -c < "/tmp/$voice.data") -lt 256 ]]; then
+              echo "::error::Natural voice $voice FAILED (HTTP $status)"
+              jq -r '.error.code // .error.type // .error // "No error details"' "/tmp/$voice.data" 2>/dev/null || true
+              exit 1
+            fi
+            echo "::notice::Natural voice $voice OK (MP3, $(wc -c < "/tmp/$voice.data") bytes)"
+          done
+
+      - name: Check Study AI streams a completed answer
+        shell: bash
+        run: |
+          set -euo pipefail
+          status=$(curl --silent --show-error --max-time 110 --connect-timeout 15 \
+            -H 'Content-Type: application/json' \
+            -d '{"question":"Summarize Genesis 1 in one sentence.","quick":true,"context":{"currentReference":"Genesis 1","scripture":"In the beginning God created the heaven and the earth."}}' \
+            -D /tmp/study.headers -o /tmp/study.data -w '%{http_code}' \
+            https://modern-ethiopian-bible-81.vercel.app/api/study-chat)
+          if [[ "$status" != "200" ]] || ! grep -qi '^content-type: text/event-stream' /tmp/study.headers; then
+            echo "::error::Study AI FAILED (HTTP $status)"
+            jq -r '.error // "No error details"' /tmp/study.data 2>/dev/null || true
+            exit 1
+          fi
+          if ! grep -q '^event: response.completed' /tmp/study.data; then
+            echo "::error::Study AI failed to complete streaming response"
+            grep '^event:' /tmp/study.data | tail -8 || true
+            exit 1
+          fi
+          echo "::notice::Study AI OK (streaming response completed)"
