@@ -29,7 +29,14 @@ module.exports=async function handler(req,res){
       headers:{'authorization':`Bearer ${process.env.OPENAI_API_KEY}`,'content-type':'application/json'},
       body:JSON.stringify({model:'gpt-4o-mini-tts',voice,input:text,response_format:'mp3',instructions:narrator+' Scripture should sound reverent but not theatrical. Use restrained emotion, clear diction, gentle pacing, and meaningful pauses at sentence boundaries. Do not announce verse numbers or verse labels unless a number is genuinely part of the Scripture sentence itself. Never sound synthetic.'+extra})
     });
-    if(!r.ok){res.statusCode=r.status;return res.end(await r.text())}
+    if(!r.ok){
+      const failure=await r.json().catch(()=>null);
+      const quota=['insufficient_quota','credit_balance_exhausted'].includes(failure?.error?.code)||failure?.error?.type==='insufficient_quota';
+      res.statusCode=quota?503:r.status;
+      res.setHeader('content-type','application/json');
+      res.setHeader('cache-control','no-store');
+      return res.end(JSON.stringify({error:{code:quota?'NARRATION_SERVICE_UNFUNDED':'NARRATION_SERVICE_UNAVAILABLE',message:'Natural voices are temporarily unavailable. Try again or choose Device voice.'}}));
+    }
     res.statusCode=200;
     res.setHeader('content-type','audio/mpeg');
     res.setHeader('cache-control','private, max-age=86400');

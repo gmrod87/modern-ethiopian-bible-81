@@ -1,5 +1,6 @@
 import { HobahAudio } from '@hobah/native-audio';
 import { SpeechRecognition } from '@capgo/capacitor-speech-recognition';
+import { createNarration, requestNaturalVoiceConsent, installNarrationSettings } from './natural-narration.js';
 
 const VOICE_CONTEXT=[
   'Hobah','Hey Hobah','explain that','explain this','explain that in more detail',
@@ -17,11 +18,8 @@ function keyFor(text,mode='normal',voice=selectedVoice()){
   return `${voice}-${mode}-${(h>>>0).toString(16)}`;
 }
 
-// App Review hardening: Scripture Read Aloud is generated on the device with
-// iOS/WebKit speech synthesis. It no longer depends on the network or sends
-// Scripture text to a third-party TTS service. The Capacitor audio plugin stays
-// installed for compatibility with older saved state, but normal Scripture audio
-// uses this local path.
+// Device speech is retained as an explicitly selected offline option. Natural
+// narration below uses the original Cedar/Marin service after passage consent.
 let localSpeechSerial=0,localUtterance=null,localSpeechId='',localSpeechChannel='scripture';
 let localSpeechPlaying=false,localSpeechPaused=false,localSpeechRate=1;
 function audioEvent(name,detail={}){document.dispatchEvent(new CustomEvent(name,{detail}))}
@@ -83,8 +81,6 @@ async function setAudioRate(rate){localSpeechRate=Math.max(.5,Math.min(2,Number(
 async function getAudioState(options={}){return{playing:localSpeechPlaying,paused:localSpeechPaused,id:localSpeechId,channel:options?.channel==='study'?'study':localSpeechChannel,onDevice:true,rate:localSpeechRate}}
 async function clearAudioCache(){try{await HobahAudio.clearCache()}catch{}return{cleared:true}}
 async function initAudio(){
-  // Keep plugin listeners so an older in-memory native player cannot orphan state
-  // during an app update. New Scripture sessions use the on-device synthesizer above.
   await HobahAudio.addListener('ended',e=>document.dispatchEvent(new CustomEvent('hobah:native-audio-ended',{detail:e})));
   await HobahAudio.addListener('remoteNext',e=>document.dispatchEvent(new CustomEvent('hobah:native-audio-next',{detail:e})));
   await HobahAudio.addListener('remotePrevious',e=>document.dispatchEvent(new CustomEvent('hobah:native-audio-previous',{detail:e})));
@@ -194,7 +190,7 @@ async function getVoiceState(){
   };
 }
 
-window.HobahNativeAudio={
+const deviceAudio={
   keyFor,
   prepare,
   play,
@@ -206,6 +202,14 @@ window.HobahNativeAudio={
   clearCache:clearAudioCache,
   onDevice:true
 };
+window.HobahNativeAudio=createNarration({
+  nativeAudio:HobahAudio,
+  deviceAudio,
+  storage:localStorage,
+  requestConsent:requestNaturalVoiceConsent,
+  isOnline:()=>window.HOBAH_NETWORK_CONNECTED!==false,
+  onChange:engine=>audioEvent('hobah:narration-engine-changed',{engine})
+});
 window.HobahNativeVoice={
   requestPermissions:requestVoicePermissions,
   start:startVoice,
@@ -214,3 +218,4 @@ window.HobahNativeVoice={
 };
 window.HobahNativeAudioReady=initAudio();
 window.HobahNativeVoiceReady=initVoice();
+Promise.resolve(window.HobahNativeReady).then(()=>installNarrationSettings(window.HobahNativeAudio));

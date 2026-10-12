@@ -1,6 +1,12 @@
 name: Validate Hobah Native Bundle
 
 on:
+  pull_request:
+    paths:
+      - 'native-ios/**'
+      - 'api/**'
+      - 'privacy.html'
+      - '.github/workflows/native-ios-validate.yml'
   push:
     branches: [main]
     paths:
@@ -26,12 +32,17 @@ jobs:
         run: npm install
       - name: Build production Hobah
         run: npm run build
+      - name: Test natural narration and service errors
+        run: npm --prefix native-ios run test:narration
       - name: Install native Capacitor dependencies
         working-directory: native-ios
         run: npm install
       - name: Prepare bundled offline Bible
         working-directory: native-ios
         run: npm run prepare:web
+      - name: Test assembled reader narration controls
+        working-directory: native-ios
+        run: npm run test:narration-bundle
       - name: Bundle native bridge
         working-directory: native-ios
         run: npm run build:bridge

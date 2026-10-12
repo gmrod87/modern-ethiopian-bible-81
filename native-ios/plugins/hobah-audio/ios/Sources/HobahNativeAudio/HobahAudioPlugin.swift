@@ -28,6 +28,7 @@ public class HobahAudioPlugin: CAPPlugin, CAPBridgedPlugin, AVAudioPlayerDelegat
     private var currentSubtitle = "The Ancient Canon"
     private var scriptureRate: Float = 1.0
     private var studyRate: Float = 1.0
+    private var playbackRevision: [String: Int] = ["scripture": 0, "study": 0]
     private var cache: [String: Data] = [:]
     private var cacheOrder: [String] = []
     private let cacheQueue = DispatchQueue(label: "com.hobah.audio.cache")
@@ -73,6 +74,7 @@ public class HobahAudioPlugin: CAPPlugin, CAPBridgedPlugin, AVAudioPlayerDelegat
         }
         center.pauseCommand.addTarget { [weak self] _ in
             guard let self, let player = self.scripturePlayer else { return .commandFailed }
+            self.invalidatePlayback("scripture")
             player.pause()
             self.updateNowPlaying(playing: false)
             self.notifyListeners("stateChange", data: ["playing": false, "id": self.scriptureID, "channel": "scripture"])
@@ -90,6 +92,13 @@ public class HobahAudioPlugin: CAPPlugin, CAPBridgedPlugin, AVAudioPlayerDelegat
 
     private func normalizedRate(_ value: Double) -> Float {
         return Float(min(2.0, max(0.5, value)))
+    }
+
+    @discardableResult
+    private func invalidatePlayback(_ channel: String) -> Int {
+        let revision = (playbackRevision[channel] ?? 0) + 1
+        playbackRevision[channel] = revision
+        return revision
     }
 
     private func normalizedVoice(_ value: String) -> String {
@@ -119,6 +128,7 @@ public class HobahAudioPlugin: CAPPlugin, CAPBridgedPlugin, AVAudioPlayerDelegat
             return
         }
         var request = URLRequest(url: apiURL)
+        request.timeoutInterval = 45
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         do {
@@ -181,10 +191,16 @@ public class HobahAudioPlugin: CAPPlugin, CAPBridgedPlugin, AVAudioPlayerDelegat
         let rate = normalizedRate(call.getDouble("rate") ?? 1.0)
         let channel = normalizedChannel(call.getString("channel"))
         let forcePlayback = channel == "study" || (call.getBool("forcePlayback") ?? false)
+        let revision = invalidatePlayback(channel)
+        if channel == "study" { studyRate = rate } else { scriptureRate = rate }
 
         fetchAudio(id: id, text: text, mode: mode, voice: voice) { [weak self] result in
             DispatchQueue.main.async {
                 guard let self else { return }
+                guard self.playbackRevision[channel] == revision else {
+                    call.reject("Narration cancelled", "NARRATION_CANCELLED")
+                    return
+                }
                 switch result {
                 case .failure(let error):
                     call.reject(error.localizedDescription)
@@ -195,17 +211,15 @@ public class HobahAudioPlugin: CAPPlugin, CAPBridgedPlugin, AVAudioPlayerDelegat
                         let player = try AVAudioPlayer(data: data)
                         player.delegate = self
                         player.enableRate = true
-                        player.rate = rate
+                        player.rate = channel == "study" ? self.studyRate : self.scriptureRate
                         player.prepareToPlay()
 
                         if channel == "study" {
                             self.studyPlayer = player
                             self.studyID = id
-                            self.studyRate = rate
                         } else {
                             self.scripturePlayer = player
                             self.scriptureID = id
-                            self.scriptureRate = rate
                             self.currentTitle = title
                             self.currentSubtitle = subtitle
                         }
@@ -227,6 +241,7 @@ public class HobahAudioPlugin: CAPPlugin, CAPBridgedPlugin, AVAudioPlayerDelegat
 
     @objc func pause(_ call: CAPPluginCall) {
         let channel = normalizedChannel(call.getString("channel"))
+        invalidatePlayback(channel)
         if channel == "study" {
             studyPlayer?.pause()
             notifyListeners("stateChange", data: ["playing": false, "id": studyID, "channel": "study"])
@@ -257,6 +272,7 @@ public class HobahAudioPlugin: CAPPlugin, CAPBridgedPlugin, AVAudioPlayerDelegat
 
     @objc func stop(_ call: CAPPluginCall) {
         let channel = normalizedChannel(call.getString("channel"))
+        invalidatePlayback(channel)
         if channel == "study" {
             studyPlayer?.stop()
             studyPlayer = nil
