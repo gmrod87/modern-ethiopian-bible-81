@@ -115,7 +115,7 @@ export function requestNaturalVoiceConsent(channel) {
       <h2 id="hobahNaturalVoiceTitle">Allow natural voices?</h2>
       <p>Hear Scripture and the Ancient Library in a natural male or female AI-generated voice.</p>
       <p>Hobah sends the passage you choose to hear, including any reading context, through its server to <strong>OpenAI</strong> to generate the audio. This needs an internet connection.</p>
-      <p>You can choose Device voice in Listen settings to hear on-device speech instead. Reading, search and saved notes work without allowing this.</p>
+      <p>You can choose Device voice in Settings to hear on-device speech instead. Reading, search and saved notes work without allowing this.</p>
       <p><a href="/privacy.html" target="_blank" rel="noopener">Read the Privacy Policy</a></p>
       <div class="hobahAiConsentActions"><button type="button" class="later" data-voice-later>Not now</button><button type="button" class="allow" data-voice-allow>Allow natural voices</button></div>
     </section>`;
@@ -136,24 +136,24 @@ export function requestNaturalVoiceConsent(channel) {
 }
 
 export function installNarrationSettings(narration) {
-  const settings = document.querySelector('.audioModes');
-  if (!settings || document.getElementById('narrationEngine')) return;
-  const row = document.createElement('div');
-  row.id = 'narrationEngine';
-  row.className = 'nativeNarrationEngine';
-  row.setAttribute('role', 'group');
-  row.setAttribute('aria-label', 'Narration source');
-  row.innerHTML = '<span>READ ALOUD</span><button type="button" data-narration-engine="natural">Natural voices</button><button type="button" data-narration-engine="device">Device voice</button><small></small>';
-  settings.after(row);
-  const sync = () => {
-    row.querySelectorAll('button').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.narrationEngine === narration.engine())));
-    row.querySelector('small').textContent = narration.onDevice ? 'On-device speech • works offline' : 'Natural male and female AI voices • internet required';
+  // Keep source selection in Settings, outside the compact reading player.
+  document.getElementById('narrationEngine')?.remove();
+  const install = () => {
+    const group = document.querySelector('#settingsDialog .settingsGroup');
+    if (!group || document.getElementById('settingsNarrationSource')) return;
+    const row = document.createElement('label');
+    row.className = 'settingsRow';
+    row.innerHTML = '<span class="settingsText"><b>Read Aloud source</b></span><select id="settingsNarrationSource" aria-label="Read Aloud source"><option value="natural">Natural voices</option><option value="device">Device voice (offline)</option></select>';
+    const select = row.querySelector('select');
+    select.value = narration.engine();
+    select.onchange = async () => {
+      select.disabled = true;
+      try { await narration.setEngine(select.value); }
+      finally { select.value = narration.engine(); select.disabled = false; }
+    };
+    group.appendChild(row);
+    document.addEventListener('hobah:narration-engine-changed', () => { select.value = narration.engine(); });
   };
-  row.querySelectorAll('button').forEach(button => button.onclick = async () => {
-    if (button.dataset.narrationEngine === narration.engine()) return;
-    await narration.setEngine(button.dataset.narrationEngine);
-    sync();
-  });
-  document.addEventListener('hobah:narration-engine-changed', sync);
-  sync();
+  install();
+  new MutationObserver(install).observe(document.body, { childList: true, subtree: true });
 }

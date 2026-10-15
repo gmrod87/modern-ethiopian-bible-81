@@ -14,3 +14,5 @@ Change: Restore natural Read Aloud after 12 October 2026 OpenAI API funding rest
 Release workflow: Upload a signed update to TestFlight for hands-on testing. Do not automatically submit App Store public release until it has been tested.
 
 12 October 2026 re-upload: Apple rejected build 1.0.0 (90062: already approved version). Use 1.0.1 for new voice update. Native API service verified working.
+
+15 October 2026: Remove bulky narration-source section from Read Aloud player. Keep male/female controls and natural default; offline source selection is available in Settings.
