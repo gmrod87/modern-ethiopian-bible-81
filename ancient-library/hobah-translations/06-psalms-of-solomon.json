@@ -1,15 +1,15 @@
 {
   "id": "psalms-of-solomon",
-  "title": "Psalms of Solomon — Hobah Translation",
+  "title": "Psalms of Solomon — Hobah Edition",
   "group": "ancient-writings",
   "about": "A collection of eighteen Jewish psalms from the late Second Temple period, commonly connected with the upheavals surrounding Pompey's capture of Jerusalem. The collection is especially important for its language about righteousness, divine judgment, Jerusalem, and the expected Davidic Messiah.",
   "translation": {
-    "status": "Hobah complete modern-English rendering from public-domain historical translation",
+    "status": "Hobah complete modern-English edition from a public-domain historical English witness",
     "base_text": "The public-domain English Psalms of Solomon witness associated with the early twentieth-century Charles corpus, consumed from a pinned structured-text mirror in the scrollmapper/bible_databases_deuterocanonical repository",
-    "method": "Complete conservative Hobah modernization of the public-domain historical English witness. Psalm order and content are retained while archaic English is normalized. This is original Hobah modern-English wording based on a public-domain witness rather than a falsely labelled freshly collated Greek critical edition.",
+    "method": "Complete conservative Hobah modernization of the public-domain historical English witness. Psalm order and content are retained while archaic English is normalized. This is a Hobah edition of a public-domain witness rather than a freshly collated Greek critical translation.",
     "confidence": "High for preservation of the historical witness's content; medium-high for the underlying Greek sense, subject to normal textual variants",
-    "notes": "All eighteen psalms are retained. Messianic language in Psalms 17–18 is not harmonized to later Christian terminology.",
-    "license_note": "The underlying early twentieth-century English witness is public domain. The pinned GitHub file is used as a build-stable structured mirror; Hobah modernization is newly prepared for this project."
+    "notes": "All eighteen psalms are retained. Messianic language in Psalms 17–18 is not harmonized to later Christian terminology. The Scrollmapper repository is used only as a pinned transport/structure mirror; the rights basis asserted here is the underlying public-domain historical English text, not a blanket rights claim over the mirror repository.",
+    "license_note": "The underlying early twentieth-century English witness is public domain. Hobah modernization is newly prepared for this project. The mirror is not treated as the legal source of the underlying translation rights."
   },
   "derive_from_remote_json": {
     "url": "https://raw.githubusercontent.com/scrollmapper/bible_databases_deuterocanonical/271173ef8be658239edcb4fc753cd39d2b2731d3/sources/en/psalms-of-solomon/psalms-of-solomon.json",
