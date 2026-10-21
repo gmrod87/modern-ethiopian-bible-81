@@ -10,11 +10,12 @@ fs.copyFileSync(p('index.html'),p('reader.html'));
 fs.copyFileSync('landing-page.html',p('index.html'));
 fs.copyFileSync('landing-page.css',p('landing-page.css'));
 
-// Verify important App Store landing and support routes survive the production bundle.
+// Verify live App Store links and support routes survive the production bundle.
 const html=fs.readFileSync(p('index.html'),'utf8');
-for(const token of ['Hobah — 81 Books + Ancient Writings','Coming soon','/support.html','/privacy.html','/reader.html']){
+for(const token of ['Hobah — 81 Books + Ancient Writings','Available now on the App Store','https://apps.apple.com/app/hobah/id6803484958','app-id=6803484958','/support.html','/privacy.html','/reader.html']){
   if(!html.includes(token)) throw new Error('Release120 landing verification failed: '+token);
 }
+if(/coming soon|submitted to apple|waiting for apple review|once approved|aria-disabled|isDisabled/i.test(html)) throw new Error('Release120 landing contains outdated pre-release content');
 if(!fs.existsSync(p('support.html'))) throw new Error('Release120 support page missing from Vercel output');
 if(!fs.existsSync(p('privacy.html'))) throw new Error('Release120 privacy page missing from Vercel output');
 console.log('Hobah Release 120: Vercel root is the App Store landing page; full web reader preserved at /reader.html');
